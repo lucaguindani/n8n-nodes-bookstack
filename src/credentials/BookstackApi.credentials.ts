@@ -3,12 +3,14 @@ import {
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
+	Icon,
 } from 'n8n-workflow';
 
 export class BookstackApi implements ICredentialType {
 	name = 'bookstackApi';
 	displayName = 'BookStack API';
 	documentationUrl = 'https://demo.bookstackapp.com/api/docs';
+	icon: Icon = 'file:bookstack.svg';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Base URL',
@@ -54,7 +56,7 @@ export class BookstackApi implements ICredentialType {
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.baseUrl}}',
-			url: '/docs',
+			url: '/docs.json',
 			method: 'GET',
 		},
 	};
