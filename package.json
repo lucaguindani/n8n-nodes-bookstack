@@ -1,0 +1,49 @@
+{
+  "name": "n8n-nodes-bookstack",
+  "version": "1.0.0",
+  "description": "Custom n8n node for BookStack API",
+  "main": "dist/nodes/Bookstack/Bookstack.node.js",
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/BookstackApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Bookstack/Bookstack.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
+    "dev": "tsc --watch",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "n8n",
+    "bookstack",
+    "connector",
+    "api",
+    "documentation",
+    "wiki"
+  ],
+  "author": "n8n Community",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "n8n-workflow": "^1.0.0",
+    "n8n-core": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/n8n-nodes-bookstack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-repo/n8n-nodes-bookstack/issues"
+  }
+}

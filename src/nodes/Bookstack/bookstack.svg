@@ -1,0 +1,13 @@
+<!-- BookStack Icon Placeholder -->
+<!-- This is a simple SVG icon for BookStack -->
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="10" width="50" height="40" rx="2" ry="2" fill="#0288d1" stroke="#01579b" stroke-width="1"/>
+  <rect x="8" y="13" width="44" height="3" fill="#ffffff"/>
+  <rect x="8" y="18" width="44" height="2" fill="#ffffff"/>
+  <rect x="8" y="22" width="35" height="2" fill="#ffffff"/>
+  <rect x="8" y="26" width="40" height="2" fill="#ffffff"/>
+  <rect x="8" y="30" width="38" height="2" fill="#ffffff"/>
+  <rect x="8" y="34" width="42" height="2" fill="#ffffff"/>
+  <rect x="8" y="38" width="30" height="2" fill="#ffffff"/>
+  <rect x="8" y="42" width="36" height="2" fill="#ffffff"/>
+</svg>
