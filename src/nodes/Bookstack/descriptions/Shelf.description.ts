@@ -1,4 +1,3 @@
-
 export const shelfOperations = [
   {
     displayName: 'Operation',

@@ -21,7 +21,6 @@ import {
 } from '../../utils/BookstackApiHelpers';
 import { IBookstackListResponse, IBookstackSearchResult } from '../../types/BookstackTypes';
 
-
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Bookstack',

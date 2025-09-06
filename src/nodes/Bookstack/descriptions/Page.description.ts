@@ -1,4 +1,3 @@
-
 export const pageOperations = [
   {
     displayName: 'Operation',

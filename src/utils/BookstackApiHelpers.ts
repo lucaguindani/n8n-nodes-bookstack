@@ -6,7 +6,6 @@ import {
 	NodeApiError,
 	NodeOperationError,
 } from 'n8n-workflow';
-
 import { IBookstackListResponse, IBookstackApiRequestOptions } from '../types/BookstackTypes';
 
 /**

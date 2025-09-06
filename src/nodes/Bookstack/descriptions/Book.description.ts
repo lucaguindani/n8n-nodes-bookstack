@@ -1,4 +1,3 @@
-
 export const bookOperations = [
   {
     displayName: 'Operation',
