@@ -86,11 +86,11 @@ export class Bookstack implements INodeType {
 
 						if (!returnAll) {
 							qs.count = Math.min(limit, 500); // BookStack API limit
-							qs.offset = (page - 1) * limit;
+							qs.page = page;
 						}
 
 						try {
-							const endpoint = 'api/search';
+							const endpoint = '/search';
 
 							if (returnAll) {
 								responseData = await bookstackApiRequestAllItems.call(this, 'GET', endpoint, {}, qs);
@@ -102,7 +102,7 @@ export class Bookstack implements INodeType {
 						} catch (error) {
 							// Enhanced error logging for debugging
 							console.error('BookStack Search Error:', {
-								endpoint: 'api/search',
+								endpoint: '/search',
 								query: query,
 								qs: qs,
 								error: error
@@ -117,9 +117,7 @@ export class Bookstack implements INodeType {
 				// CRUD for book, page, shelf, chapter
 				if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
 					let endpoint = '';
-					let method = 'GET';
 					let body: any = {};
-					let qs: any = {};
 
 					// Map resource names to correct API endpoints
 					const resourceEndpoints: { [key: string]: string } = {

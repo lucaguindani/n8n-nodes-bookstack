@@ -10,9 +10,6 @@ import {
 import { IBookstackListResponse, IBookstackApiRequestOptions } from '../types/BookstackTypes';
 
 /**
- * Make an API request to BookStack
- */
-/**
  * Handle and format BookStack API errors
  */
 function handleBookstackError(node: any, error: unknown): NodeApiError {
@@ -102,13 +99,22 @@ export async function bookstackApiRequestAllItems(
 	maxCount = 500,
 ): Promise<any[]> {
 	let returnData: any[] = [];
-	let offset = 0;
+	let page = 1;
 	const count = Math.min(maxCount, 500); // BookStack max is 500 per request
 
+	// Use page-based pagination for search API, offset-based for other endpoints
+	const usePagePagination = endpoint.includes('search');
+
+	// Set count parameter once
 	qs.count = count;
 
 	do {
-		qs.offset = offset;
+		if (usePagePagination) {
+			qs.page = page;
+		} else {
+			qs.offset = (page - 1) * count;
+		}
+
 		const responseData: IBookstackListResponse<any> = await bookstackApiRequest.call(
 			this,
 			method,
@@ -117,17 +123,25 @@ export async function bookstackApiRequestAllItems(
 			qs,
 		);
 
-		if (responseData.data) {
+		if (responseData.data && Array.isArray(responseData.data)) {
 			returnData.push(...responseData.data);
-			offset += responseData.data.length;
+			page++;
 
 			// Stop if we've reached the total or if this response has fewer items than requested
-			if (returnData.length >= responseData.total || responseData.data.length < count) {
+			if (responseData.total && returnData.length >= responseData.total) {
 				break;
 			}
+
+			// Stop if this response has fewer items than requested (last page)
+			if (responseData.data.length < count) {
+				break;
+			}
+		} else if (responseData.data) {
+			// Single item response wrapped in data property
+			return [responseData.data];
 		} else {
-			// If no data property, assume it's a single item or error
-			return [responseData];
+			// No data property, assume it's a single item or empty result
+			return responseData ? [responseData] : [];
 		}
 	} while (returnData.length < maxCount);
 

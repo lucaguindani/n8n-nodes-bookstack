@@ -11,7 +11,7 @@ export const globalOperations: INodeProperties[] = [
 				resource: ['global'],
 			},
 		},
-		options: [{ name: 'Global Search', value: 'search' }],
+		options: [{ name: 'Search', value: 'search' }],
 		default: 'search',
 		description: 'The operation to perform on global resources',
 	},
