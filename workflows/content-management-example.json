@@ -4,11 +4,10 @@
     {
       "parameters": {
         "resource": "book",
-        "operation": "getAll",
-        "returnAll": true
+        "operation": "getAll"
       },
       "name": "Get All Books",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [300, 200]
     },
@@ -16,24 +15,19 @@
       "parameters": {
         "conditions": {
           "options": {
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
+            "caseSensitive": true
           },
           "conditions": [
             {
-              "id": "1",
               "leftValue": "={{ $json.updated_at }}",
-              "rightValue": "{{ DateTime.now().minus({days: 30}).toISO() }}",
+              "rightValue": "={{ DateTime.now().minus({days: 30}).toISO() }}",
               "operator": {
                 "type": "dateTime",
                 "operation": "before"
               }
             }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+          ]
+        }
       },
       "name": "Filter Old Books",
       "type": "n8n-nodes-base.filter",
@@ -47,7 +41,7 @@
         "id": "={{ $json.id }}"
       },
       "name": "Get Book Details",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [700, 200]
     },
@@ -57,11 +51,11 @@
         "operation": "update",
         "id": "={{ $json.id }}",
         "name": "={{ $json.name }}",
-        "description": "={{ $json.description }} (Last reviewed: {{ DateTime.now().toFormat('yyyy-MM-dd') }})",
+        "description": "={{ $json.description }} (Last reviewed: {{ $today() }})",
         "tags": "={{ $json.tags }},reviewed"
       },
       "name": "Update Book Review Date",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [900, 200]
     },
@@ -73,7 +67,7 @@
         "returnAll": true
       },
       "name": "Find Outdated Content",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [300, 400]
     },
@@ -81,13 +75,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
+            "caseSensitive": true
           },
           "conditions": [
             {
-              "id": "1",
               "leftValue": "={{ $json.type }}",
               "rightValue": "page",
               "operator": {
@@ -95,10 +86,8 @@
                 "operation": "equals"
               }
             }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+          ]
+        }
       },
       "name": "Filter Outdated Pages",
       "type": "n8n-nodes-base.filter",
@@ -112,7 +101,7 @@
         "id": "={{ $json.id }}"
       },
       "name": "Get Page Details",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [700, 400]
     },
@@ -123,10 +112,10 @@
         "id": "={{ $json.id }}",
         "name": "={{ $json.name }}",
         "html": "={{ $json.html.replace('tag:outdated', 'tag:updated') }}",
-        "tags": "{{ $json.tags.replace('outdated', 'updated') }}"
+        "tags": "={{ $json.tags.replace('outdated', 'updated') }}"
       },
       "name": "Update Page Tags",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [900, 400]
     }

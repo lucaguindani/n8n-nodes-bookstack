@@ -9,7 +9,7 @@
         "returnAll": true
       },
       "name": "Bookstack",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [400, 200]
     }

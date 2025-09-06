@@ -9,7 +9,7 @@
         "returnAll": true
       },
       "name": "Find Content to Migrate",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [300, 200]
     },
@@ -17,13 +17,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
+            "caseSensitive": true
           },
           "conditions": [
             {
-              "id": "1",
               "leftValue": "={{ $json.type }}",
               "rightValue": "page",
               "operator": {
@@ -31,10 +28,8 @@
                 "operation": "equals"
               }
             }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+          ]
+        }
       },
       "name": "Filter Pages Only",
       "type": "n8n-nodes-base.filter",
@@ -48,7 +43,7 @@
         "id": "={{ $json.id }}"
       },
       "name": "Get Original Page",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [700, 200]
     },
@@ -65,13 +60,13 @@
       "parameters": {
         "resource": "page",
         "operation": "create",
-        "bookId": "={{ $json.target_book_id || '1' }}",
+        "book_id": "1",
         "name": "={{ $json.name }}",
         "html": "={{ $json.html }}",
         "tags": "={{ $json.tags }}"
       },
       "name": "Create Migrated Page",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [1100, 200]
     },
@@ -81,11 +76,11 @@
         "operation": "update",
         "id": "={{ $json.original_id }}",
         "name": "={{ $json.name.replace('[MIGRATED] ', '') }}",
-        "html": "{{ $json.html }}",
-        "tags": "{{ $json.tags }},migration-complete"
+        "html": "={{ $json.html }}",
+        "tags": "={{ $json.tags }},migration-complete"
       },
       "name": "Update Original Page",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [1300, 200]
     },
@@ -97,7 +92,7 @@
         "returnAll": true
       },
       "name": "Find Sync Sources",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [300, 400]
     },
@@ -111,7 +106,7 @@
       },
       "name": "Fetch External Content",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "typeVersion": 4,
       "position": [500, 400]
     },
     {
@@ -127,13 +122,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
+            "caseSensitive": true
           },
           "conditions": [
             {
-              "id": "1",
               "leftValue": "={{ $json.sync_status }}",
               "rightValue": "updated",
               "operator": {
@@ -141,10 +133,8 @@
                 "operation": "equals"
               }
             }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+          ]
+        }
       },
       "name": "Filter Changed Content",
       "type": "n8n-nodes-base.filter",
@@ -161,7 +151,7 @@
         "tags": "={{ $json.tags }}"
       },
       "name": "Update Synced Page",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [1100, 400]
     }

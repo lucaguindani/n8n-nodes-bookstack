@@ -4,61 +4,48 @@
     {
       "parameters": {
         "resource": "shelf",
-        "operation": "getAll",
-        "returnAll": true
+        "operation": "getAll"
       },
       "name": "Get All Shelves",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [300, 200]
     },
     {
       "parameters": {
         "resource": "book",
-        "operation": "getAll",
-        "returnAll": true,
-        "additionalFields": {
-          "shelfId": "={{ $json.id }}"
-        }
+        "operation": "getAll"
       },
-      "name": "Get Books in Shelf",
-      "type": "n8n-nodes-bookstack",
+      "name": "Get All Books",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [500, 200]
     },
     {
       "parameters": {
         "resource": "chapter",
-        "operation": "getAll",
-        "returnAll": true,
-        "additionalFields": {
-          "bookId": "={{ $json.id }}"
-        }
+        "operation": "getAll"
       },
-      "name": "Get Chapters in Book",
-      "type": "n8n-nodes-bookstack",
+      "name": "Get All Chapters",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [700, 200]
     },
     {
       "parameters": {
         "resource": "page",
-        "operation": "getAll",
-        "returnAll": true,
-        "additionalFields": {
-          "chapterId": "={{ $json.id }}"
-        }
+        "operation": "getAll"
       },
-      "name": "Get Pages in Chapter",
-      "type": "n8n-nodes-bookstack",
+      "name": "Get All Pages",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [900, 200]
     },
     {
       "parameters": {
         "operation": "create",
-        "fileName": "bookstack-backup-{{ DateTime.now().toFormat('yyyy-MM-dd-HH-mm') }}.json",
-        "fileContent": "={{ JSON.stringify({\n  timestamp: DateTime.now().toISO(),\n  shelves: $('Get All Shelves').all(),\n  books: $('Get Books in Shelf').all(),\n  chapters: $('Get Chapters in Book').all(),\n  pages: $('Get Pages in Chapter').all()\n}, null, 2) }}",
+        "fileName": "bookstack-backup-{{ $today() }}.json",
+        "fileContent": "={{ JSON.stringify({\n  timestamp: $now(),\n  shelves: $('Get All Shelves').all(),\n  books: $('Get All Books').all(),\n  chapters: $('Get All Chapters').all(),\n  pages: $('Get All Pages').all()\n}, null, 2) }}",
         "options": {}
       },
       "name": "Create Backup File",
@@ -70,22 +57,18 @@
       "parameters": {
         "conditions": {
           "options": {
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
+            "caseSensitive": false
           },
           "conditions": [
             {
-              "id": "1",
               "leftValue": "={{ $json.updated_at }}",
-              "rightValue": "{{ DateTime.now().minus({years: 1}).toISO() }}",
+              "rightValue": "={{ DateTime.now().minus({years: 1}).toISO() }}",
               "operator": {
                 "type": "dateTime",
                 "operation": "before"
               }
             },
             {
-              "id": "2",
               "leftValue": "={{ $json.tags }}",
               "rightValue": "archive",
               "operator": {
@@ -93,10 +76,8 @@
                 "operation": "notContains"
               }
             }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+          ]
+        }
       },
       "name": "Filter Books for Archive",
       "type": "n8n-nodes-base.filter",
@@ -109,11 +90,11 @@
         "operation": "update",
         "id": "={{ $json.id }}",
         "name": "[ARCHIVED] {{ $json.name }}",
-        "description": "={{ $json.description }}\n\n--- ARCHIVED on {{ DateTime.now().toFormat('yyyy-MM-dd') }} ---",
+        "description": "={{ $json.description }}\n\n--- ARCHIVED on {{ $today() }} ---",
         "tags": "={{ $json.tags }},archived,old-content"
       },
       "name": "Archive Old Books",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [700, 400]
     },
@@ -126,7 +107,7 @@
         "tags": "archive,old,reference"
       },
       "name": "Create Archive Shelf",
-      "type": "n8n-nodes-bookstack",
+      "type": "bookstack",
       "typeVersion": 1,
       "position": [900, 400]
     }
@@ -136,18 +117,18 @@
       "main": [
         [
           {
-            "node": "Get Books in Shelf",
+            "node": "Get All Books",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Books in Shelf": {
+    "Get All Books": {
       "main": [
         [
           {
-            "node": "Get Chapters in Book",
+            "node": "Get All Chapters",
             "type": "main",
             "index": 0
           },
@@ -159,18 +140,18 @@
         ]
       ]
     },
-    "Get Chapters in Book": {
+    "Get All Chapters": {
       "main": [
         [
           {
-            "node": "Get Pages in Chapter",
+            "node": "Get All Pages",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Pages in Chapter": {
+    "Get All Pages": {
       "main": [
         [
           {
