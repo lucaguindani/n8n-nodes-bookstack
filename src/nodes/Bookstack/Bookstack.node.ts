@@ -15,7 +15,6 @@ import { resourceProperty } from './descriptions/shared';
 import { 
 	bookstackApiRequest, 
 	bookstackApiRequestAllItems,
-	buildQueryString,
 	validateRequiredParameters,
 	formatBookstackError 
 } from '../../utils/BookstackApiHelpers';
