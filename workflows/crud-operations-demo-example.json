@@ -1,0 +1,292 @@
+{
+  "name": "Bookstack CRUD Operations Demo",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "shelf",
+        "operation": "create",
+        "name": "Demo Shelf",
+        "description": "A demonstration shelf created by n8n workflow",
+        "tags": "demo,test,n8n"
+      },
+      "name": "Create Demo Shelf",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "resource": "shelf",
+        "operation": "get",
+        "id": "={{ $json.id }}"
+      },
+      "name": "Get Shelf Details",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "create",
+        "name": "Demo Book",
+        "description": "A test book for CRUD operations demonstration",
+        "tags": "demo,crud,test"
+      },
+      "name": "Create Demo Book",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "resource": "chapter",
+        "operation": "create",
+        "bookId": "={{ $node['Create Demo Book'].json.id }}",
+        "name": "Chapter 1: Introduction",
+        "description": "Introduction chapter for demonstration purposes",
+        "tags": "intro,chapter1,demo"
+      },
+      "name": "Create Chapter",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [900, 150]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "chapterId": "={{ $node['Create Chapter'].json.id }}",
+        "name": "Welcome Page",
+        "html": "<h1>Welcome to Our Demo</h1><p>This page was created automatically using n8n workflow.</p><h2>Features Demonstrated:</h2><ul><li>Creating shelves, books, chapters, and pages</li><li>Reading content</li><li>Updating content</li><li>Searching content</li></ul>",
+        "tags": "welcome,demo,intro"
+      },
+      "name": "Create Welcome Page",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1100, 100]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "bookId": "={{ $node['Create Demo Book'].json.id }}",
+        "name": "Standalone Page",
+        "html": "<h1>Standalone Page</h1><p>This page belongs directly to the book without being in a chapter.</p><pre><code>// Example code snippet\nfunction helloWorld() {\n  console.log('Hello from BookStack!');\n}</code></pre>",
+        "tags": "standalone,code,example"
+      },
+      "name": "Create Standalone Page",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "get",
+        "id": "={{ $json.id }}"
+      },
+      "name": "Read Welcome Page",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1300, 100]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "update",
+        "id": "={{ $json.id }}",
+        "name": "Updated Welcome Page",
+        "html": "{{ $json.html.replace('<h1>Welcome to Our Demo</h1>', '<h1>Welcome to Our Updated Demo</h1>') }}<p><strong>Last updated:</strong> {{ DateTime.now().toFormat('yyyy-MM-dd HH:mm') }}</p>",
+        "tags": "{{ $json.tags }},updated"
+      },
+      "name": "Update Welcome Page",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1500, 100]
+    },
+    {
+      "parameters": {
+        "resource": "global",
+        "operation": "search",
+        "query": "demo",
+        "returnAll": true
+      },
+      "name": "Search Demo Content",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 10
+      },
+      "name": "List Recent Books",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.tags }}",
+              "rightValue": "demo",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Filter Demo Books",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1700, 300]
+    },
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "update",
+        "id": "={{ $json.id }}",
+        "name": "{{ $json.name }} (Processed)",
+        "description": "{{ $json.description }}\n\nProcessed by n8n workflow on {{ DateTime.now().toFormat('yyyy-MM-dd') }}",
+        "tags": "{{ $json.tags }},processed"
+      },
+      "name": "Mark as Processed",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1900, 300]
+    }
+  ],
+  "connections": {
+    "Create Demo Shelf": {
+      "main": [
+        [
+          {
+            "node": "Get Shelf Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Shelf Details": {
+      "main": [
+        [
+          {
+            "node": "Create Demo Book",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Demo Book": {
+      "main": [
+        [
+          {
+            "node": "Create Chapter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Standalone Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Chapter": {
+      "main": [
+        [
+          {
+            "node": "Create Welcome Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Welcome Page": {
+      "main": [
+        [
+          {
+            "node": "Read Welcome Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Standalone Page": {
+      "main": [
+        [
+          {
+            "node": "Search Demo Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Welcome Page": {
+      "main": [
+        [
+          {
+            "node": "Update Welcome Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Demo Content": {
+      "main": [
+        [
+          {
+            "node": "List Recent Books",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Recent Books": {
+      "main": [
+        [
+          {
+            "node": "Filter Demo Books",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Demo Books": {
+      "main": [
+        [
+          {
+            "node": "Mark as Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

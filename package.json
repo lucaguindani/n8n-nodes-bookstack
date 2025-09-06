@@ -26,8 +26,8 @@
     "documentation",
     "wiki"
   ],
-  "author": "n8n Community",
-  "license": "UNLICENSED",
+  "author": "Luca Guindani",
+  "license": "MIT",
   "dependencies": {
     "n8n-workflow": "^1.0.0",
     "n8n-core": "^1.0.0"

@@ -1,0 +1,207 @@
+{
+  "name": "Bookstack Backup and Archive Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "shelf",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "name": "Get All Shelves",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "shelfId": "={{ $json.id }}"
+        }
+      },
+      "name": "Get Books in Shelf",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "resource": "chapter",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "bookId": "={{ $json.id }}"
+        }
+      },
+      "name": "Get Chapters in Book",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "chapterId": "={{ $json.id }}"
+        }
+      },
+      "name": "Get Pages in Chapter",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "fileName": "bookstack-backup-{{ DateTime.now().toFormat('yyyy-MM-dd-HH-mm') }}.json",
+        "fileContent": "={{ JSON.stringify({\n  timestamp: DateTime.now().toISO(),\n  shelves: $('Get All Shelves').all(),\n  books: $('Get Books in Shelf').all(),\n  chapters: $('Get Chapters in Book').all(),\n  pages: $('Get Pages in Chapter').all()\n}, null, 2) }}",
+        "options": {}
+      },
+      "name": "Create Backup File",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.updated_at }}",
+              "rightValue": "{{ DateTime.now().minus({years: 1}).toISO() }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            },
+            {
+              "id": "2",
+              "leftValue": "={{ $json.tags }}",
+              "rightValue": "archive",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Filter Books for Archive",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "update",
+        "id": "={{ $json.id }}",
+        "name": "[ARCHIVED] {{ $json.name }}",
+        "description": "={{ $json.description }}\n\n--- ARCHIVED on {{ DateTime.now().toFormat('yyyy-MM-dd') }} ---",
+        "tags": "={{ $json.tags }},archived,old-content"
+      },
+      "name": "Archive Old Books",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "resource": "shelf",
+        "operation": "create",
+        "name": "Archived Content",
+        "description": "This shelf contains archived books and documentation that are no longer actively maintained but kept for reference.",
+        "tags": "archive,old,reference"
+      },
+      "name": "Create Archive Shelf",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [900, 400]
+    }
+  ],
+  "connections": {
+    "Get All Shelves": {
+      "main": [
+        [
+          {
+            "node": "Get Books in Shelf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Books in Shelf": {
+      "main": [
+        [
+          {
+            "node": "Get Chapters in Book",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Books for Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Chapters in Book": {
+      "main": [
+        [
+          {
+            "node": "Get Pages in Chapter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pages in Chapter": {
+      "main": [
+        [
+          {
+            "node": "Create Backup File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Books for Archive": {
+      "main": [
+        [
+          {
+            "node": "Archive Old Books",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Old Books": {
+      "main": [
+        [
+          {
+            "node": "Create Archive Shelf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

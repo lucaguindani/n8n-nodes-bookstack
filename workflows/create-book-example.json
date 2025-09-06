@@ -1,0 +1,19 @@
+{
+  "name": "Bookstack Create Book Example",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "create",
+        "name": "My New Awesome Book",
+        "description": "This is a book created from an n8n workflow.",
+        "tags": "n8n,automation,example"
+      },
+      "name": "Bookstack",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [400, 200]
+    }
+  ],
+  "connections": {}
+}

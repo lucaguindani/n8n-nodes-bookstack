@@ -1,0 +1,236 @@
+{
+  "name": "Bookstack Content Analysis and Reporting",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "book",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "name": "Get All Books",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 200]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "name": "Get All Pages",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 400]
+    },
+    {
+      "parameters": {
+        "resource": "chapter",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "name": "Get All Chapters",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze content statistics\nconst books = $('Get All Books').all();\nconst chapters = $('Get All Chapters').all();\nconst pages = $('Get All Pages').all();\n\n// Count statistics\nconst stats = {\n  total_books: books.length,\n  total_chapters: chapters.length,\n  total_pages: pages.length,\n  books_with_most_pages: [],\n  most_common_tags: {},\n  content_by_month: {},\n  average_page_length: 0\n};\n\n// Find books with most pages\nconst bookPageCounts = {};\npages.forEach(page => {\n  const bookId = page.json.book_id;\n  bookPageCounts[bookId] = (bookPageCounts[bookId] || 0) + 1;\n});\n\nstats.books_with_most_pages = Object.entries(bookPageCounts)\n  .sort(([,a], [,b]) => b - a)\n  .slice(0, 5)\n  .map(([bookId, count]) => {\n    const book = books.find(b => b.json.id == bookId);\n    return {\n      book_name: book?.json.name || 'Unknown',\n      book_id: bookId,\n      page_count: count\n    };\n  });\n\n// Analyze tags\npages.forEach(page => {\n  if (page.json.tags) {\n    const tags = page.json.tags.split(',').map(tag => tag.trim());\n    tags.forEach(tag => {\n      if (tag) {\n        stats.most_common_tags[tag] = (stats.most_common_tags[tag] || 0) + 1;\n      }\n    });\n  }\n});\n\n// Sort tags by frequency\nstats.most_common_tags = Object.entries(stats.most_common_tags)\n  .sort(([,a], [,b]) => b - a)\n  .slice(0, 10)\n  .reduce((obj, [tag, count]) => {\n    obj[tag] = count;\n    return obj;\n  }, {});\n\n// Analyze content creation by month\npages.forEach(page => {\n  const date = new Date(page.json.created_at);\n  const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;\n  stats.content_by_month[monthKey] = (stats.content_by_month[monthKey] || 0) + 1;\n});\n\n// Calculate average page length\nconst totalLength = pages.reduce((sum, page) => {\n  return sum + (page.json.html ? page.json.html.length : 0);\n}, 0);\nstats.average_page_length = Math.round(totalLength / pages.length);\n\n// Add timestamp\nstats.analysis_date = new Date().toISOString();\n\nreturn [{ json: stats }];"
+      },
+      "name": "Analyze Content Statistics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "resource": "global",
+        "operation": "search",
+        "query": "TODO OR FIXME OR INCOMPLETE",
+        "returnAll": true
+      },
+      "name": "Find Incomplete Content",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [300, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate comprehensive report\nconst stats = $('Analyze Content Statistics').first().json;\nconst incompleteContent = $('Find Incomplete Content').all();\n\n// Create HTML report\nconst reportHtml = `\n<h1>BookStack Content Analysis Report</h1>\n<p><strong>Generated:</strong> ${new Date(stats.analysis_date).toLocaleString()}</p>\n\n<h2>📊 Overall Statistics</h2>\n<ul>\n  <li><strong>Total Books:</strong> ${stats.total_books}</li>\n  <li><strong>Total Chapters:</strong> ${stats.total_chapters}</li>\n  <li><strong>Total Pages:</strong> ${stats.total_pages}</li>\n  <li><strong>Average Page Length:</strong> ${stats.average_page_length} characters</li>\n</ul>\n\n<h2>📚 Most Active Books</h2>\n<table border=\"1\">\n  <tr><th>Book Name</th><th>Page Count</th></tr>\n  ${stats.books_with_most_pages.map(book => \n    `<tr><td>${book.book_name}</td><td>${book.page_count}</td></tr>`\n  ).join('')}\n</table>\n\n<h2>🏷️ Most Common Tags</h2>\n<ul>\n  ${Object.entries(stats.most_common_tags).map(([tag, count]) => \n    `<li><strong>${tag}:</strong> ${count} pages</li>`\n  ).join('')}\n</ul>\n\n<h2>📅 Content Creation by Month</h2>\n<ul>\n  ${Object.entries(stats.content_by_month)\n    .sort(([a], [b]) => b.localeCompare(a))\n    .slice(0, 6)\n    .map(([month, count]) => \n      `<li><strong>${month}:</strong> ${count} pages</li>`\n    ).join('')}\n</ul>\n\n<h2>⚠️ Incomplete Content</h2>\n<p>Found ${incompleteContent.length} items marked as incomplete:</p>\n<ul>\n  ${incompleteContent.map(item => \n    `<li><strong>${item.json.name}</strong> (${item.json.type}) - ID: ${item.json.id}</li>`\n  ).join('')}\n</ul>\n\n<hr>\n<p><em>Report generated automatically by n8n workflow</em></p>\n`;\n\nconst report = {\n  title: `BookStack Analysis Report - ${new Date().toISOString().split('T')[0]}`,\n  html: reportHtml,\n  stats: stats,\n  incomplete_count: incompleteContent.length,\n  generated_at: new Date().toISOString()\n};\n\nreturn [{ json: report }];"
+      },
+      "name": "Generate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "resource": "page",
+        "operation": "create",
+        "bookId": "1",
+        "name": "={{ $json.title }}",
+        "html": "={{ $json.html }}",
+        "tags": "report,analysis,automation,statistics"
+      },
+      "name": "Create Report Page",
+      "type": "n8n-nodes-bookstack",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "fileName": "bookstack-analysis-{{ DateTime.now().toFormat('yyyy-MM-dd') }}.json",\n        "fileContent": "={{ JSON.stringify($json, null, 2) }}",
+        "options": {}
+      },
+      "name": "Export Report Data",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.incomplete_count }}",
+              "rightValue": "5",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Check if Alert Needed",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "⚠️ BookStack Alert: Found {{ $json.incomplete_count }} incomplete content items. Please review the analysis report."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Send Alert (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 200]
+    }
+  ],
+  "connections": {
+    "Get All Books": {
+      "main": [
+        [
+          {
+            "node": "Analyze Content Statistics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Chapters": {
+      "main": [
+        [
+          {
+            "node": "Analyze Content Statistics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Pages": {
+      "main": [
+        [
+          {
+            "node": "Analyze Content Statistics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Content Statistics": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Incomplete Content": {
+      "main": [
+        [
+          {
+            "node": "Generate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Report": {
+      "main": [
+        [
+          {
+            "node": "Create Report Page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check if Alert Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Report Page": {
+      "main": [
+        [
+          {
+            "node": "Export Report Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Alert Needed": {
+      "main": [
+        [
+          {
+            "node": "Send Alert (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
