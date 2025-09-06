@@ -1,4 +1,6 @@
-export const globalOperations = [
+import { INodeProperties } from 'n8n-workflow';
+
+export const globalOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -15,7 +17,7 @@ export const globalOperations = [
 	},
 ];
 
-export const globalFields = [
+export const globalFields: INodeProperties[] = [
 	{
 		displayName: 'Query',
 		name: 'query',

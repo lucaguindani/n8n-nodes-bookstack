@@ -1,4 +1,6 @@
-export const bookOperations = [
+import { INodeProperties } from 'n8n-workflow';
+
+export const bookOperations: INodeProperties[] = [
   {
     displayName: 'Operation',
     name: 'operation',
@@ -14,7 +16,7 @@ export const bookOperations = [
   },
 ];
 
-export const bookFields = [
+export const bookFields: INodeProperties[] = [
   // ID field for Get, Update, Delete
   {
     displayName: 'Book ID',

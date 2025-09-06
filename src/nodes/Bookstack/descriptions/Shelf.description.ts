@@ -1,4 +1,6 @@
-export const shelfOperations = [
+import { INodeProperties } from 'n8n-workflow';
+
+export const shelfOperations: INodeProperties[] = [
   {
     displayName: 'Operation',
     name: 'operation',
@@ -14,7 +16,7 @@ export const shelfOperations = [
   },
 ];
 
-export const shelfFields = [
+export const shelfFields: INodeProperties[] = [
   // ID field for Get, Update, Delete
   {
     displayName: 'Shelf ID',

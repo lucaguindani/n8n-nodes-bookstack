@@ -1,4 +1,6 @@
-export const pageOperations = [
+import { INodeProperties } from 'n8n-workflow';
+
+export const pageOperations: INodeProperties[] = [
   {
     displayName: 'Operation',
     name: 'operation',
@@ -14,7 +16,7 @@ export const pageOperations = [
   },
 ];
 
-export const pageFields = [
+export const pageFields: INodeProperties[] = [
   // ID field for Get, Update, Delete
   {
     displayName: 'Page ID',
@@ -84,6 +86,19 @@ export const pageFields = [
     },
     default: '',
     description: 'HTML content of the page.',
+  },
+  {
+    displayName: 'Markdown Content',
+    name: 'markdown',
+    type: 'string',
+    displayOptions: {
+      show: {
+        resource: ['page'],
+        operation: ['create', 'update'],
+      },
+    },
+    default: '',
+    description: 'Markdown content of the page. If provided, this will be used instead of HTML content.',
   },
   {
     displayName: 'Tags',

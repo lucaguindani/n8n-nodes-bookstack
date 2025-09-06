@@ -1,4 +1,4 @@
-import { IExecuteFunctions } from 'n8n-core';
+import { IExecuteFunctions } from 'n8n-workflow';
 import {
 	INodeExecutionData,
 	INodeType,
@@ -109,7 +109,7 @@ export class Bookstack implements INodeType {
 						endpoint = `/${resource}s`;
 						// Collect fields for create
 						body = {};
-						const createFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html'];
+						const createFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
 						for (const field of createFields) {
 							const value = this.getNodeParameter(field, i, undefined);
 							if (value !== undefined && value !== '') {
@@ -125,7 +125,7 @@ export class Bookstack implements INodeType {
 						const id = this.getNodeParameter('id', i) as string;
 						endpoint = `/${resource}s/${id}`;
 						body = {};
-						const updateFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html'];
+						const updateFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
 						for (const field of updateFields) {
 							const value = this.getNodeParameter(field, i, undefined);
 							if (value !== undefined && value !== '') {

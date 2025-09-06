@@ -1,4 +1,6 @@
-export const chapterOperations = [
+import { INodeProperties } from 'n8n-workflow';
+
+export const chapterOperations: INodeProperties[] = [
   {
     displayName: 'Operation',
     name: 'operation',
@@ -14,7 +16,7 @@ export const chapterOperations = [
   },
 ];
 
-export const chapterFields = [
+export const chapterFields: INodeProperties[] = [
   // ID field for Get, Update, Delete
   {
     displayName: 'Chapter ID',

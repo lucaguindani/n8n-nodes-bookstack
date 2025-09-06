@@ -1,12 +1,53 @@
-import { IExecuteFunctions, ILoadOptionsFunctions } from 'n8n-core';
+import { ILoadOptionsFunctions, IExecuteFunctions } from 'n8n-workflow';
 import {
 	IDataObject,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
 	NodeApiError,
+	JsonObject,
 	NodeOperationError,
 } from 'n8n-workflow';
 import { IBookstackListResponse, IBookstackApiRequestOptions } from '../types/BookstackTypes';
+
+/**
+ * Make an API request to BookStack
+ */
+/**
+ * Handle and format BookStack API errors
+ */
+function handleBookstackError(node: any, error: unknown): NodeApiError {
+	if (error instanceof NodeApiError) {
+		// If it's already a NodeApiError, just re-throw it
+		return error;
+	}
+
+	let errorDetails: JsonObject = {};
+
+	if (error instanceof Error) {
+		// Standard Error object
+		const errorResponse = (error as any).response?.body || (error as any).response || {};
+		errorDetails = {
+			name: error.name,
+			message: formatBookstackError(error),
+			stack: error.stack ?? null,
+			response: errorResponse,
+		};
+	} else if (typeof error === 'object' && error !== null) {
+		// Other object types
+		errorDetails = {
+			message: formatBookstackError(error),
+			...error,
+		};
+	} else {
+		// Primitives or other types
+		errorDetails = {
+			message: 'An unknown error occurred',
+			error: String(error),
+		};
+	}
+
+	return new NodeApiError(node, errorDetails);
+}
 
 /**
  * Make an API request to BookStack
@@ -45,7 +86,7 @@ export async function bookstackApiRequest(
 	try {
 		return await this.helpers.httpRequest(options);
 	} catch (error) {
-		throw new NodeApiError(this.getNode(), error);
+		throw handleBookstackError(this.getNode(), error);
 	}
 }
 
