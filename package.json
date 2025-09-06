@@ -29,15 +29,18 @@
   "author": "Luca Guindani",
   "license": "MIT",
   "dependencies": {
-    "n8n-workflow": "^1.0.0",
-    "n8n-core": "^1.0.0"
+    "n8n-core": "^1.0.0",
+    "n8n-workflow": "^1.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.2.0",
+    "@types/express": "^5.0.3",
+    "@types/nock": "^10.0.3",
     "@types/node": "^20.0.0",
-    "eslint": "^8.56.0",
+    "@types/ssh2": "^1.15.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0"
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.2.0"
   },
   "repository": {
     "type": "git",
