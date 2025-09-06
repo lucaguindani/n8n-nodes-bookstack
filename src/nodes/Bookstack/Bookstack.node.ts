@@ -79,9 +79,10 @@ export class Bookstack implements INodeType {
 							query += ` {type:${typeFilter}}`;
 						}
 
-						// Build query parameters properly
-						const qs: any = {};
-						qs.query = query;
+						// Build query parameters for BookStack search API
+						const qs: any = {
+							query: query
+						};
 
 						if (!returnAll) {
 							qs.count = Math.min(limit, 500); // BookStack API limit
@@ -89,15 +90,24 @@ export class Bookstack implements INodeType {
 						}
 
 						try {
+							const endpoint = 'api/search';
+
 							if (returnAll) {
-								responseData = await bookstackApiRequestAllItems.call(this, 'GET', 'search', {}, qs);
+								responseData = await bookstackApiRequestAllItems.call(this, 'GET', endpoint, {}, qs);
 							} else {
 								const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
-									await bookstackApiRequest.call(this, 'GET', 'search', {}, qs);
+									await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
 								responseData = searchResponse.data || searchResponse;
 							}
 						} catch (error) {
-							// Re-throw with more context for debugging
+							// Enhanced error logging for debugging
+							console.error('BookStack Search Error:', {
+								endpoint: 'api/search',
+								query: query,
+								qs: qs,
+								error: error
+							});
+
 							const errorMsg = formatBookstackError(error);
 							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
 						}
@@ -115,7 +125,7 @@ export class Bookstack implements INodeType {
 					const resourceEndpoints: { [key: string]: string } = {
 						'book': 'books',
 						'page': 'pages',
-						'shelf': 'shelves', // Correct plural form
+						'shelf': 'shelves',
 						'chapter': 'chapters'
 					};
 
