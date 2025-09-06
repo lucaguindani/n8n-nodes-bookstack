@@ -71,22 +71,35 @@ export class Bookstack implements INodeType {
 						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
 						const limit = this.getNodeParameter('limit', i, 100) as number;
 						const page = this.getNodeParameter('page', i, 1) as number;
+
 						validateRequiredParameters(this.getNode(), { query }, ['query']);
+
+						// Add type filter to query if specified
 						if (typeFilter && typeFilter !== 'all') {
 							query += ` {type:${typeFilter}}`;
 						}
-						const qs = buildQueryString({
-							count: returnAll ? undefined : limit,
-							offset: returnAll ? undefined : (page - 1) * limit,
-						});
+
+						// Build query parameters properly
+						const qs: any = {};
 						qs.query = query;
-						if (returnAll) {
-							const allData = await bookstackApiRequestAllItems.call(this, 'GET', 'search', {}, qs);
-							responseData = allData;
-						} else {
-							const searchResponse: IBookstackListResponse<IBookstackSearchResult> = 
-								await bookstackApiRequest.call(this, 'GET', 'search', {}, qs);
-							responseData = searchResponse.data || searchResponse;
+
+						if (!returnAll) {
+							qs.count = Math.min(limit, 500); // BookStack API limit
+							qs.offset = (page - 1) * limit;
+						}
+
+						try {
+							if (returnAll) {
+								responseData = await bookstackApiRequestAllItems.call(this, 'GET', 'search', {}, qs);
+							} else {
+								const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
+									await bookstackApiRequest.call(this, 'GET', 'search', {}, qs);
+								responseData = searchResponse.data || searchResponse;
+							}
+						} catch (error) {
+							// Re-throw with more context for debugging
+							const errorMsg = formatBookstackError(error);
+							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
 						}
 					}
 				}
@@ -98,15 +111,23 @@ export class Bookstack implements INodeType {
 					let body: any = {};
 					let qs: any = {};
 
+					// Map resource names to correct API endpoints
+					const resourceEndpoints: { [key: string]: string } = {
+						'book': 'books',
+						'page': 'pages',
+						'shelf': 'shelves', // Correct plural form
+						'chapter': 'chapters'
+					};
+
 					if (operation === 'getAll') {
-						endpoint = `/${resource}s`;
+						endpoint = `/${resourceEndpoints[resource]}`;
 						responseData = await bookstackApiRequestAllItems.call(this, 'GET', endpoint, {}, {});
 					} else if (operation === 'get') {
 						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resource}s/${id}`;
+						endpoint = `/${resourceEndpoints[resource]}/${id}`;
 						responseData = await bookstackApiRequest.call(this, 'GET', endpoint, {}, {});
 					} else if (operation === 'create') {
-						endpoint = `/${resource}s`;
+						endpoint = `/${resourceEndpoints[resource]}`;
 						// Collect fields for create
 						body = {};
 						const createFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
@@ -123,7 +144,7 @@ export class Bookstack implements INodeType {
 						responseData = await bookstackApiRequest.call(this, 'POST', endpoint, body, {});
 					} else if (operation === 'update') {
 						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resource}s/${id}`;
+						endpoint = `/${resourceEndpoints[resource]}/${id}`;
 						body = {};
 						const updateFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
 						for (const field of updateFields) {
@@ -138,7 +159,7 @@ export class Bookstack implements INodeType {
 						responseData = await bookstackApiRequest.call(this, 'PUT', endpoint, body, {});
 					} else if (operation === 'delete') {
 						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resource}s/${id}`;
+						endpoint = `/${resourceEndpoints[resource]}/${id}`;
 						responseData = await bookstackApiRequest.call(this, 'DELETE', endpoint, {}, {});
 					}
 				}

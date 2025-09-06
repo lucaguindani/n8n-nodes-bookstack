@@ -184,6 +184,14 @@ export function formatBookstackError(error: any): string {
 		return error.response.body.error.message;
 	}
 	
+	if (error.response?.body?.message) {
+		return error.response.body.message;
+	}
+
+	if (error.response?.status === 400) {
+		return 'Bad request. Please check your query parameters and try again.';
+	}
+
 	if (error.response?.status === 401) {
 		return 'Authentication failed. Please check your API credentials.';
 	}
@@ -196,9 +204,17 @@ export function formatBookstackError(error: any): string {
 		return 'Resource not found. Please check the ID or URL.';
 	}
 	
+	if (error.response?.status === 422) {
+		return 'Invalid data provided. Please check your input parameters.';
+	}
+
 	if (error.response?.status === 429) {
 		return 'Rate limit exceeded. Please wait before making more requests.';
 	}
 
-	return error.message || 'An unknown error occurred';
+	if (error.response?.status >= 500) {
+		return 'BookStack server error. Please try again later or contact your administrator.';
+	}
+
+	return error.message || 'Your request is invalid or could not be processed by the service';
 }

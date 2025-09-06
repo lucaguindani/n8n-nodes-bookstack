@@ -13,7 +13,8 @@
     ]
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "mkdir -p dist/nodes/Bookstack && cp src/nodes/Bookstack/bookstack.svg dist/nodes/Bookstack/",
     "lint": "eslint . --ext .ts",
     "dev": "tsc --watch",
     "prepack": "npm run build"
