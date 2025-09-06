@@ -67,7 +67,6 @@ export class Bookstack implements INodeType {
 					if (operation === 'search') {
 						let query = this.getNodeParameter('query', i) as string;
 						const typeFilter = this.getNodeParameter('typeFilter', i) as string;
-						const returnAll = this.getNodeParameter('returnAll', i, true) as boolean;
 						const limit = this.getNodeParameter('limit', i, 100) as number;
 						const page = this.getNodeParameter('page', i, 1) as number;
 
@@ -80,24 +79,17 @@ export class Bookstack implements INodeType {
 
 						// Build query parameters for BookStack search API
 						const qs: any = {
-							query: query
+							query: query,
+							count: Math.min(limit, 500), // BookStack API limit
+							page: page
 						};
-
-						if (!returnAll) {
-							qs.count = Math.min(limit, 500); // BookStack API limit
-							qs.page = page;
-						}
 
 						try {
 							const endpoint = '/search';
 
-							if (returnAll) {
-								responseData = await bookstackApiRequestAllItems.call(this, 'GET', endpoint, {}, qs);
-							} else {
-								const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
-									await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
-								responseData = searchResponse.data || searchResponse;
-							}
+							const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
+								await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
+							responseData = searchResponse.data || searchResponse;
 						} catch (error) {
 							// Enhanced error logging for debugging
 							console.error('BookStack Search Error:', {

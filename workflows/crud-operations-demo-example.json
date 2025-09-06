@@ -110,7 +110,8 @@
         "resource": "global",
         "operation": "search",
         "query": "demo",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Search Demo Content",
       "type": "bookstack",

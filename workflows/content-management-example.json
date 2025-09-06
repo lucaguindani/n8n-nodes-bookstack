@@ -64,7 +64,8 @@
         "resource": "global",
         "operation": "search",
         "query": "tag:outdated",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Find Outdated Content",
       "type": "bookstack",

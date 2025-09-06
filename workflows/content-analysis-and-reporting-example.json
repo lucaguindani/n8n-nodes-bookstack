@@ -45,7 +45,8 @@
         "resource": "global",
         "operation": "search",
         "query": "TODO OR FIXME OR INCOMPLETE",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Find Incomplete Content",
       "type": "bookstack",

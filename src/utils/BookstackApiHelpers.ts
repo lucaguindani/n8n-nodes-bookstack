@@ -99,26 +99,13 @@ export async function bookstackApiRequestAllItems(
 	maxCount = 500,
 ): Promise<any[]> {
 	let returnData: any[] = [];
-	let page = 1;
+	let offset = 0;
 	const count = Math.min(maxCount, 500); // BookStack max is 500 per request
 
-	// Use page-based pagination for search API, offset-based for other endpoints
-	const usePagePagination = endpoint.includes('search');
-
 	do {
-		// Create a clean query string for this request
 		const currentQs = { ...qs };
 		currentQs.count = count;
-
-		if (usePagePagination) {
-			currentQs.page = page;
-			// Remove offset if it exists (clean up)
-			delete currentQs.offset;
-		} else {
-			currentQs.offset = (page - 1) * count;
-			// Remove page if it exists (clean up)
-			delete currentQs.page;
-		}
+		currentQs.offset = offset;
 
 		const responseData: IBookstackListResponse<any> = await bookstackApiRequest.call(
 			this,
@@ -141,7 +128,7 @@ export async function bookstackApiRequestAllItems(
 				break;
 			}
 
-			page++;
+			offset += responseData.data.length;
 		} else if (responseData.data) {
 			// Single item response wrapped in data property
 			return [responseData.data];
@@ -151,8 +138,8 @@ export async function bookstackApiRequestAllItems(
 		}
 
 		// Safety break to avoid infinite loops
-		if (page > 100) {
-			console.warn('BookStack pagination: Stopped after 100 pages to prevent infinite loop');
+		if (offset > maxCount * 100) {
+			console.warn('BookStack pagination: Stopped after excessive pagination to prevent infinite loop');
 			break;
 		}
 

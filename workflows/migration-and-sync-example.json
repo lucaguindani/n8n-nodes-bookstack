@@ -6,7 +6,8 @@
         "resource": "global",
         "operation": "search",
         "query": "tag:migrate",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Find Content to Migrate",
       "type": "bookstack",
@@ -89,7 +90,8 @@
         "resource": "global",
         "operation": "search",
         "query": "tag:sync-source",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Find Sync Sources",
       "type": "bookstack",

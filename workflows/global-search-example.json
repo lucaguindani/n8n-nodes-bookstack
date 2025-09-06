@@ -6,7 +6,8 @@
         "resource": "global",
         "operation": "search",
         "query": "kubernetes {type:page}",
-        "returnAll": true
+        "limit": 100,
+        "page": 1
       },
       "name": "Bookstack",
       "type": "bookstack",

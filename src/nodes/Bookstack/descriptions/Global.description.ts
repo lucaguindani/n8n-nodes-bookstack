@@ -54,19 +54,6 @@ export const globalFields: INodeProperties[] = [
 		description: 'Filter search results by content type. This filter will be automatically added to your search query.',
 	},
 	{
-		displayName: 'Return All Results',
-		name: 'returnAll',
-		type: 'boolean',
-		displayOptions: {
-			show: {
-				resource: ['global'],
-				operation: ['search'],
-			},
-		},
-		default: true,
-		description: 'Whether to return all matching results or limit to a specific number of results',
-	},
-	{
 		displayName: 'Results Limit',
 		name: 'limit',
 		type: 'number',
@@ -74,7 +61,6 @@ export const globalFields: INodeProperties[] = [
 			show: {
 				resource: ['global'],
 				operation: ['search'],
-				returnAll: [false],
 			},
 		},
 		default: 100,
@@ -93,7 +79,6 @@ export const globalFields: INodeProperties[] = [
 			show: {
 				resource: ['global'],
 				operation: ['search'],
-				returnAll: [false],
 			},
 		},
 		default: 1,
