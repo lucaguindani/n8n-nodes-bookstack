@@ -105,14 +105,19 @@ export async function bookstackApiRequestAllItems(
 	// Use page-based pagination for search API, offset-based for other endpoints
 	const usePagePagination = endpoint.includes('search');
 
-	// Set count parameter once
-	qs.count = count;
-
 	do {
+		// Create a clean query string for this request
+		const currentQs = { ...qs };
+		currentQs.count = count;
+
 		if (usePagePagination) {
-			qs.page = page;
+			currentQs.page = page;
+			// Remove offset if it exists (clean up)
+			delete currentQs.offset;
 		} else {
-			qs.offset = (page - 1) * count;
+			currentQs.offset = (page - 1) * count;
+			// Remove page if it exists (clean up)
+			delete currentQs.page;
 		}
 
 		const responseData: IBookstackListResponse<any> = await bookstackApiRequest.call(
@@ -120,22 +125,23 @@ export async function bookstackApiRequestAllItems(
 			method,
 			endpoint,
 			body,
-			qs,
+			currentQs,
 		);
 
 		if (responseData.data && Array.isArray(responseData.data)) {
 			returnData.push(...responseData.data);
-			page++;
-
-			// Stop if we've reached the total or if this response has fewer items than requested
-			if (responseData.total && returnData.length >= responseData.total) {
-				break;
-			}
 
 			// Stop if this response has fewer items than requested (last page)
 			if (responseData.data.length < count) {
 				break;
 			}
+
+			// Stop if we've reached the total (if available)
+			if (responseData.total && returnData.length >= responseData.total) {
+				break;
+			}
+
+			page++;
 		} else if (responseData.data) {
 			// Single item response wrapped in data property
 			return [responseData.data];
@@ -143,6 +149,13 @@ export async function bookstackApiRequestAllItems(
 			// No data property, assume it's a single item or empty result
 			return responseData ? [responseData] : [];
 		}
+
+		// Safety break to avoid infinite loops
+		if (page > 100) {
+			console.warn('BookStack pagination: Stopped after 100 pages to prevent infinite loop');
+			break;
+		}
+
 	} while (returnData.length < maxCount);
 
 	return returnData.slice(0, maxCount);
