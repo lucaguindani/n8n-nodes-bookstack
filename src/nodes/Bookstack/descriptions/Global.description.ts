@@ -11,15 +11,15 @@ export const globalOperations: INodeProperties[] = [
 				resource: ['global'],
 			},
 		},
-		options: [{ name: 'Search', value: 'search' }],
+		options: [{ name: 'Global Search', value: 'search' }],
 		default: 'search',
-		description: 'The operation to perform',
+		description: 'The operation to perform on global resources',
 	},
 ];
 
 export const globalFields: INodeProperties[] = [
 	{
-		displayName: 'Query',
+		displayName: 'Search Query',
 		name: 'query',
 		type: 'string',
 		displayOptions: {
@@ -30,11 +30,11 @@ export const globalFields: INodeProperties[] = [
 		},
 		default: '',
 		required: true,
-		placeholder: 'kubernetes',
-		description: 'Search query. Use {type:page}, {type:book}, {type:chapter}, or {type:shelf} to filter by type.',
+		placeholder: 'Enter search terms (e.g., kubernetes, docker)',
+		description: 'Search query to find content across all resources. You can use filters like {type:page} to narrow results.',
 	},
 	{
-		displayName: 'Type Filter',
+		displayName: 'Content Type Filter',
 		name: 'typeFilter',
 		type: 'options',
 		displayOptions: {
@@ -44,17 +44,17 @@ export const globalFields: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'All', value: 'all' },
-			{ name: 'Book', value: 'book' },
-			{ name: 'Page', value: 'page' },
-			{ name: 'Chapter', value: 'chapter' },
-			{ name: 'Shelf', value: 'shelf' },
+			{ name: 'All Types', value: 'all' },
+			{ name: 'Books', value: 'book' },
+			{ name: 'Pages', value: 'page' },
+			{ name: 'Chapters', value: 'chapter' },
+			{ name: 'Shelves', value: 'shelf' },
 		],
 		default: 'all',
-		description: 'Filter results by content type (will be added to your query automatically)',
+		description: 'Filter search results by content type. This filter will be automatically added to your search query.',
 	},
 	{
-		displayName: 'Return All',
+		displayName: 'Return All Results',
 		name: 'returnAll',
 		type: 'boolean',
 		displayOptions: {
@@ -64,10 +64,10 @@ export const globalFields: INodeProperties[] = [
 			},
 		},
 		default: true,
-		description: 'Whether to return all results or limit to a specific number',
+		description: 'Whether to return all matching results or limit to a specific number of results',
 	},
 	{
-		displayName: 'Limit',
+		displayName: 'Results Limit',
 		name: 'limit',
 		type: 'number',
 		displayOptions: {
@@ -82,10 +82,11 @@ export const globalFields: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 500,
 		},
-		description: 'Maximum number of results to return',
+		description: 'Maximum number of search results to return',
+		placeholder: '100',
 	},
 	{
-		displayName: 'Page',
+		displayName: 'Page Number',
 		name: 'page',
 		type: 'number',
 		displayOptions: {
@@ -99,6 +100,7 @@ export const globalFields: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 		},
-		description: 'Page number to retrieve (starts from 1)',
+		description: 'Page number for paginated results (starts from 1)',
+		placeholder: '1',
 	},
 ];
