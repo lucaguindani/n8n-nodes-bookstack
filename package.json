@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-bookstack",
+  "name": "n8n-bookstack",
   "version": "1.0.0",
   "description": "Custom n8n node for BookStack API",
   "main": "dist/nodes/Bookstack/Bookstack.node.js",
@@ -45,9 +45,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-repo/n8n-nodes-bookstack.git"
+    "url": "https://github.com/lucaguindani/n8n-bookstack.git"
   },
   "bugs": {
-    "url": "https://github.com/your-repo/n8n-nodes-bookstack/issues"
+    "url": "https://github.com/lucaguindani/n8n-bookstack/issues"
   }
 }
