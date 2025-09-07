@@ -2,7 +2,22 @@
   "name": "n8n-bookstack",
   "version": "1.0.0",
   "description": "Custom n8n node for BookStack API",
-  "main": "dist/nodes/Bookstack/Bookstack.node.js",
+  "keywords": [
+    "n8n",
+    "n8n-community-node-package",
+    "bookstack",
+    "connector",
+    "api",
+    "ai-tool"
+  ],
+  "author": {
+    "name": "Luca Guindani"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
@@ -12,6 +27,11 @@
       "dist/nodes/Bookstack/Bookstack.node.js"
     ]
   },
+  "n8nNodeTypes": {
+    "tools": [
+      "dist/nodes/Bookstack/BookstackTool.node.js"
+    ]
+  },
   "scripts": {
     "build": "tsc && gulp build:icons",
     "lint": "eslint src/nodes src/credentials package.json",
@@ -19,17 +39,6 @@
     "dev": "tsc --watch",
     "prepack": "npm run build"
   },
-  "keywords": [
-    "n8n",
-    "n8n-community-node-package",
-    "bookstack",
-    "connector",
-    "api"
-  ],
-  "author": {
-    "name": "Luca Guindani"
-  },
-  "license": "MIT",
   "dependencies": {
     "n8n-core": "^1.0.0",
     "n8n-workflow": "^1.0.0"
@@ -46,9 +55,6 @@
     "gulp": "^4.0.2",
     "typescript": "^5.2.0"
   },
-  "files": [
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/lucaguindani/n8n-bookstack.git"
