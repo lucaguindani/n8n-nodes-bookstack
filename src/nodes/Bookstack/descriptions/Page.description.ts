@@ -17,13 +17,14 @@ export const pageOperations: INodeProperties[] = [
 			{ name: 'Create', value: 'create', action: 'Create' },
 			{ name: 'Update', value: 'update', action: 'Update' },
 			{ name: 'Delete', value: 'delete', action: 'Delete' },
+			{ name: 'Export', value: 'export', action: 'Export page content' },
 		],
 		default: 'getAll',
 	},
 ];
 
 export const pageFields: INodeProperties[] = [
-	// ID field for Get, Update, Delete
+	// ID field for Get, Update, Delete, Export
 	{
 		displayName: 'Page ID',
 		name: 'id',
@@ -32,7 +33,7 @@ export const pageFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['page'],
-				operation: ['get', 'update', 'delete'],
+				operation: ['get', 'update', 'delete', 'export'],
 			},
 		},
 		default: '',
@@ -119,5 +120,53 @@ export const pageFields: INodeProperties[] = [
 		},
 		default: '',
 		description: 'Comma-separated tags for the page'
+	},
+	// Export fields
+	{
+		displayName: 'Format',
+		name: 'exportFormat',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['page'],
+				operation: ['export'],
+			},
+		},
+		options: [
+			{ name: 'HTML', value: 'html' },
+			{ name: 'PDF', value: 'pdf' },
+			{ name: 'Plain Text', value: 'plain-text' },
+			{ name: 'Markdown', value: 'markdown' },
+			{ name: 'ZIP', value: 'zip' },
+		],
+		default: 'html',
+		description: 'Export format for the page content',
+	},
+	{
+		displayName: 'Binary Property',
+		name: 'binaryProperty',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['page'],
+				operation: ['export'],
+			},
+		},
+		default: 'data',
+		description: 'Name of the binary property to set on the output',
+	},
+	{
+		displayName: 'File Name',
+		name: 'fileName',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['page'],
+				operation: ['export'],
+			},
+		},
+		default: '',
+		placeholder: 'page-ID.pdf',
+		description: 'File name (with extension). If empty, a name will be generated automatically.'
 	},
 ];

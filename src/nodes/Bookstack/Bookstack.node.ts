@@ -16,7 +16,8 @@ import {
 	bookstackApiRequest, 
 	bookstackApiRequestAllItems,
 	validateRequiredParameters,
-	formatBookstackError 
+	formatBookstackError,
+	bookstackApiRequestBinary
 } from '../../utils/BookstackApiHelpers';
 import { IBookstackListResponse, IBookstackSearchResult } from '../../types/BookstackTypes';
 
@@ -102,7 +103,69 @@ export class Bookstack implements INodeType {
 							const errorMsg = formatBookstackError(error);
 							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
 						}
+					} else if (operation === 'auditLogList') {
+						const limit = this.getNodeParameter('auditLimit', i, 50) as number;
+						const offset = this.getNodeParameter('auditOffset', i, 0) as number;
+
+						const qs: any = { count: Math.min(limit, 500), offset };
+						const endpoint = '/audit-log';
+						const res = await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
+						responseData = res?.data ?? res;
 					}
+				}
+
+				// Page export (binary)
+				if (resource === 'page' && operation === 'export') {
+					const id = this.getNodeParameter('id', i) as string;
+					const format = this.getNodeParameter('exportFormat', i) as string;
+					const binaryProperty = this.getNodeParameter('binaryProperty', i) as string;
+					let fileName = this.getNodeParameter('fileName', i, '') as string;
+
+					const formatToPath: Record<string, string> = {
+						html: 'export-html',
+						pdf: 'export-pdf',
+						'plain-text': 'export-plain-text',
+						markdown: 'export-markdown',
+						zip: 'export-zip',
+					};
+					const formatToMime: Record<string, string> = {
+						html: 'text/html',
+						pdf: 'application/pdf',
+						'plain-text': 'text/plain',
+						markdown: 'text/markdown',
+						zip: 'application/zip',
+					};
+					const formatToExt: Record<string, string> = {
+						html: 'html',
+						pdf: 'pdf',
+						'plain-text': 'txt',
+						markdown: 'md',
+						zip: 'zip',
+					};
+
+					const pathSuffix = formatToPath[format];
+					if (!pathSuffix) {
+						throw new NodeOperationError(this.getNode(), `Unsupported export format: ${format}`, { itemIndex: i });
+					}
+
+					const endpoint = `/pages/${id}/${pathSuffix}`;
+					const mime = formatToMime[format];
+					const buffer = await bookstackApiRequestBinary.call(this, 'GET', endpoint, {}, mime);
+
+					if (!fileName) {
+						fileName = `page-${id}.${formatToExt[format]}`;
+					}
+
+					const binary = await this.helpers.prepareBinaryData(buffer, fileName, mime);
+
+					returnData.push({
+						json: { id, format, fileName },
+						binary: { [binaryProperty]: binary },
+						pairedItem: { item: i },
+					});
+
+					// Done with this item
+					continue;
 				}
 
 				// CRUD for book, page, shelf, chapter
@@ -172,7 +235,7 @@ export class Bookstack implements INodeType {
 							pairedItem: { item: i },
 						});
 					});
-				} else {
+				} else if (responseData !== undefined) {
 					// Single item
 					returnData.push({
 						json: responseData,

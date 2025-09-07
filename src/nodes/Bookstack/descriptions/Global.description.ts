@@ -13,6 +13,7 @@ export const globalOperations: INodeProperties[] = [
 		},
 		options: [
 			{ name: 'Search', value: 'search', action: 'Global search' },
+			{ name: 'Audit Log', value: 'auditLogList', action: 'List audit log entries' },
 		],
 		default: 'search',
 	},
@@ -87,5 +88,33 @@ export const globalFields: INodeProperties[] = [
 		},
 		description: 'Page number for paginated results (starts from 1)',
 		placeholder: '1',
+	},
+	{
+		displayName: 'Limit',
+		name: 'auditLimit',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['global'],
+				operation: ['auditLogList'],
+			},
+		},
+		default: 50,
+		typeOptions: { minValue: 1, maxValue: 500 },
+		description: 'Maximum number of entries to return (max 500 per request)'
+	},
+	{
+		displayName: 'Offset',
+		name: 'auditOffset',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['global'],
+				operation: ['auditLogList'],
+			},
+		},
+		default: 0,
+		typeOptions: { minValue: 0 },
+		description: 'Starting offset for pagination'
 	},
 ];
