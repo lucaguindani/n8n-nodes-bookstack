@@ -24,11 +24,7 @@
       "dist/credentials/BookstackApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/Bookstack/Bookstack.node.js"
-    ]
-  },
-  "n8nNodeTypes": {
-    "tools": [
+      "dist/nodes/Bookstack/Bookstack.node.js",
       "dist/nodes/Bookstack/BookstackTool.node.js"
     ]
   },
