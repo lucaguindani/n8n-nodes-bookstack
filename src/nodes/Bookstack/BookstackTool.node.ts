@@ -147,6 +147,18 @@ export class BookstackTool implements INodeType {
         },
         description: 'Maximum number of results to return (1-500)',
       },
+      {
+        displayName: 'Deep Dive Into Content',
+        name: 'deepDive',
+        type: 'boolean',
+        displayOptions: {
+          show: {
+            operation: ['globalSearch'],
+          },
+        },
+        default: true,
+        description: 'Whether to automatically retrieve full content for all found pages and chapters. When enabled, provides complete page content including HTML, markdown, and plain text versions.',
+      },
     ],
   };
 
@@ -286,6 +298,7 @@ export class BookstackTool implements INodeType {
               const searchQuery = this.getNodeParameter('searchQuery', i) as string;
               const typeFilter = this.getNodeParameter('typeFilter', i, 'all') as string;
               const resultLimit = this.getNodeParameter('resultLimit', i, 20) as number;
+              const deepDive = this.getNodeParameter('deepDive', i, true) as boolean;
               validateRequiredParameters(this.getNode(), { searchQuery }, ['searchQuery']);
 
               try {
@@ -326,6 +339,32 @@ export class BookstackTool implements INodeType {
                   summary: `Found ${Array.isArray(structuredResults) ? structuredResults.length : 0} results for "${searchQuery}"${typeFilter !== 'all' ? ` (${typeFilter} only)` : ''}`,
                   data: structuredResults
                 };
+
+                // Deep dive to fetch full content if enabled
+                if (deepDive && Array.isArray(structuredResults)) {
+                  const contentPromises = structuredResults.map(async (item: any) => {
+                    if (item.type === 'page' || item.type === 'chapter') {
+                      try {
+                        const contentId = item.id;
+                        const contentEndpoint = item.type === 'page' ? `/pages/${contentId}` : `/chapters/${contentId}`;
+                        const contentResponse = await bookstackApiRequest.call(this, 'GET', contentEndpoint, {}, {});
+                        return {
+                          ...item,
+                          content: {
+                            html: contentResponse.html,
+                            markdown: contentResponse.markdown,
+                            plain: contentResponse.plain
+                          }
+                        };
+                      } catch {
+                        return item; // Return the item without content on error
+                      }
+                    }
+                    return item;
+                  });
+
+                  responseData.data = await Promise.all(contentPromises);
+                }
               } catch (error) {
                 const errorMsg = formatBookstackError(error);
                 throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
