@@ -108,7 +108,7 @@ export class BookstackTool implements INodeType {
             operation: ['searchBooks', 'globalSearch'],
           },
         },
-        default: '',
+        default: '{{ $fromAI("searchQuery", "Keywords, phrases, or terms to search for in the content", "string") }}',
         placeholder: 'e.g., installation guide, API documentation',
         description: 'Keywords, phrases, or terms to search for in the content',
       },
