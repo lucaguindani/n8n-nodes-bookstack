@@ -23,7 +23,7 @@ import { IBookstackListResponse, IBookstackSearchResult } from '../../types/Book
 
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Bookstack',
+		displayName: 'BookStack',
 		name: 'bookstack',
 		icon: 'file:bookstack.svg',
 		group: ['transform'],
