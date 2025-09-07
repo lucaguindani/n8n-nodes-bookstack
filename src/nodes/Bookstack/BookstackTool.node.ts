@@ -319,7 +319,7 @@ export class BookstackTool implements INodeType {
 
                 // Structure results for better AI understanding
                 const results = apiResponse.data || apiResponse;
-                const structuredResults = Array.isArray(results) ? results.map((item: any) => ({
+                let structuredResults = Array.isArray(results) ? results.map((item: any) => ({
                   type: item.type,
                   id: item.id,
                   name: item.name || item.title,
@@ -330,41 +330,55 @@ export class BookstackTool implements INodeType {
                   tags: item.tags || []
                 })) : results;
 
-                responseData = {
-                  operation: 'globalSearch',
-                  query: searchQuery,
-                  typeFilter,
-                  resultLimit,
-                  totalFound: apiResponse.total || (Array.isArray(results) ? results.length : 0),
-                  summary: `Found ${Array.isArray(structuredResults) ? structuredResults.length : 0} results for "${searchQuery}"${typeFilter !== 'all' ? ` (${typeFilter} only)` : ''}`,
-                  data: structuredResults
-                };
-
-                // Deep dive to fetch full content if enabled
+                // Deep dive to fetch full content if enabled - process sequentially
                 if (deepDive && Array.isArray(structuredResults)) {
-                  const contentPromises = structuredResults.map(async (item: any) => {
+                  const enhancedResults = [];
+
+                  for (const item of structuredResults) {
                     if (item.type === 'page' || item.type === 'chapter') {
                       try {
                         const contentId = item.id;
                         const contentEndpoint = item.type === 'page' ? `/pages/${contentId}` : `/chapters/${contentId}`;
                         const contentResponse = await bookstackApiRequest.call(this, 'GET', contentEndpoint, {}, {});
-                        return {
-                          ...item,
-                          content: {
-                            html: contentResponse.html,
-                            markdown: contentResponse.markdown,
-                            plain: contentResponse.plain
-                          }
-                        };
-                      } catch {
-                        return item; // Return the item without content on error
-                      }
-                    }
-                    return item;
-                  });
 
-                  responseData.data = await Promise.all(contentPromises);
+                        enhancedResults.push({
+                          ...item,
+                          fullContent: {
+                            html: contentResponse.html || '',
+                            markdown: contentResponse.markdown || '',
+                            plain: contentResponse.plain || '',
+                            description: contentResponse.description || '',
+                            created_at: contentResponse.created_at,
+                            updated_at: contentResponse.updated_at
+                          }
+                        });
+                      } catch (contentError) {
+                        // If content fetch fails, include the item with error info
+                        enhancedResults.push({
+                          ...item,
+                          fullContent: null,
+                          contentError: 'Failed to fetch full content'
+                        });
+                      }
+                    } else {
+                      // For non-page/chapter items, just add them as-is
+                      enhancedResults.push(item);
+                    }
+                  }
+
+                  structuredResults = enhancedResults;
                 }
+
+                responseData = {
+                  operation: 'globalSearch',
+                  query: searchQuery,
+                  typeFilter,
+                  resultLimit,
+                  deepDiveEnabled: deepDive,
+                  totalFound: apiResponse.total || (Array.isArray(results) ? results.length : 0),
+                  summary: `Found ${Array.isArray(structuredResults) ? structuredResults.length : 0} results for "${searchQuery}"${typeFilter !== 'all' ? ` (${typeFilter} only)` : ''}${deepDive ? ' with full content retrieved' : ''}`,
+                  data: structuredResults
+                };
               } catch (error) {
                 const errorMsg = formatBookstackError(error);
                 throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
