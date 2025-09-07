@@ -88,44 +88,6 @@ export async function bookstackApiRequest(
 }
 
 /**
- * Make an API request for binary content (exports)
- */
-export async function bookstackApiRequestBinary(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
-	method: IHttpRequestMethods,
-	endpoint: string,
-	qs: IDataObject = {},
-	accept: string = '*/*',
-): Promise<Buffer> {
-	const credentials = await this.getCredentials('bookstackApi');
-	if (!credentials) {
-		throw new NodeOperationError(this.getNode(), 'No credentials found for BookStack API');
-	}
-
-	const baseUrl = credentials.baseUrl as string;
-	const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-
-	const options: IHttpRequestOptions = {
-		method,
-		qs,
-		url: `${baseUrl}/${cleanEndpoint}`,
-		headers: {
-			'Authorization': `Token ${credentials.tokenId}:${credentials.tokenSecret}`,
-			'Accept': accept,
-		},
-		json: false,
-		encoding: 'arraybuffer',
-	};
-
-	try {
-		const data = (await this.helpers.httpRequest(options)) as unknown as Buffer;
-		return Buffer.isBuffer(data) ? data : Buffer.from(data as any);
-	} catch (error) {
-		throw handleBookstackError(this.getNode(), error);
-	}
-}
-
-/**
  * Make an API request to get all items (handles pagination)
  */
 export async function bookstackApiRequestAllItems(
