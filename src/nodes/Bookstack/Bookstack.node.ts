@@ -148,8 +148,15 @@ export class Bookstack implements INodeType {
 						}
 
 						if (filters.filter) {
-							filters.filter.forEach((filter) => {
-								qs[`filter[${filter.field}:${filter.operation}]`] = filter.value;
+							// Ensure filters.filter is always an array (n8n may supply a single object when only one filter is set)
+							const filterArray = Array.isArray(filters.filter) ? filters.filter : [filters.filter];
+
+							filterArray.forEach((filter: any) => {
+								if (!filter || !filter.field) return;
+								// For 'eq' (equals) the API expects filter[field]=value (no :eq suffix). For other ops include :op
+								const op = (filter.operation || 'eq').toString();
+								const opPart = op && op !== 'eq' ? `:${op}` : '';
+								qs[`filter[${filter.field}${opPart}]`] = filter.value;
 							});
 						}
 

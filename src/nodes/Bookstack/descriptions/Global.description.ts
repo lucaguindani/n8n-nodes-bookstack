@@ -13,7 +13,7 @@ export const globalOperations: INodeProperties[] = [
 		},
 		options: [
 			{ name: 'Search', value: 'search', action: 'Global search' },
-			{ name: 'Audit Log', value: 'auditLogList', action: 'List audit log entries' },
+			{ name: 'Audit Log', value: 'auditLogList', action: 'Audit log' },
 		],
 		default: 'search',
 	},

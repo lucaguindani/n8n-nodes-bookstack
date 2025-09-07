@@ -6,7 +6,7 @@ export const listOperations: INodeProperties[] = [
         name: 'sortField',
         type: 'string',
         default: '',
-        placeholder: 'name',
+        placeholder: 'name, created_at, updated_at, ...',
         description: 'Field to sort by',
     },
     {
