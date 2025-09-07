@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { listOperations } from './ListOperations';
 
 export const bookOperations: INodeProperties[] = [
 	{
@@ -80,4 +81,13 @@ export const bookFields: INodeProperties[] = [
 		default: '',
 		description: 'Comma-separated tags for the book',
 	},
+	...listOperations.map((op) => ({
+		...op,
+		displayOptions: {
+			show: {
+				resource: ['book'],
+				operation: ['getAll'],
+			},
+		},
+	})),
 ];

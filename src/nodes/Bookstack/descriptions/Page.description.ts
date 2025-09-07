@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { listOperations } from './ListOperations';
 
 export const pageOperations: INodeProperties[] = [
 	{
@@ -120,4 +121,13 @@ export const pageFields: INodeProperties[] = [
 		default: '',
 		description: 'Comma-separated tags for the page'
 	},
+	...listOperations.map((op) => ({
+		...op,
+		displayOptions: {
+			show: {
+				resource: ['page'],
+				operation: ['getAll'],
+			},
+		},
+	})),
 ];

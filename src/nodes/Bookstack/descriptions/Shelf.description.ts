@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { listOperations } from './ListOperations';
 
 export const shelfOperations: INodeProperties[] = [
 	{
@@ -83,4 +84,13 @@ export const shelfFields: INodeProperties[] = [
 		description: 'Comma-separated tags for the shelf',
 		placeholder: 'tag1, tag2, tag3',
 	},
+	...listOperations.map((op) => ({
+		...op,
+		displayOptions: {
+			show: {
+				resource: ['shelf'],
+				operation: ['getAll'],
+			},
+		},
+	})),
 ];

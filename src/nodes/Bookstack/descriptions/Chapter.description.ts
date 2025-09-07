@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { listOperations } from './ListOperations';
 
 export const chapterOperations: INodeProperties[] = [
 	{
@@ -98,4 +99,13 @@ export const chapterFields: INodeProperties[] = [
 		description: 'Comma-separated tags for the chapter',
 		placeholder: 'tag1, tag2, tag3',
 	},
+	...listOperations.map((op) => ({
+		...op,
+		displayOptions: {
+			show: {
+				resource: ['chapter'],
+				operation: ['getAll'],
+			},
+		},
+	})),
 ];

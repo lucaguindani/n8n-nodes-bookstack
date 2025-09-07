@@ -4,6 +4,7 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeOperationError,
+	IDataObject,
 } from 'n8n-workflow';
 
 import { bookOperations, bookFields } from './descriptions/Book.description';
@@ -128,7 +129,44 @@ export class Bookstack implements INodeType {
 
 					if (operation === 'getAll') {
 						endpoint = `/${resourceEndpoints[resource]}`;
-						responseData = await bookstackApiRequestAllItems.call(this, 'GET', endpoint, {}, {});
+
+						const count = this.getNodeParameter('count', i) as number;
+						const offset = this.getNodeParameter('offset', i) as number;
+						const sortField = this.getNodeParameter('sortField', i) as string;
+						const sortDirection = this.getNodeParameter('sortDirection', i) as string;
+						const filters = this.getNodeParameter('filters', i, {}) as {
+							filter: Array<{ field: string; operation: string; value: string }>;
+						};
+
+						const qs: IDataObject = {
+							count,
+							offset,
+						};
+
+						if (sortField) {
+							qs.sort = sortDirection === 'desc' ? `-${sortField}` : `+${sortField}`;
+						}
+
+						if (filters.filter) {
+							filters.filter.forEach((filter) => {
+								qs[`filter[${filter.field}:${filter.operation}]`] = filter.value;
+							});
+						}
+
+						// If offset is provided, we don't need to paginate, just get that page.
+						if (offset !== undefined && offset > 0) {
+							const response = await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
+							responseData = response.data;
+						} else {
+							responseData = await bookstackApiRequestAllItems.call(
+								this,
+								'GET',
+								endpoint,
+								{},
+								qs,
+								count,
+							);
+						}
 					} else if (operation === 'get') {
 						const id = this.getNodeParameter('id', i) as string;
 						endpoint = `/${resourceEndpoints[resource]}/${id}`;
