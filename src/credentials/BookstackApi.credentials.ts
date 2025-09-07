@@ -25,6 +25,7 @@ export class BookstackApi implements ICredentialType {
 			displayName: 'Token ID',
 			name: 'tokenId',
 			type: 'string',
+			typeOptions: { password: true },
 			default: '',
 			placeholder: 'e.g., C6mdvEQTGnebsmVn3sFNeeuelGEBjyQp',
 			description: 'The Token ID from your BookStack API token',

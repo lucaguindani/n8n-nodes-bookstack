@@ -12,14 +12,13 @@ export const pageOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Get All', value: 'getAll' },
-			{ name: 'Get', value: 'get' },
-			{ name: 'Create', value: 'create' },
-			{ name: 'Update', value: 'update' },
-			{ name: 'Delete', value: 'delete' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
+			{ name: 'Get', value: 'get', action: 'Get' },
+			{ name: 'Create', value: 'create', action: 'Create' },
+			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Delete', value: 'delete', action: 'Delete' },
 		],
 		default: 'getAll',
-		description: 'The operation to perform on pages',
 	},
 ];
 
@@ -53,7 +52,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the page.',
+		description: 'Name of the page',
 	},
 	{
 		displayName: 'Book ID',
@@ -67,7 +66,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this page belongs to.',
+		description: 'ID of the book this page belongs to',
 	},
 	{
 		displayName: 'Chapter ID',
@@ -80,7 +79,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the chapter this page belongs to (optional).',
+		description: 'ID of the chapter this page belongs to (optional)',
 	},
 	{
 		displayName: 'HTML Content',
@@ -93,7 +92,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'HTML content of the page.',
+		description: 'HTML content of the page',
 	},
 	{
 		displayName: 'Markdown Content',
@@ -119,6 +118,6 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the page.',
+		description: 'Comma-separated tags for the page'
 	},
 ];

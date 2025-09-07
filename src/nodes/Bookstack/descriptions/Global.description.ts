@@ -11,9 +11,10 @@ export const globalOperations: INodeProperties[] = [
 				resource: ['global'],
 			},
 		},
-		options: [{ name: 'Search', value: 'search' }],
+		options: [
+			{ name: 'Search', value: 'search', action: 'Global search' },
+		],
 		default: 'search',
-		description: 'The operation to perform on global resources',
 	},
 ];
 
@@ -63,13 +64,12 @@ export const globalFields: INodeProperties[] = [
 				operation: ['search'],
 			},
 		},
-		default: 100,
+		default: 50,
 		typeOptions: {
 			minValue: 1,
-			maxValue: 500,
 		},
-		description: 'Maximum number of search results to return',
-		placeholder: '100',
+		description: 'Max number of results to return',
+		placeholder: '100'
 	},
 	{
 		displayName: 'Page Number',

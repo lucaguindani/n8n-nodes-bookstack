@@ -14,19 +14,21 @@
   },
   "scripts": {
     "build": "tsc && gulp build:icons",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint src/nodes src/credentials package.json",
+    "lintfix": "eslint src/nodes src/credentials package.json --fix",
     "dev": "tsc --watch",
     "prepack": "npm run build"
   },
   "keywords": [
     "n8n",
+    "n8n-community-node-package",
     "bookstack",
     "connector",
-    "api",
-    "documentation",
-    "wiki"
+    "api"
   ],
-  "author": "Luca Guindani",
+  "author": {
+    "name": "Luca Guindani"
+  },
   "license": "MIT",
   "dependencies": {
     "n8n-core": "^1.0.0",
@@ -40,9 +42,13 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.56.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^4.0.2",
     "typescript": "^5.2.0"
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/lucaguindani/n8n-bookstack.git"

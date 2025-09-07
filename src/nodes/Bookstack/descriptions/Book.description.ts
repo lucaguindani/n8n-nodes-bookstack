@@ -12,14 +12,13 @@ export const bookOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Get All', value: 'getAll' },
-			{ name: 'Get', value: 'get' },
-			{ name: 'Create', value: 'create' },
-			{ name: 'Update', value: 'update' },
-			{ name: 'Delete', value: 'delete' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
+			{ name: 'Get', value: 'get', action: 'Get' },
+			{ name: 'Create', value: 'create', action: 'Create' },
+			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Delete', value: 'delete', action: 'Delete' },
 		],
 		default: 'getAll',
-		description: 'The operation to perform on books',
 	},
 ];
 
@@ -53,7 +52,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the book.',
+		description: 'Name of the book',
 	},
 	{
 		displayName: 'Description',
@@ -66,7 +65,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the book.',
+		description: 'Description of the book',
 	},
 	{
 		displayName: 'Tags',
@@ -79,6 +78,6 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the book.',
+		description: 'Comma-separated tags for the book',
 	},
 ];

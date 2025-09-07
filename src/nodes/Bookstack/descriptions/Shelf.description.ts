@@ -12,14 +12,13 @@ export const shelfOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Get All', value: 'getAll' },
-			{ name: 'Get', value: 'get' },
-			{ name: 'Create', value: 'create' },
-			{ name: 'Update', value: 'update' },
-			{ name: 'Delete', value: 'delete' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
+			{ name: 'Get', value: 'get', action: 'Get' },
+			{ name: 'Create', value: 'create', action: 'Create' },
+			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Delete', value: 'delete', action: 'Delete' },
 		],
 		default: 'getAll',
-		description: 'The operation to perform on shelves',
 	},
 ];
 
