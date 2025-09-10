@@ -53,9 +53,229 @@ export class Bookstack implements INodeType {
 		],
 	};
 
+	private readonly resourceEndpoints: Record<string, string> = {
+		book: 'books',
+		page: 'pages',
+		shelf: 'shelves',
+		chapter: 'chapters',
+	};
+
+	private readonly resourceFields: Record<string, string[]> = {
+		book: ['name', 'description', 'tags', 'default_template_id'],
+		page: ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
+		chapter: ['name', 'description', 'book_id', 'tags'],
+		shelf: ['name', 'description', 'books', 'tags'],
+	};
+
+	private buildRequestBody(context: IExecuteFunctions, resource: string, itemIndex: number): any {
+		const body: any = {};
+		const fields = this.resourceFields[resource];
+
+		for (const field of fields) {
+			const value = context.getNodeParameter(field, itemIndex, undefined);
+			if (value !== undefined && value !== '') {
+				body[field] = value;
+			}
+		}
+
+		// Convert tags to array format
+		if (body.tags && typeof body.tags === 'string') {
+			body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
+		}
+
+		// Convert books to array of integers
+		if (body.books && typeof body.books === 'string') {
+			body.books = body.books
+				.split(',')
+				.map((id: string) => parseInt(id.trim(), 10))
+				.filter((id: number) => !isNaN(id));
+		}
+
+		return body;
+	}
+
+	private validatePageCreation(body: any, context: IExecuteFunctions, itemIndex: number): void {
+		if (!body.book_id && !body.chapter_id) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Either book_id or chapter_id must be provided when creating a page',
+				{ itemIndex },
+			);
+		}
+
+		if (!body.html && !body.markdown) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Either html or markdown content must be provided when creating a page',
+				{ itemIndex },
+			);
+		}
+	}
+
+	private buildQueryParameters(context: IExecuteFunctions, itemIndex: number): IDataObject {
+		const count = context.getNodeParameter('count', itemIndex) as number;
+		const offset = context.getNodeParameter('offset', itemIndex) as number;
+		const sortField = context.getNodeParameter('sortField', itemIndex) as string;
+		const sortDirection = context.getNodeParameter('sortDirection', itemIndex) as string;
+		const filters = context.getNodeParameter('filters', itemIndex, {}) as {
+			filter: Array<{ field: string; operation: string; value: string }>;
+		};
+
+		const qs: IDataObject = { count, offset };
+
+		if (sortField) {
+			qs.sort = sortDirection === 'desc' ? `-${sortField}` : `+${sortField}`;
+		}
+
+		if (filters.filter) {
+			const filterArray = Array.isArray(filters.filter) ? filters.filter : [filters.filter];
+			filterArray.forEach((filter: any) => {
+				if (!filter?.field) return;
+				const op = (filter.operation || 'eq').toString();
+				const opPart = op !== 'eq' ? `:${op}` : '';
+				qs[`filter[${filter.field}${opPart}]`] = filter.value;
+			});
+		}
+
+		return qs;
+	}
+
+	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number): Promise<any> {
+		let query = context.getNodeParameter('query', itemIndex) as string;
+		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
+		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
+		const page = context.getNodeParameter('page', itemIndex, 1) as number;
+
+		validateRequiredParameters(context.getNode(), { query }, ['query']);
+
+		if (typeFilter && typeFilter !== 'all') {
+			query += ` {type:${typeFilter}}`;
+		}
+
+		const qs = {
+			query,
+			count: Math.min(limit, 500),
+			page,
+		};
+
+		try {
+			const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
+				await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
+			return searchResponse.data || searchResponse;
+		} catch (error) {
+			console.error('BookStack Search Error:', { endpoint: '/search', query, qs, error });
+			const errorMsg = formatBookstackError(error);
+			throw new NodeOperationError(context.getNode(), `BookStack API Error: ${errorMsg}`, {
+				itemIndex,
+			});
+		}
+	}
+
+	private async handleAuditLogOperation(
+		context: IExecuteFunctions,
+		itemIndex: number,
+	): Promise<any> {
+		const limit = context.getNodeParameter('auditLimit', itemIndex, 50) as number;
+		const offset = context.getNodeParameter('auditOffset', itemIndex, 0) as number;
+
+		const qs = { count: Math.min(limit, 500), offset };
+		const res = await bookstackApiRequest.call(context, 'GET', '/audit-log', {}, qs);
+		return res?.data ?? res;
+	}
+
+	private async handleGetAllOperation(
+		context: IExecuteFunctions,
+		endpoint: string,
+		itemIndex: number,
+	): Promise<any> {
+		const qs = this.buildQueryParameters(context, itemIndex);
+		const fullEndpoint = `/${endpoint}`;
+		const offset = qs.offset as number;
+
+		if (offset !== undefined && offset > 0) {
+			const response = await bookstackApiRequest.call(context, 'GET', fullEndpoint, {}, qs);
+			return response.data;
+		} else {
+			return await bookstackApiRequestAllItems.call(
+				context,
+				'GET',
+				fullEndpoint,
+				{},
+				qs,
+				qs.count as number,
+			);
+		}
+	}
+
+	private async handleGetOperation(
+		context: IExecuteFunctions,
+		endpoint: string,
+		itemIndex: number,
+	): Promise<any> {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		return await bookstackApiRequest.call(context, 'GET', `/${endpoint}/${id}`, {}, {});
+	}
+
+	private async handleCreateOperation(
+		context: IExecuteFunctions,
+		resource: string,
+		endpoint: string,
+		itemIndex: number,
+	): Promise<any> {
+		const body = this.buildRequestBody(context, resource, itemIndex);
+
+		if (resource === 'page') {
+			this.validatePageCreation(body, context, itemIndex);
+		}
+
+		return await bookstackApiRequest.call(context, 'POST', `/${endpoint}`, body, {});
+	}
+
+	private async handleUpdateOperation(
+		context: IExecuteFunctions,
+		resource: string,
+		endpoint: string,
+		itemIndex: number,
+	): Promise<any> {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		const body = this.buildRequestBody(context, resource, itemIndex);
+
+		return await bookstackApiRequest.call(context, 'PUT', `/${endpoint}/${id}`, body, {});
+	}
+
+	private async handleDeleteOperation(
+		context: IExecuteFunctions,
+		endpoint: string,
+		itemIndex: number,
+	): Promise<any> {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		return await bookstackApiRequest.call(context, 'DELETE', `/${endpoint}/${id}`, {}, {});
+	}
+
+	private addResponseData(
+		responseData: any,
+		returnData: INodeExecutionData[],
+		itemIndex: number,
+	): void {
+		if (Array.isArray(responseData)) {
+			responseData.forEach((item: any) => {
+				returnData.push({
+					json: item,
+					pairedItem: { item: itemIndex },
+				});
+			});
+		} else if (responseData !== undefined) {
+			returnData.push({
+				json: responseData,
+				pairedItem: { item: itemIndex },
+			});
+		}
+	}
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
+		const nodeInstance = new Bookstack();
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -66,265 +286,33 @@ export class Bookstack implements INodeType {
 
 				if (resource === 'global') {
 					if (operation === 'search') {
-						let query = this.getNodeParameter('query', i) as string;
-						const typeFilter = this.getNodeParameter('typeFilter', i) as string;
-						const limit = this.getNodeParameter('limit', i, 100) as number;
-						const page = this.getNodeParameter('page', i, 1) as number;
-
-						validateRequiredParameters(this.getNode(), { query }, ['query']);
-
-						// Add type filter to query if specified
-						if (typeFilter && typeFilter !== 'all') {
-							query += ` {type:${typeFilter}}`;
-						}
-
-						// Build query parameters for BookStack search API
-						const qs: any = {
-							query: query,
-							count: Math.min(limit, 500), // BookStack API limit
-							page: page,
-						};
-
-						try {
-							const endpoint = '/search';
-
-							const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
-								await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
-							responseData = searchResponse.data || searchResponse;
-						} catch (error) {
-							// Enhanced error logging for debugging
-							console.error('BookStack Search Error:', {
-								endpoint: '/search',
-								query: query,
-								qs: qs,
-								error: error,
-							});
-
-							const errorMsg = formatBookstackError(error);
-							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, {
-								itemIndex: i,
-							});
-						}
+						responseData = await nodeInstance.handleSearchOperation(this, i);
 					} else if (operation === 'auditLogList') {
-						const limit = this.getNodeParameter('auditLimit', i, 50) as number;
-						const offset = this.getNodeParameter('auditOffset', i, 0) as number;
+						responseData = await nodeInstance.handleAuditLogOperation(this, i);
+					}
+				} else if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
+					const endpoint = nodeInstance.resourceEndpoints[resource];
 
-						const qs: any = { count: Math.min(limit, 500), offset };
-						const endpoint = '/audit-log';
-						const res = await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
-						responseData = res?.data ?? res;
+					switch (operation) {
+						case 'getAll':
+							responseData = await nodeInstance.handleGetAllOperation(this, endpoint, i);
+							break;
+						case 'get':
+							responseData = await nodeInstance.handleGetOperation(this, endpoint, i);
+							break;
+						case 'create':
+							responseData = await nodeInstance.handleCreateOperation(this, resource, endpoint, i);
+							break;
+						case 'update':
+							responseData = await nodeInstance.handleUpdateOperation(this, resource, endpoint, i);
+							break;
+						case 'delete':
+							responseData = await nodeInstance.handleDeleteOperation(this, endpoint, i);
+							break;
 					}
 				}
 
-				// CRUD for book, page, shelf, chapter
-				if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
-					let endpoint = '';
-					let body: any = {};
-
-					// Map resource names to correct API endpoints
-					const resourceEndpoints: { [key: string]: string } = {
-						book: 'books',
-						page: 'pages',
-						shelf: 'shelves',
-						chapter: 'chapters',
-					};
-
-					if (operation === 'getAll') {
-						endpoint = `/${resourceEndpoints[resource]}`;
-
-						const count = this.getNodeParameter('count', i) as number;
-						const offset = this.getNodeParameter('offset', i) as number;
-						const sortField = this.getNodeParameter('sortField', i) as string;
-						const sortDirection = this.getNodeParameter('sortDirection', i) as string;
-						const filters = this.getNodeParameter('filters', i, {}) as {
-							filter: Array<{ field: string; operation: string; value: string }>;
-						};
-
-						const qs: IDataObject = {
-							count,
-							offset,
-						};
-
-						if (sortField) {
-							qs.sort = sortDirection === 'desc' ? `-${sortField}` : `+${sortField}`;
-						}
-
-						if (filters.filter) {
-							// Ensure filters.filter is always an array (n8n may supply a single object when only one filter is set)
-							const filterArray = Array.isArray(filters.filter) ? filters.filter : [filters.filter];
-
-							filterArray.forEach((filter: any) => {
-								if (!filter || !filter.field) return;
-								// For 'eq' (equals) the API expects filter[field]=value (no :eq suffix). For other ops include :op
-								const op = (filter.operation || 'eq').toString();
-								const opPart = op && op !== 'eq' ? `:${op}` : '';
-								qs[`filter[${filter.field}${opPart}]`] = filter.value;
-							});
-						}
-
-						// If offset is provided, we don't need to paginate, just get that page.
-						if (offset !== undefined && offset > 0) {
-							const response = await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
-							responseData = response.data;
-						} else {
-							responseData = await bookstackApiRequestAllItems.call(
-								this,
-								'GET',
-								endpoint,
-								{},
-								qs,
-								count,
-							);
-						}
-					} else if (operation === 'get') {
-						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resourceEndpoints[resource]}/${id}`;
-						responseData = await bookstackApiRequest.call(this, 'GET', endpoint, {}, {});
-					} else if (operation === 'create') {
-						endpoint = `/${resourceEndpoints[resource]}`;
-						// Collect fields for create based on resource type
-						body = {};
-
-						if (resource === 'book') {
-							const bookFields = ['name', 'description', 'tags', 'default_template_id'];
-							for (const field of bookFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						} else if (resource === 'page') {
-							const pageFields = ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'];
-							for (const field of pageFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-
-							// Validate that at least book_id or chapter_id is provided for page creation
-							if (!body.book_id && !body.chapter_id) {
-								throw new NodeOperationError(
-									this.getNode(),
-									'Either book_id or chapter_id must be provided when creating a page',
-									{ itemIndex: i },
-								);
-							}
-
-							// Validate that at least html or markdown content is provided for page creation
-							if (!body.html && !body.markdown) {
-								throw new NodeOperationError(
-									this.getNode(),
-									'Either html or markdown content must be provided when creating a page',
-									{ itemIndex: i },
-								);
-							}
-						} else if (resource === 'chapter') {
-							const chapterFields = ['name', 'description', 'book_id', 'tags'];
-							for (const field of chapterFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						} else if (resource === 'shelf') {
-							const shelfFields = ['name', 'description', 'books', 'tags'];
-							for (const field of shelfFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						}
-
-						// Convert tags to array if present
-						if (body.tags && typeof body.tags === 'string') {
-							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
-						}
-
-						// Convert books to array of integers if present
-						if (body.books && typeof body.books === 'string') {
-							body.books = body.books
-								.split(',')
-								.map((id: string) => parseInt(id.trim(), 10))
-								.filter((id: number) => !isNaN(id));
-						}
-						responseData = await bookstackApiRequest.call(this, 'POST', endpoint, body, {});
-					} else if (operation === 'update') {
-						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resourceEndpoints[resource]}/${id}`;
-						body = {};
-
-						if (resource === 'book') {
-							const bookFields = ['name', 'description', 'tags', 'default_template_id'];
-							for (const field of bookFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						} else if (resource === 'page') {
-							const pageFields = ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'];
-							for (const field of pageFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						} else if (resource === 'chapter') {
-							const chapterFields = ['name', 'description', 'book_id', 'tags'];
-							for (const field of chapterFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						} else if (resource === 'shelf') {
-							const shelfFields = ['name', 'description', 'books', 'tags'];
-							for (const field of shelfFields) {
-								const value = this.getNodeParameter(field, i, undefined);
-								if (value !== undefined && value !== '') {
-									body[field] = value;
-								}
-							}
-						}
-
-						// Convert tags to array if present
-						if (body.tags && typeof body.tags === 'string') {
-							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
-						}
-
-						// Convert books to array of integers if present
-						if (body.books && typeof body.books === 'string') {
-							body.books = body.books
-								.split(',')
-								.map((id: string) => parseInt(id.trim(), 10))
-								.filter((id: number) => !isNaN(id));
-						}
-						responseData = await bookstackApiRequest.call(this, 'PUT', endpoint, body, {});
-					} else if (operation === 'delete') {
-						const id = this.getNodeParameter('id', i) as string;
-						endpoint = `/${resourceEndpoints[resource]}/${id}`;
-						responseData = await bookstackApiRequest.call(this, 'DELETE', endpoint, {}, {});
-					}
-				}
-
-				// Handle response data
-				if (Array.isArray(responseData)) {
-					// Multiple items
-					responseData.forEach((item: any) => {
-						returnData.push({
-							json: item,
-							pairedItem: { item: i },
-						});
-					});
-				} else if (responseData !== undefined) {
-					// Single item
-					returnData.push({
-						json: responseData,
-						pairedItem: { item: i },
-					});
-				}
+				nodeInstance.addResponseData(responseData, returnData, i);
 			} catch (error) {
 				const errorMessage = formatBookstackError(error);
 				throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
