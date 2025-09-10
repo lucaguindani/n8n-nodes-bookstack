@@ -1,4 +1,4 @@
-# n8n-bookstack
+# n8n-nodes-bookstack
 
 Custom n8n node for advanced integration with [BookStack](https://www.bookstackapp.com/) via its API.  
 
@@ -11,11 +11,11 @@ Easily manage **Books**, **Pages**, **Shelves**, **Chapters**, **Audit logs**, a
 1. Clone or copy this project into your local n8n custom nodes folder:  
 ```bash
 mkdir -p ~/.n8n/custom && cd ~/.n8n/custom
-git clone https://github.com/lucaguindani/n8n-bookstack.git
+git clone https://github.com/lucaguindani/n8n-nodes-bookstack.git
 ```
 2. Build the project:
 ```bash
-cd n8n-bookstack
+cd n8n-nodes-bookstack
 npm install
 npm run build
 ```

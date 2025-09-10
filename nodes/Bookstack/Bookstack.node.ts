@@ -13,13 +13,13 @@ import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { resourceProperty } from './descriptions/shared';
-import { 
-	bookstackApiRequest, 
+import {
+	bookstackApiRequest,
 	bookstackApiRequestAllItems,
 	validateRequiredParameters,
-	formatBookstackError
-} from '../../utils/BookstackApiHelpers';
-import { IBookstackListResponse, IBookstackSearchResult } from '../../types/BookstackTypes';
+	formatBookstackError,
+} from '../utils/BookstackApiHelpers';
+import { IBookstackListResponse, IBookstackSearchResult } from '../types/BookstackTypes';
 
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
@@ -82,7 +82,7 @@ export class Bookstack implements INodeType {
 						const qs: any = {
 							query: query,
 							count: Math.min(limit, 500), // BookStack API limit
-							page: page
+							page: page,
 						};
 
 						try {
@@ -97,11 +97,13 @@ export class Bookstack implements INodeType {
 								endpoint: '/search',
 								query: query,
 								qs: qs,
-								error: error
+								error: error,
 							});
 
 							const errorMsg = formatBookstackError(error);
-							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, { itemIndex: i });
+							throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, {
+								itemIndex: i,
+							});
 						}
 					} else if (operation === 'auditLogList') {
 						const limit = this.getNodeParameter('auditLimit', i, 50) as number;
@@ -121,10 +123,10 @@ export class Bookstack implements INodeType {
 
 					// Map resource names to correct API endpoints
 					const resourceEndpoints: { [key: string]: string } = {
-						'book': 'books',
-						'page': 'pages',
-						'shelf': 'shelves',
-						'chapter': 'chapters'
+						book: 'books',
+						page: 'pages',
+						shelf: 'shelves',
+						chapter: 'chapters',
 					};
 
 					if (operation === 'getAll') {
@@ -182,7 +184,15 @@ export class Bookstack implements INodeType {
 						endpoint = `/${resourceEndpoints[resource]}`;
 						// Collect fields for create
 						body = {};
-						const createFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
+						const createFields = [
+							'name',
+							'description',
+							'tags',
+							'book_id',
+							'chapter_id',
+							'html',
+							'markdown',
+						];
 						for (const field of createFields) {
 							const value = this.getNodeParameter(field, i, undefined);
 							if (value !== undefined && value !== '') {
@@ -198,7 +208,15 @@ export class Bookstack implements INodeType {
 						const id = this.getNodeParameter('id', i) as string;
 						endpoint = `/${resourceEndpoints[resource]}/${id}`;
 						body = {};
-						const updateFields = ['name', 'description', 'tags', 'book_id', 'chapter_id', 'html', 'markdown'];
+						const updateFields = [
+							'name',
+							'description',
+							'tags',
+							'book_id',
+							'chapter_id',
+							'html',
+							'markdown',
+						];
 						for (const field of updateFields) {
 							const value = this.getNodeParameter(field, i, undefined);
 							if (value !== undefined && value !== '') {

@@ -1,5 +1,5 @@
 {
-  "name": "n8n-bookstack",
+  "name": "n8n-nodes-bookstack",
   "version": "1.0.0",
   "description": "Custom n8n node for BookStack API",
   "keywords": [
@@ -30,8 +30,9 @@
   },
   "scripts": {
     "build": "tsc && gulp build:icons",
-    "lint": "eslint src/nodes src/credentials package.json",
-    "lintfix": "eslint src/nodes src/credentials package.json --fix",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
     "dev": "tsc --watch",
     "prepack": "npm run build"
   },
@@ -49,13 +50,14 @@
     "eslint": "^8.56.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^4.0.2",
+    "prettier": "^3.5.3",
     "typescript": "^5.2.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucaguindani/n8n-bookstack.git"
+    "url": "https://github.com/lucaguindani/n8n-nodes-bookstack.git"
   },
   "bugs": {
-    "url": "https://github.com/lucaguindani/n8n-bookstack/issues"
+    "url": "https://github.com/lucaguindani/n8n-nodes-bookstack/issues"
   }
 }

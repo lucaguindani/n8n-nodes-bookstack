@@ -18,7 +18,7 @@ module.exports = {
         extraFileExtensions: ['.json'],
     },
 
-    ignorePatterns: ['.eslintrc.js', '**/*.js', '**/node_modules/**', '**/dist/**'],
+    ignorePatterns: ['.eslintrc.js', '**/*.js', '**/node_modules/**', '**/dist/**', '**/*.d.ts'],
 
     overrides: [
         {
@@ -30,7 +30,7 @@ module.exports = {
             },
         },
         {
-            files: ['./src/credentials/**/*.ts'],
+            files: ['./credentials/**/*.ts'],
             plugins: ['eslint-plugin-n8n-nodes-base'],
             extends: ['plugin:n8n-nodes-base/credentials'],
             rules: {
@@ -50,7 +50,7 @@ module.exports = {
             },
         },
         {
-            files: ['./src/nodes/**/*.ts'],
+            files: ['./nodes/**/*.ts'],
             plugins: ['eslint-plugin-n8n-nodes-base'],
             extends: ['plugin:n8n-nodes-base/nodes'],
             rules: {

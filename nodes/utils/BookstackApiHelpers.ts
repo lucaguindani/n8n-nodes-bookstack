@@ -57,25 +57,25 @@ export async function bookstackApiRequest(
 	qs: IDataObject = {},
 ): Promise<any> {
 	const credentials = await this.getCredentials('bookstackApi');
-	
+
 	if (!credentials) {
 		throw new NodeOperationError(this.getNode(), 'No credentials found for BookStack API');
 	}
 
 	const baseUrl = credentials.baseUrl as string;
-	
+
 	// Remove leading slash from endpoint if present
 	const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-	
+
 	const options: IHttpRequestOptions = {
 		method,
 		body,
 		qs,
 		url: `${baseUrl}/${cleanEndpoint}`,
 		headers: {
-			'Authorization': `Token ${credentials.tokenId}:${credentials.tokenSecret}`,
+			Authorization: `Token ${credentials.tokenId}:${credentials.tokenSecret}`,
 			'Content-Type': 'application/json',
-			'Accept': 'application/json',
+			Accept: 'application/json',
 		},
 		json: true,
 	};
@@ -139,10 +139,11 @@ export async function bookstackApiRequestAllItems(
 
 		// Safety break to avoid infinite loops
 		if (offset > maxCount * 100) {
-			console.warn('BookStack pagination: Stopped after excessive pagination to prevent infinite loop');
+			console.warn(
+				'BookStack pagination: Stopped after excessive pagination to prevent infinite loop',
+			);
 			break;
 		}
-
 	} while (returnData.length < maxCount);
 
 	return returnData.slice(0, maxCount);
@@ -197,7 +198,7 @@ export function formatBookstackError(error: any): string {
 	if (error.response?.body?.error?.message) {
 		return error.response.body.error.message;
 	}
-	
+
 	if (error.response?.body?.message) {
 		return error.response.body.message;
 	}
@@ -209,15 +210,15 @@ export function formatBookstackError(error: any): string {
 	if (error.response?.status === 401) {
 		return 'Authentication failed. Please check your API credentials.';
 	}
-	
+
 	if (error.response?.status === 403) {
 		return 'Access denied. Please check your user permissions in BookStack.';
 	}
-	
+
 	if (error.response?.status === 404) {
 		return 'Resource not found. Please check the ID or URL.';
 	}
-	
+
 	if (error.response?.status === 422) {
 		return 'Invalid data provided. Please check your input parameters.';
 	}

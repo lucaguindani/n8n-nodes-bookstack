@@ -106,7 +106,8 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Markdown content of the page. If provided, this will be used instead of HTML content.',
+		description:
+			'Markdown content of the page. If provided, this will be used instead of HTML content.',
 	},
 	{
 		displayName: 'Tags',
@@ -119,7 +120,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the page'
+		description: 'Comma-separated tags for the page',
 	},
 	...listOperations.map((op) => ({
 		...op,
