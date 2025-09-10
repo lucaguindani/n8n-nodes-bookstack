@@ -186,13 +186,7 @@ export class Bookstack implements INodeType {
 						body = {};
 
 						if (resource === 'book') {
-							const bookFields = [
-								'name',
-								'description',
-								'description_html',
-								'tags',
-								'default_template_id',
-							];
+							const bookFields = ['name', 'description', 'tags', 'default_template_id'];
 							for (const field of bookFields) {
 								const value = this.getNodeParameter(field, i, undefined);
 								if (value !== undefined && value !== '') {
@@ -262,13 +256,7 @@ export class Bookstack implements INodeType {
 						body = {};
 
 						if (resource === 'book') {
-							const bookFields = [
-								'name',
-								'description',
-								'description_html',
-								'tags',
-								'default_template_id',
-							];
+							const bookFields = ['name', 'description', 'tags', 'default_template_id'];
 							for (const field of bookFields) {
 								const value = this.getNodeParameter(field, i, undefined);
 								if (value !== undefined && value !== '') {
