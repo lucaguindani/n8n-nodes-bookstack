@@ -247,6 +247,14 @@ export class Bookstack implements INodeType {
 						if (body.tags && typeof body.tags === 'string') {
 							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
 						}
+
+						// Convert books to array of integers if present
+						if (body.books && typeof body.books === 'string') {
+							body.books = body.books
+								.split(',')
+								.map((id: string) => parseInt(id.trim(), 10))
+								.filter((id: number) => !isNaN(id));
+						}
 						responseData = await bookstackApiRequest.call(this, 'POST', endpoint, body, {});
 					} else if (operation === 'update') {
 						const id = this.getNodeParameter('id', i) as string;
@@ -296,6 +304,14 @@ export class Bookstack implements INodeType {
 						// Convert tags to array if present
 						if (body.tags && typeof body.tags === 'string') {
 							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
+						}
+
+						// Convert books to array of integers if present
+						if (body.books && typeof body.books === 'string') {
+							body.books = body.books
+								.split(',')
+								.map((id: string) => parseInt(id.trim(), 10))
+								.filter((id: number) => !isNaN(id));
 						}
 						responseData = await bookstackApiRequest.call(this, 'PUT', endpoint, body, {});
 					} else if (operation === 'delete') {
