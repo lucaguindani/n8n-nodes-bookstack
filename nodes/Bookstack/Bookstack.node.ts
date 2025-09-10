@@ -186,7 +186,13 @@ export class Bookstack implements INodeType {
 						body = {};
 
 						if (resource === 'book') {
-							const bookFields = ['name', 'description', 'description_html', 'tags', 'default_template_id'];
+							const bookFields = [
+								'name',
+								'description',
+								'description_html',
+								'tags',
+								'default_template_id',
+							];
 							for (const field of bookFields) {
 								const value = this.getNodeParameter(field, i, undefined);
 								if (value !== undefined && value !== '') {
@@ -200,6 +206,24 @@ export class Bookstack implements INodeType {
 								if (value !== undefined && value !== '') {
 									body[field] = value;
 								}
+							}
+
+							// Validate that at least book_id or chapter_id is provided for page creation
+							if (!body.book_id && !body.chapter_id) {
+								throw new NodeOperationError(
+									this.getNode(),
+									'Either book_id or chapter_id must be provided when creating a page',
+									{ itemIndex: i },
+								);
+							}
+
+							// Validate that at least html or markdown content is provided for page creation
+							if (!body.html && !body.markdown) {
+								throw new NodeOperationError(
+									this.getNode(),
+									'Either html or markdown content must be provided when creating a page',
+									{ itemIndex: i },
+								);
 							}
 						} else if (resource === 'chapter') {
 							const chapterFields = ['name', 'description', 'book_id', 'tags'];
@@ -230,7 +254,13 @@ export class Bookstack implements INodeType {
 						body = {};
 
 						if (resource === 'book') {
-							const bookFields = ['name', 'description', 'description_html', 'tags', 'default_template_id'];
+							const bookFields = [
+								'name',
+								'description',
+								'description_html',
+								'tags',
+								'default_template_id',
+							];
 							for (const field of bookFields) {
 								const value = this.getNodeParameter(field, i, undefined);
 								if (value !== undefined && value !== '') {

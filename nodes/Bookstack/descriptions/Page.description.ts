@@ -59,7 +59,6 @@ export const pageFields: INodeProperties[] = [
 		displayName: 'Book ID',
 		name: 'book_id',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['page'],
@@ -67,7 +66,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this page belongs to',
+		description: 'ID of the book this page belongs to (required if no chapter_id)',
 	},
 	{
 		displayName: 'Chapter ID',
@@ -80,7 +79,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the chapter this page belongs to (optional)',
+		description: 'ID of the chapter this page belongs to (required if no book_id)',
 	},
 	{
 		displayName: 'HTML Content',
