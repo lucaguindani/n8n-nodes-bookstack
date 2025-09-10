@@ -71,6 +71,20 @@ export const shelfFields: INodeProperties[] = [
 		placeholder: 'Enter shelf description',
 	},
 	{
+		displayName: 'Books',
+		name: 'books',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['shelf'],
+				operation: ['create', 'update'],
+			},
+		},
+		default: '',
+		description: 'Comma-separated list of book IDs to add to this shelf',
+		placeholder: '123,456,789',
+	},
+	{
 		displayName: 'Tags',
 		name: 'tags',
 		type: 'string',

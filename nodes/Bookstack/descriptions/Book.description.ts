@@ -69,6 +69,32 @@ export const bookFields: INodeProperties[] = [
 		description: 'Description of the book',
 	},
 	{
+		displayName: 'Description HTML',
+		name: 'description_html',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['book'],
+				operation: ['create', 'update'],
+			},
+		},
+		default: '',
+		description: 'HTML description of the book',
+	},
+	{
+		displayName: 'Default Template ID',
+		name: 'default_template_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['book'],
+				operation: ['create', 'update'],
+			},
+		},
+		default: '',
+		description: 'ID of the default template for pages in this book',
+	},
+	{
 		displayName: 'Tags',
 		name: 'tags',
 		type: 'string',

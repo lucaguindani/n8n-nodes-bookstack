@@ -182,23 +182,43 @@ export class Bookstack implements INodeType {
 						responseData = await bookstackApiRequest.call(this, 'GET', endpoint, {}, {});
 					} else if (operation === 'create') {
 						endpoint = `/${resourceEndpoints[resource]}`;
-						// Collect fields for create
+						// Collect fields for create based on resource type
 						body = {};
-						const createFields = [
-							'name',
-							'description',
-							'tags',
-							'book_id',
-							'chapter_id',
-							'html',
-							'markdown',
-						];
-						for (const field of createFields) {
-							const value = this.getNodeParameter(field, i, undefined);
-							if (value !== undefined && value !== '') {
-								body[field] = value;
+
+						if (resource === 'book') {
+							const bookFields = ['name', 'description', 'description_html', 'tags', 'default_template_id'];
+							for (const field of bookFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'page') {
+							const pageFields = ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'];
+							for (const field of pageFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'chapter') {
+							const chapterFields = ['name', 'description', 'book_id', 'tags'];
+							for (const field of chapterFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'shelf') {
+							const shelfFields = ['name', 'description', 'books', 'tags'];
+							for (const field of shelfFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
 							}
 						}
+
 						// Convert tags to array if present
 						if (body.tags && typeof body.tags === 'string') {
 							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
@@ -208,21 +228,42 @@ export class Bookstack implements INodeType {
 						const id = this.getNodeParameter('id', i) as string;
 						endpoint = `/${resourceEndpoints[resource]}/${id}`;
 						body = {};
-						const updateFields = [
-							'name',
-							'description',
-							'tags',
-							'book_id',
-							'chapter_id',
-							'html',
-							'markdown',
-						];
-						for (const field of updateFields) {
-							const value = this.getNodeParameter(field, i, undefined);
-							if (value !== undefined && value !== '') {
-								body[field] = value;
+
+						if (resource === 'book') {
+							const bookFields = ['name', 'description', 'description_html', 'tags', 'default_template_id'];
+							for (const field of bookFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'page') {
+							const pageFields = ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'];
+							for (const field of pageFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'chapter') {
+							const chapterFields = ['name', 'description', 'book_id', 'tags'];
+							for (const field of chapterFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
+							}
+						} else if (resource === 'shelf') {
+							const shelfFields = ['name', 'description', 'books', 'tags'];
+							for (const field of shelfFields) {
+								const value = this.getNodeParameter(field, i, undefined);
+								if (value !== undefined && value !== '') {
+									body[field] = value;
+								}
 							}
 						}
+
+						// Convert tags to array if present
 						if (body.tags && typeof body.tags === 'string') {
 							body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
 						}
