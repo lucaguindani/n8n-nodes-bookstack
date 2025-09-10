@@ -6,17 +6,17 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation)  
-[Operations](#operations)  
-[Credentials](#credentials)  
-[Compatibility](#compatibility)  
-[Usage](#usage)  
-[Resources](#resources)  
-[Version history](#version-history)  
-[License](#license)
-[Contributing](#contributing)
-[Security](#security)
-[Disclaimer](#disclaimer)
+- [Installation](#installation)  
+- [Operations](#operations)  
+- [Credentials](#credentials)  
+- [Compatibility](#compatibility)  
+- [Usage](#usage)  
+- [Resources](#resources)  
+- [Version history](#version-history)
+- [License](#license)
+- [Contributing](#contributing)
+- [Security](#security)
+- [Disclaimer](#disclaimer)
 
 ---
 ## Installation
