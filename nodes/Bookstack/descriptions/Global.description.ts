@@ -51,7 +51,7 @@ export const globalFields: INodeProperties[] = [
 			{ name: 'Books', value: 'book' },
 			{ name: 'Pages', value: 'page' },
 			{ name: 'Chapters', value: 'chapter' },
-			{ name: 'Shelves', value: 'shelf' },
+			{ name: 'Shelves', value: 'bookshelf' },
 		],
 		default: 'all',
 		description:
