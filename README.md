@@ -144,7 +144,7 @@ npm run lint
 npm run format
 npm run build
 ```
-Before committing, ensure build passes and no lint errors. Provide clear PR description.
+Before committing, ensure build passes and no lint or formatting errors. Provide clear PR description.
 
 ---
 ## Security
