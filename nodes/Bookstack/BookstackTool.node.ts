@@ -228,7 +228,6 @@ export class BookstackTool implements INodeType {
 										...fullContent,
 										description_html: contentResponse.description || null,
 										contents: contentResponse.contents || null,
-										owned_by: contentResponse.owned_by || null,
 										cover: contentResponse.cover || null,
 									};
 								}
