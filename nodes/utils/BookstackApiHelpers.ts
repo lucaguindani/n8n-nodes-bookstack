@@ -7,7 +7,7 @@ import {
 	JsonObject,
 	NodeOperationError,
 } from 'n8n-workflow';
-import { IBookstackListResponse, IBookstackApiRequestOptions } from '../types/BookstackTypes';
+import { IBookstackListResponse } from '../types/BookstackTypes';
 
 /**
  * Handle and format BookStack API errors
@@ -147,33 +147,6 @@ export async function bookstackApiRequestAllItems(
 	} while (returnData.length < maxCount);
 
 	return returnData.slice(0, maxCount);
-}
-
-/**
- * Handle BookStack API query parameters and filters
- */
-export function buildQueryString(options: IBookstackApiRequestOptions): IDataObject {
-	const qs: IDataObject = {};
-
-	if (options.count !== undefined) {
-		qs.count = Math.min(options.count, 500); // BookStack max
-	}
-
-	if (options.offset !== undefined) {
-		qs.offset = options.offset;
-	}
-
-	if (options.sort) {
-		qs.sort = options.sort;
-	}
-
-	if (options.filter) {
-		for (const [key, value] of Object.entries(options.filter)) {
-			qs[`filter[${key}]`] = value;
-		}
-	}
-
-	return qs;
 }
 
 /**
