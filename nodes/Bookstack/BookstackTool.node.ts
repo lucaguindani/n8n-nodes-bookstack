@@ -150,6 +150,8 @@ export class BookstackTool implements INodeType {
 							name: item.name || null,
 							type: item.type || null,
 							url: item.url || null,
+							created_at: item.created_at || null,
+							updated_at: item.updated_at || null,
 							preview: item.preview_html || null,
 							tags: item.tags || null,
 							book: item.book || null,
@@ -194,8 +196,6 @@ export class BookstackTool implements INodeType {
 
 								// Common fields
 								let fullContent: any = {
-									created_at: contentResponse.created_at || null,
-									updated_at: contentResponse.updated_at || null,
 									created_by: contentResponse.created_by || null,
 									updated_by: contentResponse.updated_by || null,
 								};
