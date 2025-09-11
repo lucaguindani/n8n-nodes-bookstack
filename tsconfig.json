@@ -19,11 +19,11 @@
     "declaration": true,
     "sourceMap": true,
     "skipLibCheck": true,
-    "outDir": "./dist/",
+    "outDir": "./dist/"
   },
   "include": [
-    "credentials/**/*.ts",
-    "nodes/**/*.ts",
+    "credentials/**/*",
+    "nodes/**/*",
     "./.eslintrc.js",
     "./package.json",
   ],

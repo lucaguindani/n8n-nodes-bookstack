@@ -1,5 +1,5 @@
-import { IExecuteFunctions } from 'n8n-workflow';
 import {
+	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
@@ -18,16 +18,17 @@ import {
 	bookstackApiRequestAllItems,
 	validateRequiredParameters,
 	formatBookstackError,
-} from '../utils/BookstackApiHelpers';
-import { IBookstackListResponse, IBookstackSearchResult } from '../types/BookstackTypes';
+} from './utils/BookstackApiHelpers';
+import { IBookstackListResponse, IBookstackSearchResult } from './types/BookstackTypes';
 
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'BookStack',
 		name: 'bookstack',
-		icon: 'file:bookstack.svg',
-		group: ['transform'],
+		icon: { light: 'file:../../icons/bookstack.svg', dark: 'file:../../icons/bookstack.dark.svg' },
+		group: ['input'],
 		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Manage BookStack resources',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
@@ -163,7 +164,6 @@ export class Bookstack implements INodeType {
 				await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
 			return searchResponse.data || searchResponse;
 		} catch (error) {
-			console.error('BookStack Search Error:', { endpoint: '/search', query, qs, error });
 			const errorMsg = formatBookstackError(error);
 			throw new NodeOperationError(context.getNode(), `BookStack API Error: ${errorMsg}`, {
 				itemIndex,

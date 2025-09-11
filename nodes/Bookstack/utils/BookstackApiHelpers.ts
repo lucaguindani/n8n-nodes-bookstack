@@ -1,8 +1,9 @@
-import { ILoadOptionsFunctions, IExecuteFunctions } from 'n8n-workflow';
 import {
 	IDataObject,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
+	IExecuteFunctions,
 	NodeApiError,
 	JsonObject,
 	NodeOperationError,
@@ -139,9 +140,6 @@ export async function bookstackApiRequestAllItems(
 
 		// Safety break to avoid infinite loops
 		if (offset > maxCount * 100) {
-			console.warn(
-				'BookStack pagination: Stopped after excessive pagination to prevent infinite loop',
-			);
 			break;
 		}
 	} while (returnData.length < maxCount);

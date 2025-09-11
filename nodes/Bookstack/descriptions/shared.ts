@@ -7,10 +7,10 @@ export const resourceProperty: INodeProperties = {
 	noDataExpression: true,
 	options: [
 		{ name: 'Book', value: 'book' },
-		{ name: 'Page', value: 'page' },
-		{ name: 'Shelf', value: 'shelf' },
 		{ name: 'Chapter', value: 'chapter' },
 		{ name: 'Global', value: 'global' },
+		{ name: 'Page', value: 'page' },
+		{ name: 'Shelf', value: 'shelf' },
 	],
 	default: 'global',
 	description: 'The BookStack resource to work with',

@@ -10,9 +10,11 @@
     "api",
     "ai-tool"
   ],
-  "author": "Luca Guindani <luca.guindani@gmail.com>",
+  "author": {
+    "name": "Luca Guindani",
+    "email": "luca.guindani@gmail.com"
+  },
   "license": "MIT",
-  "main": "index.js",
   "files": [
     "dist"
   ],
@@ -27,27 +29,27 @@
     ]
   },
   "scripts": {
-    "build": "tsc && gulp build:icons",
-    "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "dev": "tsc --watch",
-    "prepack": "npm run build"
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "format": "prettier nodes credentials --check",
+    "format:fix": "prettier nodes credentials --write",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
   },
   "dependencies": {
-    "n8n-workflow": "^1.0.0"
+    "n8n-workflow": "^1.82.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/nock": "^10.0.3",
-    "@types/node": "^20.0.0",
-    "@types/ssh2": "^1.15.5",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.56.0",
+    "@n8n/node-cli": "^0.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.32.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
-    "gulp": "^4.0.2",
     "prettier": "^3.5.3",
+    "release-it": "^19.0.4",
     "typescript": "^5.2.0"
   },
   "repository": {

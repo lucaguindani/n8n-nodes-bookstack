@@ -10,15 +10,16 @@ import {
 	bookstackApiRequest,
 	validateRequiredParameters,
 	formatBookstackError,
-} from '../utils/BookstackApiHelpers';
+} from './utils/BookstackApiHelpers';
 
 export class BookstackTool implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'BookStack Tool',
 		name: 'bookstackTool',
-		icon: 'file:bookstack.svg',
-		group: ['transform'],
+		icon: { light: 'file:../../icons/bookstack.svg', dark: 'file:../../icons/bookstack.dark.svg' },
+		group: ['input'],
 		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
 			'Access and search BookStack knowledge base content. Use this tool to search across all content types (books, pages, chapters, shelves) in BookStack.',
 		defaults: {

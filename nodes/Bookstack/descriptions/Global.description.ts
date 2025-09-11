@@ -49,8 +49,8 @@ export const globalFields: INodeProperties[] = [
 		options: [
 			{ name: 'All Types', value: 'all' },
 			{ name: 'Books', value: 'book' },
-			{ name: 'Pages', value: 'page' },
 			{ name: 'Chapters', value: 'chapter' },
+			{ name: 'Pages', value: 'page' },
 			{ name: 'Shelves', value: 'bookshelf' },
 		],
 		default: 'all',

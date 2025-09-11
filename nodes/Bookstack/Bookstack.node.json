@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-base.bookstack",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/lucaguindani/n8n-nodes-bookstack?tab=readme-ov-file#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/lucaguindani/n8n-nodes-bookstack?tab=readme-ov-file"
+			}
+		]
+	}
+}
