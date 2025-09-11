@@ -60,7 +60,8 @@ export class BookstackTool implements INodeType {
 				},
 				default: '',
 				placeholder: 'e.g., installation guide, API documentation',
-				description: 'Keywords, phrases, or terms to search for in the content. Use the {{ $fromAI("searchQuery") }} expression to let the AI model auto-fill the field.',
+				description:
+					'Keywords, phrases, or terms to search for in the content. Use the {{ $fromAI("searchQuery") }} expression to let the AI model auto-fill the field.',
 			},
 			{
 				displayName: 'Content Type Filter',
@@ -141,32 +142,33 @@ export class BookstackTool implements INodeType {
 
 				const apiResponse = await bookstackApiRequest.call(this, 'GET', endpoint, {}, qs);
 
-				// Structure results for better AI understanding
+				// Structure results
 				const results = apiResponse.data || apiResponse;
 				let structuredResults = Array.isArray(results)
 					? results.map((item: any) => ({
-							type: item.type,
-							id: item.id,
-							name: item.name || item.title,
-							preview: item.preview_content || item.preview || '',
-							url: item.url,
-							book_id: item.book_id,
-							chapter_id: item.chapter_id,
-							tags: item.tags || [],
+							id: item.id || null,
+							name: item.name || null,
+							type: item.type || null,
+							url: item.url || null,
+							preview: item.preview_html || null,
+							tags: item.tags || null,
+							book: item.book || null,
+							chapter: item.chapter || null,
 						}))
 					: results;
 
-				// Deep dive to fetch full content if enabled - process sequentially
+				// Deep dive to fetch full content if enabled
 				if (deepDive && Array.isArray(structuredResults)) {
 					const enhancedResults = [];
 
 					for (const item of structuredResults) {
-						if (item.type === 'page' || item.type === 'chapter' || item.type === 'book' || item.type === 'bookshelf') {
+						// Check if item has required fields for deep dive
+						if (item.id && item.type) {
 							try {
 								const contentId = item.id;
 								let contentEndpoint = '';
 
-								// Determine the correct API endpoint based on content type
+								// Determine the correct API endpoint based on type
 								switch (item.type) {
 									case 'page':
 										contentEndpoint = `/pages/${contentId}`;
@@ -190,41 +192,54 @@ export class BookstackTool implements INodeType {
 									{},
 								);
 
-								// Structure the full content based on type
+								// Common fields
 								let fullContent: any = {
-									created_at: contentResponse.created_at,
-									updated_at: contentResponse.updated_at,
+									created_at: contentResponse.created_at || null,
+									updated_at: contentResponse.updated_at || null,
+									created_by: contentResponse.created_by || null,
+									updated_by: contentResponse.updated_by || null,
 								};
 
-								// Pages and chapters have HTML/markdown/plain text content
-								if (item.type === 'page' || item.type === 'chapter') {
+								// Pages-specific fields
+								if (item.type === 'page') {
 									fullContent = {
 										...fullContent,
-										html: contentResponse.html || '',
-										markdown: contentResponse.markdown || '',
-										plain: contentResponse.plain || '',
-										description: contentResponse.description || '',
+										priority: contentResponse.priority || null,
+										revision_count: contentResponse.revision_count || null,
+										draft: contentResponse.draft || null,
+										html: contentResponse.html || null,
+										markdown: contentResponse.markdown || null,
 									};
 								}
 
-								// Books have structure and contents
+								// Chapters-specific fields
+								if (item.type === 'chapter') {
+									fullContent = {
+										...fullContent,
+										priority: contentResponse.priority || null,
+										description_html: contentResponse.description || null,
+										pages: contentResponse.pages || null,
+									};
+								}
+
+								// Books-specific fields
 								if (item.type === 'book') {
 									fullContent = {
 										...fullContent,
-										description: contentResponse.description || '',
-										contents: contentResponse.contents || [],
-										owned_by: contentResponse.owned_by,
-										cover: contentResponse.cover,
+										description_html: contentResponse.description || null,
+										contents: contentResponse.contents || null,
+										owned_by: contentResponse.owned_by || null,
+										cover: contentResponse.cover || null,
 									};
 								}
 
-								// Bookshelves have books collection
+								// Bookshelves-specific fields
 								if (item.type === 'bookshelf') {
 									fullContent = {
 										...fullContent,
-										description: contentResponse.description || '',
-										books: contentResponse.books || [],
-										owned_by: contentResponse.owned_by,
+										description_html: contentResponse.description || null,
+										books: contentResponse.books || null,
+										cover: contentResponse.cover || null,
 									};
 								}
 
@@ -237,11 +252,11 @@ export class BookstackTool implements INodeType {
 								enhancedResults.push({
 									...item,
 									fullContent: null,
-									contentError: `Failed to fetch full content for ${item.type}`,
+									contentError: `Failed to fetch full content for ${item.id}`,
 								});
 							}
 						} else {
-							// For other content types, just add them as-is
+							// If the item is missing a required field, add them as-is
 							enhancedResults.push(item);
 						}
 					}
