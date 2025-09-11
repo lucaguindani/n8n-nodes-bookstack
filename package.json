@@ -10,9 +10,7 @@
     "api",
     "ai-tool"
   ],
-  "author": {
-    "name": "Luca Guindani"
-  },
+  "author": "Luca Guindani <luca.guindani@gmail.com>",
   "license": "MIT",
   "main": "index.js",
   "files": [
@@ -58,5 +56,6 @@
   },
   "bugs": {
     "url": "https://github.com/lucaguindani/n8n-nodes-bookstack/issues"
-  }
+  },
+  "homepage": "https://github.com/lucaguindani/n8n-nodes-bookstack"
 }
