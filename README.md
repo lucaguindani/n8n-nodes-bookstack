@@ -24,8 +24,6 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 ### Community node (recommended)
 Follow the official guide: [Install a community node](https://docs.n8n.io/integrations/community-nodes/installation/).
 
-Package name (if published to npm): (pending publication)
-
 ### Manual (custom code folder)
 If you are running a self‑hosted n8n and want to build from source:
 ```bash
@@ -66,49 +64,44 @@ Resource: Global
 
 AI Tool (Bookstack Tool node)
 - Global Search (optional deep content retrieval)
-- Get Book Details
-- Search Books
-- Get Page Content
-- List All Books
 
 ---
 ## Credentials
 You need a BookStack API Token.
-1. In BookStack, open: My Profile → API Tokens (`/my-account/api-tokens` or `/my-account/auth` depending on version).
-2. Create a token; copy Token ID and Token Secret.
+1. In BookStack, open: My Account → Access & Security (`/my-account/auth`)
+2. Create a token; copy Token ID and Token Secret
 3. In n8n, create new credentials of type "Bookstack API":
    - Base URL: e.g. `https://your-bookstack.example.com/api`
    - Token ID
    - Token Secret
-4. Save and use in the node.
+4. Save and use in the node
 
-Required permission: The token inherits the permissions of the user who created it. Ensure that user can read/create/update intended entities.
+Required permission: The token inherits the permissions of the user who created it. Ensure that user can read/create/update intended entities. Audit Log requires permission to manage both users and system settings.
 
 ---
 ## Compatibility
-- Tested with n8n 1.109.  
-- BookStack API versions: tested against BookStack 23.x and 24.x (standard REST endpoints).  
-- Max page size enforced by BookStack: 500 items per request.
+- Tested with n8n 1.109+
+- BookStack API versions: tested against BookStack 23.x and 24.x (standard REST endpoints)
 
 ---
 ## Usage
 ### Listing (Get Many)
-Standard query parameters supported (mirrors BookStack API):
+Standard query parameters supported:
 - count (max results per request, 1–500)
 - offset (starting index)
 - sort (field name, ascending/descending)
 - filter (field name, operation, value)
 
 ### Global Search
-- Provide a search query and optionally pick a content type (book, page, chapter, shelf).
-- Limit and page control pagination.
+- Provide a search query and optionally pick a content type (book, page, chapter, shelf)
+- Limit and page control pagination
 
 ### Tags
 When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.
 
 ### AI Tool Node
 Use the companion "BookStack Tool" node in AI workflows:
-- Global search that can optionally fetch full content (with the "Deep Dive Into Content" option) for downstream LLM processing.
+- Global search that can optionally fetch full content (with the "Deep Dive" option) for downstream LLM processing.
 
 ### Error Handling
 Common errors are formatted for clarity:
@@ -144,7 +137,7 @@ npm run lint
 npm run format
 npm run build
 ```
-Before committing, ensure build passes and no lint or formatting errors. Provide clear PR description.
+Before committing, ensure build passes and no lint or formatting errors. Provide a clear PR description.
 
 ---
 ## Security
