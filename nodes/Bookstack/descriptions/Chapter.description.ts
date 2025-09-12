@@ -24,7 +24,6 @@ export const chapterOperations: INodeProperties[] = [
 ];
 
 export const chapterFields: INodeProperties[] = [
-	// ID field for Get, Update, Delete
 	{
 		displayName: 'Chapter ID',
 		name: 'id',
@@ -40,7 +39,6 @@ export const chapterFields: INodeProperties[] = [
 		description: 'The unique identifier of the chapter',
 		placeholder: 'Enter chapter ID (e.g., 101)',
 	},
-	// Fields for Create/Update
 	{
 		displayName: 'Book ID',
 		name: 'book_id',

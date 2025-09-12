@@ -24,7 +24,6 @@ export const pageOperations: INodeProperties[] = [
 ];
 
 export const pageFields: INodeProperties[] = [
-	// ID field for Get, Update, Delete
 	{
 		displayName: 'Page ID',
 		name: 'id',
@@ -40,7 +39,6 @@ export const pageFields: INodeProperties[] = [
 		description: 'The unique identifier of the page',
 		placeholder: 'Enter page ID (e.g., 456)',
 	},
-	// Fields for Create/Update
 	{
 		displayName: 'Name',
 		name: 'name',

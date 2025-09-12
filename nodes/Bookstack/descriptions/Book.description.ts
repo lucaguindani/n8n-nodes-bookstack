@@ -24,7 +24,6 @@ export const bookOperations: INodeProperties[] = [
 ];
 
 export const bookFields: INodeProperties[] = [
-	// ID field for Get, Update, Delete
 	{
 		displayName: 'Book ID',
 		name: 'id',
@@ -40,7 +39,6 @@ export const bookFields: INodeProperties[] = [
 		description: 'The unique identifier of the book',
 		placeholder: 'Enter book ID (e.g., 123)',
 	},
-	// Fields for Create/Update
 	{
 		displayName: 'Name',
 		name: 'name',

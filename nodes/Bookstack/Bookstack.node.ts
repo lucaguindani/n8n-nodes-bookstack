@@ -5,6 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeOperationError,
 	IDataObject,
+	JsonObject,
 } from 'n8n-workflow';
 
 import { bookOperations, bookFields } from './descriptions/Book.description';
@@ -17,9 +18,8 @@ import {
 	bookstackApiRequest,
 	bookstackApiRequestAllItems,
 	validateRequiredParameters,
-	formatBookstackError,
 } from './utils/BookstackApiHelpers';
-import { IBookstackListResponse, IBookstackSearchResult } from './types/BookstackTypes';
+import { IBookstackFilters } from './types/BookstackTypes';
 
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
@@ -68,8 +68,12 @@ export class Bookstack implements INodeType {
 		shelf: ['name', 'description', 'books', 'tags'],
 	};
 
-	private buildRequestBody(context: IExecuteFunctions, resource: string, itemIndex: number): any {
-		const body: any = {};
+	private buildRequestBody(
+		context: IExecuteFunctions,
+		resource: string,
+		itemIndex: number,
+	): IDataObject {
+		const body: IDataObject = {};
 		const fields = this.resourceFields[resource];
 
 		for (const field of fields) {
@@ -95,7 +99,11 @@ export class Bookstack implements INodeType {
 		return body;
 	}
 
-	private validatePageCreation(body: any, context: IExecuteFunctions, itemIndex: number): void {
+	private validatePageCreation(
+		body: IDataObject,
+		context: IExecuteFunctions,
+		itemIndex: number,
+	): void {
 		if (!body.book_id && !body.chapter_id) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -118,9 +126,7 @@ export class Bookstack implements INodeType {
 		const offset = context.getNodeParameter('offset', itemIndex) as number;
 		const sortField = context.getNodeParameter('sortField', itemIndex) as string;
 		const sortDirection = context.getNodeParameter('sortDirection', itemIndex) as string;
-		const filters = context.getNodeParameter('filters', itemIndex, {}) as {
-			filter: Array<{ field: string; operation: string; value: string }>;
-		};
+		const filters = context.getNodeParameter('filters', itemIndex, {}) as IDataObject;
 
 		const qs: IDataObject = { count, offset };
 
@@ -130,7 +136,7 @@ export class Bookstack implements INodeType {
 
 		if (filters.filter) {
 			const filterArray = Array.isArray(filters.filter) ? filters.filter : [filters.filter];
-			filterArray.forEach((filter: any) => {
+			filterArray.forEach((filter: IBookstackFilters) => {
 				if (!filter?.field) return;
 				const op = (filter.operation || 'eq').toString();
 				const opPart = op !== 'eq' ? `:${op}` : '';
@@ -141,7 +147,7 @@ export class Bookstack implements INodeType {
 		return qs;
 	}
 
-	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number): Promise<any> {
+	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number) {
 		let query = context.getNodeParameter('query', itemIndex) as string;
 		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
 		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
@@ -160,21 +166,14 @@ export class Bookstack implements INodeType {
 		};
 
 		try {
-			const searchResponse: IBookstackListResponse<IBookstackSearchResult> =
-				await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
-			return searchResponse.data || searchResponse;
+			const searchResponse = await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
+			return searchResponse.data.length ? searchResponse : searchResponse.data;
 		} catch (error) {
-			const errorMsg = formatBookstackError(error);
-			throw new NodeOperationError(context.getNode(), `BookStack API Error: ${errorMsg}`, {
-				itemIndex,
-			});
+			throw new NodeOperationError(context.getNode(), error.message, { itemIndex });
 		}
 	}
 
-	private async handleAuditLogOperation(
-		context: IExecuteFunctions,
-		itemIndex: number,
-	): Promise<any> {
+	private async handleAuditLogOperation(context: IExecuteFunctions, itemIndex: number) {
 		const limit = context.getNodeParameter('auditLimit', itemIndex, 50) as number;
 		const offset = context.getNodeParameter('auditOffset', itemIndex, 0) as number;
 
@@ -187,7 +186,7 @@ export class Bookstack implements INodeType {
 		context: IExecuteFunctions,
 		endpoint: string,
 		itemIndex: number,
-	): Promise<any> {
+	) {
 		const qs = this.buildQueryParameters(context, itemIndex);
 		const fullEndpoint = `/${endpoint}`;
 		const offset = qs.offset as number;
@@ -211,7 +210,7 @@ export class Bookstack implements INodeType {
 		context: IExecuteFunctions,
 		endpoint: string,
 		itemIndex: number,
-	): Promise<any> {
+	) {
 		const id = context.getNodeParameter('id', itemIndex) as string;
 		return await bookstackApiRequest.call(context, 'GET', `/${endpoint}/${id}`, {}, {});
 	}
@@ -221,7 +220,7 @@ export class Bookstack implements INodeType {
 		resource: string,
 		endpoint: string,
 		itemIndex: number,
-	): Promise<any> {
+	) {
 		const body = this.buildRequestBody(context, resource, itemIndex);
 
 		if (resource === 'page') {
@@ -236,7 +235,7 @@ export class Bookstack implements INodeType {
 		resource: string,
 		endpoint: string,
 		itemIndex: number,
-	): Promise<any> {
+	) {
 		const id = context.getNodeParameter('id', itemIndex) as string;
 		const body = this.buildRequestBody(context, resource, itemIndex);
 
@@ -247,29 +246,9 @@ export class Bookstack implements INodeType {
 		context: IExecuteFunctions,
 		endpoint: string,
 		itemIndex: number,
-	): Promise<any> {
+	) {
 		const id = context.getNodeParameter('id', itemIndex) as string;
 		return await bookstackApiRequest.call(context, 'DELETE', `/${endpoint}/${id}`, {}, {});
-	}
-
-	private addResponseData(
-		responseData: any,
-		returnData: INodeExecutionData[],
-		itemIndex: number,
-	): void {
-		if (Array.isArray(responseData)) {
-			responseData.forEach((item: any) => {
-				returnData.push({
-					json: item,
-					pairedItem: { item: itemIndex },
-				});
-			});
-		} else if (responseData !== undefined) {
-			returnData.push({
-				json: responseData,
-				pairedItem: { item: itemIndex },
-			});
-		}
 	}
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -282,7 +261,7 @@ export class Bookstack implements INodeType {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
 
-				let responseData: any;
+				let responseData;
 
 				if (resource === 'global') {
 					if (operation === 'search') {
@@ -312,10 +291,21 @@ export class Bookstack implements INodeType {
 					}
 				}
 
-				nodeInstance.addResponseData(responseData, returnData, i);
+				if (Array.isArray(responseData)) {
+					responseData.forEach((item: JsonObject) => {
+						returnData.push({
+							json: item,
+							pairedItem: { item: i },
+						});
+					});
+				} else if (responseData !== undefined) {
+					returnData.push({
+						json: responseData,
+						pairedItem: { item: i },
+					});
+				}
 			} catch (error) {
-				const errorMessage = formatBookstackError(error);
-				throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
+				throw new NodeOperationError(this.getNode(), error.message || error, { itemIndex: i });
 			}
 		}
 

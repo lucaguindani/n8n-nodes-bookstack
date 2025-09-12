@@ -4,13 +4,10 @@ import {
 	IExecuteFunctions,
 	INodeExecutionData,
 	NodeOperationError,
+	JsonObject,
 } from 'n8n-workflow';
 
-import {
-	bookstackApiRequest,
-	validateRequiredParameters,
-	formatBookstackError,
-} from './utils/BookstackApiHelpers';
+import { bookstackApiRequest, validateRequiredParameters } from './utils/BookstackApiHelpers';
 
 export class BookstackTool implements INodeType {
 	description: INodeTypeDescription = {
@@ -76,8 +73,8 @@ export class BookstackTool implements INodeType {
 				options: [
 					{ name: 'All Content', value: 'all' },
 					{ name: 'Books Only', value: 'book' },
-					{ name: 'Pages Only', value: 'page' },
 					{ name: 'Chapters Only', value: 'chapter' },
+					{ name: 'Pages Only', value: 'page' },
 					{ name: 'Shelves Only', value: 'bookshelf' },
 				],
 				default: 'all',
@@ -146,7 +143,7 @@ export class BookstackTool implements INodeType {
 				// Structure results
 				const results = apiResponse.data || apiResponse;
 				let structuredResults = Array.isArray(results)
-					? results.map((item: any) => ({
+					? results.map((item: JsonObject) => ({
 							id: item.id || null,
 							name: item.name || null,
 							type: item.type || null,
@@ -196,7 +193,7 @@ export class BookstackTool implements INodeType {
 								);
 
 								// Common fields
-								let fullContent: any = {
+								let fullContent: JsonObject = {
 									created_by: contentResponse.created_by || null,
 									updated_by: contentResponse.updated_by || null,
 								};
@@ -247,12 +244,12 @@ export class BookstackTool implements INodeType {
 									...item,
 									fullContent,
 								});
-							} catch (contentError) {
+							} catch {
 								// If content fetch fails, include the item with error info
 								enhancedResults.push({
 									...item,
 									fullContent: null,
-									contentError: `Failed to fetch full content for ${item.id}`,
+									contentError: `Failed to fetch full content for this item`,
 								});
 							}
 						} else {
@@ -279,20 +276,19 @@ export class BookstackTool implements INodeType {
 					json: responseData,
 					pairedItem: { item: i },
 				});
-			} catch (error: any) {
-				const errorMsg = formatBookstackError(error);
+			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({
 						json: {
-							error: `BookStack API Error: ${errorMsg}`,
+							error: `BookStack API Error`,
 							operation: 'globalSearch',
 						},
-						pairedItem: { item: i },
+						pairedItem: {
+							item: i,
+						},
 					});
 				} else {
-					throw new NodeOperationError(this.getNode(), `BookStack API Error: ${errorMsg}`, {
-						itemIndex: i,
-					});
+					throw new NodeOperationError(this.getNode(), error.message || error, { itemIndex: i });
 				}
 			}
 		}

@@ -1,62 +1,27 @@
 import {
 	IDataObject,
+	IHookFunctions,
+	IExecuteSingleFunctions,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
 	ILoadOptionsFunctions,
 	IExecuteFunctions,
-	NodeApiError,
 	JsonObject,
 	NodeOperationError,
+	INode,
+	NodeApiError,
 } from 'n8n-workflow';
-import { IBookstackListResponse } from '../types/BookstackTypes';
-
-/**
- * Handle and format BookStack API errors
- */
-function handleBookstackError(node: any, error: unknown): NodeApiError {
-	if (error instanceof NodeApiError) {
-		// If it's already a NodeApiError, just re-throw it
-		return error;
-	}
-
-	let errorDetails: JsonObject = {};
-
-	if (error instanceof Error) {
-		// Standard Error object
-		const errorResponse = (error as any).response?.body || (error as any).response || {};
-		errorDetails = {
-			name: error.name,
-			message: formatBookstackError(error),
-			stack: error.stack ?? null,
-			response: errorResponse,
-		};
-	} else if (typeof error === 'object' && error !== null) {
-		// Other object types
-		errorDetails = {
-			message: formatBookstackError(error),
-			...error,
-		};
-	} else {
-		// Primitives or other types
-		errorDetails = {
-			message: 'An unknown error occurred',
-			error: String(error),
-		};
-	}
-
-	return new NodeApiError(node, errorDetails);
-}
 
 /**
  * Make an API request to BookStack
  */
 export async function bookstackApiRequest(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
 	endpoint: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},
-): Promise<any> {
+) {
 	const credentials = await this.getCredentials('bookstackApi');
 
 	if (!credentials) {
@@ -84,7 +49,7 @@ export async function bookstackApiRequest(
 	try {
 		return await this.helpers.httpRequest(options);
 	} catch (error) {
-		throw handleBookstackError(this.getNode(), error);
+		throw new NodeApiError(this.getNode(), error);
 	}
 }
 
@@ -92,14 +57,14 @@ export async function bookstackApiRequest(
  * Make an API request to get all items (handles pagination)
  */
 export async function bookstackApiRequestAllItems(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
 	endpoint: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},
 	maxCount = 500,
-): Promise<any[]> {
-	let returnData: any[] = [];
+) {
+	const returnData = [];
 	let offset = 0;
 	const count = Math.min(maxCount, 500); // BookStack max is 500 per request
 
@@ -108,13 +73,7 @@ export async function bookstackApiRequestAllItems(
 		currentQs.count = count;
 		currentQs.offset = offset;
 
-		const responseData: IBookstackListResponse<any> = await bookstackApiRequest.call(
-			this,
-			method,
-			endpoint,
-			body,
-			currentQs,
-		);
+		const responseData = await bookstackApiRequest.call(this, method, endpoint, body, currentQs);
 
 		if (responseData.data && Array.isArray(responseData.data)) {
 			returnData.push(...responseData.data);
@@ -151,8 +110,8 @@ export async function bookstackApiRequestAllItems(
  * Validate required parameters
  */
 export function validateRequiredParameters(
-	node: any,
-	parameters: { [key: string]: any },
+	node: INode,
+	parameters: JsonObject,
 	required: string[],
 ): void {
 	for (const param of required) {
@@ -160,47 +119,4 @@ export function validateRequiredParameters(
 			throw new NodeOperationError(node, `Missing required parameter: ${param}`);
 		}
 	}
-}
-
-/**
- * Format BookStack errors for better user experience
- */
-export function formatBookstackError(error: any): string {
-	if (error.response?.body?.error?.message) {
-		return error.response.body.error.message;
-	}
-
-	if (error.response?.body?.message) {
-		return error.response.body.message;
-	}
-
-	if (error.response?.status === 400) {
-		return 'Bad request. Please check your query parameters and try again.';
-	}
-
-	if (error.response?.status === 401) {
-		return 'Authentication failed. Please check your API credentials.';
-	}
-
-	if (error.response?.status === 403) {
-		return 'Access denied. Please check your user permissions in BookStack.';
-	}
-
-	if (error.response?.status === 404) {
-		return 'Resource not found. Please check the ID or URL.';
-	}
-
-	if (error.response?.status === 422) {
-		return 'Invalid data provided. Please check your input parameters.';
-	}
-
-	if (error.response?.status === 429) {
-		return 'Rate limit exceeded. Please wait before making more requests.';
-	}
-
-	if (error.response?.status >= 500) {
-		return 'BookStack server error. Please try again later or contact your administrator.';
-	}
-
-	return error.message || 'Your request is invalid or could not be processed by the service';
 }

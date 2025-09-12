@@ -24,7 +24,6 @@ export const shelfOperations: INodeProperties[] = [
 ];
 
 export const shelfFields: INodeProperties[] = [
-	// ID field for Get, Update, Delete
 	{
 		displayName: 'Shelf ID',
 		name: 'id',
@@ -40,7 +39,6 @@ export const shelfFields: INodeProperties[] = [
 		description: 'The unique identifier of the shelf',
 		placeholder: 'Enter shelf ID (e.g., 789)',
 	},
-	// Fields for Create/Update
 	{
 		displayName: 'Name',
 		name: 'name',
