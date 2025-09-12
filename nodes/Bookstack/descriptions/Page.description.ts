@@ -116,8 +116,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description:
-			'Markdown content of the page (required on create if no HTML Content)',
+		description: 'Markdown content of the page (required on create if no HTML Content)',
 	},
 	{
 		displayName: 'Tags',

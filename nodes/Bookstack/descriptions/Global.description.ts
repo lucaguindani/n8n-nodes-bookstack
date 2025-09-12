@@ -33,8 +33,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'Enter search terms (e.g., kubernetes, docker)',
-		description:
-			'Search query to find content across all resources',
+		description: 'Search query to find content across all resources',
 	},
 	{
 		displayName: 'Content Type Filter',
