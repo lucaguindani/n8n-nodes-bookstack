@@ -16,7 +16,6 @@ import { globalOperations, globalFields } from './descriptions/Global.descriptio
 import { resourceProperty } from './descriptions/ResourceProperty';
 import {
 	bookstackApiRequest,
-	bookstackApiRequestAllItems,
 	validateRequiredParameters,
 } from './utils/BookstackApiHelpers';
 import { IBookstackFilters } from './types/BookstackTypes';
@@ -189,21 +188,9 @@ export class Bookstack implements INodeType {
 	) {
 		const qs = this.buildQueryParameters(context, itemIndex);
 		const fullEndpoint = `/${endpoint}`;
-		const offset = qs.offset as number;
 
-		if (offset !== undefined && offset > 0) {
-			const response = await bookstackApiRequest.call(context, 'GET', fullEndpoint, {}, qs);
-			return response.data;
-		} else {
-			return await bookstackApiRequestAllItems.call(
-				context,
-				'GET',
-				fullEndpoint,
-				{},
-				qs,
-				qs.count as number,
-			);
-		}
+		const response = await bookstackApiRequest.call(context, 'GET', fullEndpoint, {}, qs);
+		return response.data.length ? response : response.data;
 	}
 
 	private async handleGetOperation(
