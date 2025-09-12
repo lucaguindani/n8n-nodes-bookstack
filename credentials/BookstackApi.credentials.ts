@@ -10,10 +10,7 @@ export class BookstackApi implements ICredentialType {
 	name = 'bookstackApi';
 	displayName = 'BookStack API';
 	documentationUrl = 'https://demo.bookstackapp.com/api/docs';
-	icon: Icon = {
-		light: 'file:../../icons/bookstack.svg',
-		dark: 'file:../../icons/bookstack.dark.svg',
-	};
+	icon: Icon = { light: 'file:../icons/bookstack.svg', dark: 'file:../icons/bookstack.svg' };
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Base URL',

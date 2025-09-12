@@ -25,7 +25,7 @@ export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'BookStack',
 		name: 'bookstack',
-		icon: { light: 'file:../../icons/bookstack.svg', dark: 'file:../../icons/bookstack.dark.svg' },
+		icon: { light: 'file:../../icons/bookstack.svg', dark: 'file:../../icons/bookstack.svg' },
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
