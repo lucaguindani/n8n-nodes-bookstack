@@ -14,10 +14,7 @@ import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { resourceProperty } from './descriptions/ResourceProperty';
-import {
-	bookstackApiRequest,
-	validateRequiredParameters,
-} from './utils/BookstackApiHelpers';
+import { bookstackApiRequest, validateRequiredParameters } from './utils/BookstackApiHelpers';
 import { IBookstackFilters } from './types/BookstackTypes';
 
 export class Bookstack implements INodeType {
