@@ -13,7 +13,7 @@ import { pageOperations, pageFields } from './descriptions/Page.description';
 import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
-import { resourceProperty } from './descriptions/shared';
+import { resourceProperty } from './descriptions/ResourceProperty';
 import {
 	bookstackApiRequest,
 	bookstackApiRequestAllItems,
