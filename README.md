@@ -20,7 +20,7 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 ---
 ## Installation
 
-### Community node (recommended)
+### Community node
 Follow the official guide: [Install a community node](https://docs.n8n.io/integrations/community-nodes/installation/).
 
 ### Manual (custom code folder)
@@ -79,8 +79,10 @@ Required permission: The token inherits the permissions of the user who created 
 
 ---
 ## Compatibility
-- Tested with n8n 1.109+
-- BookStack API versions: tested against BookStack 23.x and 24.x (standard REST endpoints)
+Tested with:
+- n8n 1.109+
+- bookstack 24.5+
+- node 22+
 
 ---
 ## Usage
