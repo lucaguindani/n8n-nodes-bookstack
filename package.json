@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-bookstack",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Community n8n node for the BookStack API",
   "keywords": [
     "n8n",
