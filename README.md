@@ -6,13 +6,12 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-- [Installation](#installation)  
-- [Operations](#operations)  
-- [Credentials](#credentials)  
-- [Compatibility](#compatibility)  
-- [Usage](#usage)  
-- [Resources](#resources)  
-- [Version history](#version-history)
+- [Installation](#installation)
+- [Operations](#operations)
+- [Credentials](#credentials)
+- [Compatibility](#compatibility)
+- [Usage](#usage)
+- [Resources](#resources)
 - [License](#license)
 - [Contributing](#contributing)
 - [Security](#security)
@@ -117,12 +116,6 @@ Common errors are formatted for clarity:
 * BookStack Documentation: https://www.bookstackapp.com/docs/
 * BookStack API Reference: https://demo.bookstackapp.com/api/docs
 * BookStack GitHub: https://github.com/BookStackApp/BookStack
-
----
-## Version history
-| Version | Date       | Changes |
-|---------|------------|---------|
-| 0.9.0   | 2025-09-10 | Initial public version: CRUD resources, search, audit log, filters, sorting, AI tool. |
 
 ---
 ## License
