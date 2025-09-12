@@ -47,11 +47,24 @@ export const bookFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['book'],
-				operation: ['create', 'update'],
+				operation: ['create'],
 			},
 		},
 		default: '',
-		description: 'Name of the book',
+		description: 'Name of the book (max 255 characters)',
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['book'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'Name of the book (max 255 characters)',
 	},
 	{
 		displayName: 'Description',
@@ -64,7 +77,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the book',
+		description: 'Description of the book (max 1900 characters)',
 	},
 	{
 		displayName: 'Default Template ID',

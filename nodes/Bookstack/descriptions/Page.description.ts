@@ -47,11 +47,24 @@ export const pageFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['page'],
-				operation: ['create', 'update'],
+				operation: ['create'],
 			},
 		},
 		default: '',
-		description: 'Name of the page',
+		description: 'Name of the page (max 255 characters)',
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['page'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'Name of the page (max 255 characters)',
 	},
 	{
 		displayName: 'Book ID',
@@ -64,7 +77,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this page belongs to (required if no chapter_id)',
+		description: 'ID of the book this page belongs to (required on create if no Chapter ID)',
 	},
 	{
 		displayName: 'Chapter ID',
@@ -77,7 +90,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the chapter this page belongs to (required if no book_id)',
+		description: 'ID of the chapter this page belongs to (required on create if no Book ID)',
 	},
 	{
 		displayName: 'HTML Content',
@@ -90,7 +103,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'HTML content of the page',
+		description: 'HTML content of the page (required on create if no Markdown Content)',
 	},
 	{
 		displayName: 'Markdown Content',
@@ -104,7 +117,7 @@ export const pageFields: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'Markdown content of the page. If provided, this will be used instead of HTML content.',
+			'Markdown content of the page (required on create if no HTML Content)',
 	},
 	{
 		displayName: 'Tags',

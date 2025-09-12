@@ -47,11 +47,25 @@ export const shelfFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['shelf'],
-				operation: ['create', 'update'],
+				operation: ['create'],
 			},
 		},
 		default: '',
-		description: 'Name of the shelf',
+		description: 'Name of the shelf (max 255 characters)',
+		placeholder: 'Enter shelf name',
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['shelf'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'Name of the shelf (max 255 characters)',
 		placeholder: 'Enter shelf name',
 	},
 	{
@@ -65,7 +79,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the shelf',
+		description: 'Description of the shelf (max 1900 characters)',
 		placeholder: 'Enter shelf description',
 	},
 	{

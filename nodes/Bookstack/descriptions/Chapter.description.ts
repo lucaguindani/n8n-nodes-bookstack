@@ -47,7 +47,21 @@ export const chapterFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['chapter'],
-				operation: ['create', 'update'],
+				operation: ['create'],
+			},
+		},
+		default: '',
+		description: 'ID of the book this chapter belongs to',
+		placeholder: 'Enter book ID',
+	},
+	{
+		displayName: 'Book ID',
+		name: 'book_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['chapter'],
+				operation: ['update'],
 			},
 		},
 		default: '',
@@ -62,11 +76,25 @@ export const chapterFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['chapter'],
-				operation: ['create', 'update'],
+				operation: ['create'],
 			},
 		},
 		default: '',
-		description: 'Name of the chapter',
+		description: 'Name of the chapter (max 255 characters)',
+		placeholder: 'Enter chapter name',
+	},
+	{
+		displayName: 'Name',
+		name: 'name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['chapter'],
+				operation: ['update'],
+			},
+		},
+		default: '',
+		description: 'Name of the chapter (max 255 characters)',
 		placeholder: 'Enter chapter name',
 	},
 	{
@@ -80,7 +108,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the chapter',
+		description: 'Description of the chapter (max 1900 characters)',
 		placeholder: 'Enter chapter description',
 	},
 	{
