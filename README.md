@@ -2,11 +2,9 @@
 
 [![CI](https://github.com/lucaguindani/n8n-nodes-bookstack/actions/workflows/ci.yml/badge.svg)](https://github.com/lucaguindani/n8n-nodes-bookstack/actions/workflows/ci.yml)
 
-This is an n8n community node. It lets you use BookStack in your n8n workflows.
+This is an n8n community node that lets you use BookStack in your n8n workflows. The [n8n](https://n8n.io/) project is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
 BookStack is an open source, self‑hosted documentation / knowledge base platform for organizing and sharing content via books, chapters, pages, and shelves.
-
-[N8N](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
 - [Installation](#installation)
 - [Operations](#operations)
@@ -82,7 +80,7 @@ Required permission: The token inherits the permissions of the user who created 
 ---
 ## Compatibility
 Tested with:
-- N8N 1.109+
+- n8n 1.109+
 - Bookstack 24.5+
 - Node 18+
 
