@@ -59,10 +59,10 @@ Resource: Shelf
 
 Resource: Global
 - Search (full‑text multi‑type search; optional type restriction)
-- Audit Log (list audit events with pagination)
+- Audit Log (list audit events with pagination, permission to both "Manage System Settings" and "Manage Users" are needed)
 
 AI Tool (Bookstack Tool node)
-- Global Search (optional deep content retrieval)
+- Global Search (optional deep content and audit logs retrieval)
 
 ---
 ## Credentials
@@ -82,7 +82,7 @@ Required permission: The token inherits the permissions of the user who created 
 Tested with:
 - n8n 1.109+
 - bookstack 24.5+
-- node 22+
+- node 18+
 
 ---
 ## Usage
@@ -125,7 +125,13 @@ This project is licensed under the MIT License – see [LICENSE.md](./LICENSE.md
 
 ---
 ## Contributing
-Pull requests welcome. For significant changes, open an issue first to discuss scope. Run:
+To lunch a local instance, make sure node 18+ is installed, then run the following from the root directory of the project.
+
+`npm run dev`
+
+You should be able to connect to `http://localhost:5678`.
+
+Pull requests are welcome. For significant changes, open an issue first to discuss scope. Run:
 ```bash
 npm install
 npm run lint

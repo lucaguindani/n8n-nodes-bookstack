@@ -174,7 +174,13 @@ export class Bookstack implements INodeType {
 		const offset = context.getNodeParameter('auditOffset', itemIndex, 0) as number;
 
 		const qs = { count: Math.min(limit, 500), offset };
-		const res = await bookstackApiRequest.call(context, 'GET', '/audit-log', {}, qs);
+		const res = await bookstackApiRequest.call(
+			context,
+			'GET',
+			'/audit-log?sort=-created_at',
+			{},
+			qs,
+		);
 		return res?.data ?? res;
 	}
 
