@@ -114,7 +114,7 @@ Common errors are formatted for clarity:
 
 ---
 ## Resources
-* N8N Community Nodes Docs: https://docs.n8n.io/integrations/#community-nodes
+* n8n Community Nodes Docs: https://docs.n8n.io/integrations/#community-nodes
 * BookStack Documentation: https://www.bookstackapp.com/docs/
 * BookStack API Reference: https://demo.bookstackapp.com/api/docs
 * BookStack GitHub: https://github.com/BookStackApp/BookStack
