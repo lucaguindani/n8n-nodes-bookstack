@@ -6,7 +6,7 @@ This is an n8n community node. It lets you use BookStack in your n8n workflows.
 
 BookStack is an open source, self‑hosted documentation / knowledge base platform for organizing and sharing content via books, chapters, pages, and shelves.
 
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
+[N8N](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
 - [Installation](#installation)
 - [Operations](#operations)
@@ -60,11 +60,11 @@ Resource: Shelf
 - Get Many / Get / Create / Update / Delete
 
 Resource: Global
-- Search (full‑text multi‑type search; optional type restriction)
-- Audit Log (list audit events with pagination, permission to both "Manage System Settings" and "Manage Users" are needed)
+- Search (full‑text multi‑type search with optional type restriction)
+- Audit Log (list audit events with pagination)
 
 AI Tool (Bookstack Tool node)
-- Global Search (optional deep content and audit logs retrieval)
+- Global Search (optional full content and audit logs retrieval)
 
 ---
 ## Credentials
@@ -82,9 +82,9 @@ Required permission: The token inherits the permissions of the user who created 
 ---
 ## Compatibility
 Tested with:
-- n8n 1.109+
-- bookstack 24.5+
-- node 18+
+- N8N 1.109+
+- Bookstack 24.5+
+- Node 18+
 
 ---
 ## Usage
@@ -104,7 +104,7 @@ When creating/updating entities, `tags` can be provided as a comma‑separated l
 
 ### AI Tool Node
 Use the companion "BookStack Tool" node in AI workflows:
-- Global search that can optionally fetch full content (with the "Deep Dive" option) for downstream LLM processing.
+- Global search that can optionally fetch full content and audit logs for downstream LLM processing.
 
 ### Error Handling
 Common errors are formatted for clarity:
@@ -116,7 +116,7 @@ Common errors are formatted for clarity:
 
 ---
 ## Resources
-* n8n Community Nodes Docs: https://docs.n8n.io/integrations/#community-nodes
+* N8N Community Nodes Docs: https://docs.n8n.io/integrations/#community-nodes
 * BookStack Documentation: https://www.bookstackapp.com/docs/
 * BookStack API Reference: https://demo.bookstackapp.com/api/docs
 * BookStack GitHub: https://github.com/BookStackApp/BookStack
@@ -127,20 +127,26 @@ This project is licensed under the MIT License – see [LICENSE.md](./LICENSE.md
 
 ---
 ## Contributing
-To lunch a local instance, make sure node 18+ is installed, then run the following from the root directory of the project.
+To lunch a local instance, make sure Node 18+ is installed, then run the following from the root directory of the project.
 
-`npm run dev`
+```bash
+npm install
+npm run dev
+```
 
 You should be able to connect to `http://localhost:5678`.
 
-Pull requests are welcome. For significant changes, open an issue first to discuss scope. Run:
+Pull requests are welcome. For significant changes, open an issue first to discuss scope.
+
+Before committing, ensure build passes and no lint or formatting errors are found.
+
 ```bash
-npm install
 npm run lint
 npm run format
 npm run build
 ```
-Before committing, ensure build passes and no lint or formatting errors. Provide a clear PR description.
+
+Please provide a clear PR description.
 
 ---
 ## Security
