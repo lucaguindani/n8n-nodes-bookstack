@@ -13,7 +13,7 @@ export class BookstackTool implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'BookStack Tool',
 		name: 'bookstackTool',
-		icon: { light: 'file:../../icons/bookstack.svg', dark: 'file:../../icons/bookstack.svg' },
+		icon: 'file:../../icons/bookstack.svg',
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
@@ -24,6 +24,7 @@ export class BookstackTool implements INodeType {
 		},
 		inputs: ['ai_tool'],
 		outputs: ['ai_tool'],
+		usableAsTool: undefined,
 		credentials: [
 			{
 				name: 'bookstackApi',

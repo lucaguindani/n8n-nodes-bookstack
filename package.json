@@ -40,16 +40,18 @@
     "prepublishOnly": "n8n-node prerelease"
   },
   "devDependencies": {
-    "@n8n/node-cli": "^0.4.0",
+    "@n8n/node-cli": "*",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
     "eslint": "^9.32.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
-    "n8n-workflow": "^1.108.0",
     "prettier": "^3.5.3",
     "release-it": "^19.0.4",
     "typescript": "^5.2.0"
   },
+  "peerDependencies": {
+		"n8n-workflow": "*"
+	},
   "repository": {
     "type": "git",
     "url": "https://github.com/lucaguindani/n8n-nodes-bookstack.git"
