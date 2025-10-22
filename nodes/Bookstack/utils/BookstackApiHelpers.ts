@@ -38,16 +38,11 @@ export async function bookstackApiRequest(
 		body,
 		qs,
 		url: `${baseUrl}/${cleanEndpoint}`,
-		headers: {
-			Authorization: `Token ${credentials.tokenId}:${credentials.tokenSecret}`,
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
 		json: true,
 	};
 
 	try {
-		return await this.helpers.httpRequest(options);
+		return await this.helpers.httpRequestWithAuthentication.call(this, 'bookstackApi', options);
 	} catch (error) {
 		throw new NodeApiError(this.getNode(), error);
 	}
