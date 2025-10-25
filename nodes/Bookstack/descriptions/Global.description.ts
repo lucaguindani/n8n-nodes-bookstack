@@ -22,9 +22,10 @@ export const globalOperations: INodeProperties[] = [
 export const globalFields: INodeProperties[] = [
 	{
 		displayName: 'Search Query',
-		name: 'query',
+		name: 'searchQuery',
 		type: 'string',
 		required: true,
+		requiresDataPath: 'single',
 		displayOptions: {
 			show: {
 				resource: ['global'],
@@ -32,8 +33,12 @@ export const globalFields: INodeProperties[] = [
 			},
 		},
 		default: '',
+		typeOptions: {
+			aiSupported: true,
+		},
 		placeholder: 'Enter search terms (e.g., kubernetes, docker)',
-		description: 'Search query to find content across all resources',
+		description:
+			'Search query to find content across all resources (books, pages, chapters, shelves)',
 	},
 	{
 		displayName: 'Content Type Filter',

@@ -145,7 +145,7 @@ export class Bookstack implements INodeType {
 	}
 
 	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number) {
-		let query = context.getNodeParameter('query', itemIndex) as string;
+		let query = context.getNodeParameter('searchQuery', itemIndex) as string;
 		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
 		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
 		const page = context.getNodeParameter('page', itemIndex, 1) as number;
