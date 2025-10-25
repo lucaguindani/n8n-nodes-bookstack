@@ -78,7 +78,7 @@ Required permission: The token inherits the permissions of the user who created 
 Tested with:
 - n8n 1.109+
 - Bookstack 24.5+
-- Node 18+
+- Node 20+
 
 ---
 ## Usage
