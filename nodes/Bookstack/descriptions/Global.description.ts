@@ -36,7 +36,7 @@ export const globalFields: INodeProperties[] = [
 		typeOptions: {
 			aiSupported: true,
 		},
-		placeholder: 'Enter search terms (e.g., kubernetes, docker)',
+		placeholder: 'Enter search terms',
 		description:
 			'Search query to find content across all resources (books, pages, chapters, shelves)',
 	},
