@@ -181,21 +181,18 @@ export class Bookstack implements INodeType {
 				}
 
 				const pageResults: SearchItemMinimal[] = resultsArray.map((item) => {
-					const rawType = (item as IDataObject).type as unknown;
-					const typeVal = typeof rawType === 'string' ? (rawType as string) : null;
-					const previewRaw = (item as IDataObject)['preview_html'] as unknown;
-					const previewVal = typeof previewRaw === 'string' ? (previewRaw as string) : null;
 					return {
 						id: (item as IDataObject).id ?? null,
 						name: (item as IDataObject).name ?? null,
-						type: typeVal,
+						type: (item as IDataObject).type ?? null,
 						url: (item as IDataObject).url ?? null,
 						created_at: (item as IDataObject).created_at ?? null,
 						updated_at: (item as IDataObject).updated_at ?? null,
-						preview: previewVal,
+						preview: (item as IDataObject).preview_html ?? null,
 						tags: (item as IDataObject).tags ?? null,
 						book: (item as IDataObject).book ?? null,
 						chapter: (item as IDataObject).chapter ?? null,
+						fullContent: null,
 					} as SearchItemMinimal;
 				});
 
