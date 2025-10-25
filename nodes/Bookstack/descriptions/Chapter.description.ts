@@ -129,6 +129,7 @@ export const chapterFields: INodeProperties[] = [
 		...op,
 		displayOptions: {
 			show: {
+				...(op.displayOptions?.show ?? {}),
 				resource: ['chapter'],
 				operation: ['getAll'],
 			},

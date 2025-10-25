@@ -294,6 +294,11 @@ export class Bookstack implements INodeType {
 				structuredResults = enhancedResults as SearchItemMinimal[];
 			}
 
+			// Apply limit if not returning all
+			if (!returnAll && Array.isArray(structuredResults) && structuredResults.length > limit) {
+				structuredResults = structuredResults.slice(0, limit);
+			}
+
 			return {
 				searchData: structuredResults as IDataObject[],
 				totalFound: Array.isArray(structuredResults) ? structuredResults.length : 0,
@@ -334,7 +339,7 @@ export class Bookstack implements INodeType {
 			offset += count;
 		}
 
-		return aggregated;
+		return returnAll ? aggregated : aggregated.slice(0, limit);
 	}
 
 	private async handleGetAllOperation(
@@ -366,7 +371,7 @@ export class Bookstack implements INodeType {
 			offset += count;
 		}
 
-		return aggregated;
+		return returnAll ? aggregated : aggregated.slice(0, limit);
 	}
 
 	private async handleGetOperation(

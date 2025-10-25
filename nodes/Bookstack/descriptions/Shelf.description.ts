@@ -114,6 +114,7 @@ export const shelfFields: INodeProperties[] = [
 		...op,
 		displayOptions: {
 			show: {
+				...(op.displayOptions?.show ?? {}),
 				resource: ['shelf'],
 				operation: ['getAll'],
 			},

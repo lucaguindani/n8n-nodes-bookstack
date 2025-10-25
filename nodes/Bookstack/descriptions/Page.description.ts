@@ -135,6 +135,7 @@ export const pageFields: INodeProperties[] = [
 		...op,
 		displayOptions: {
 			show: {
+				...(op.displayOptions?.show ?? {}),
 				resource: ['page'],
 				operation: ['getAll'],
 			},

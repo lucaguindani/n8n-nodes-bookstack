@@ -109,6 +109,7 @@ export const bookFields: INodeProperties[] = [
 		...op,
 		displayOptions: {
 			show: {
+				...(op.displayOptions?.show ?? {}),
 				resource: ['book'],
 				operation: ['getAll'],
 			},
