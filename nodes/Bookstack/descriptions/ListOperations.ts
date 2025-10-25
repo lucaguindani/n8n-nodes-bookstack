@@ -74,24 +74,25 @@ export const listOperations: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: 'Count',
-		name: 'count',
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to return all results or only up to a given limit',
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
-			maxValue: 500,
 		},
-		default: 100,
+		default: 50,
 		description: 'Max number of results to return',
-	},
-	{
-		displayName: 'Offset',
-		name: 'offset',
-		type: 'number',
-		typeOptions: {
-			minValue: 0,
+		displayOptions: {
+			show: {
+				returnAll: [false],
+			},
 		},
-		default: 0,
-		description: 'Offset of results to return',
 	},
 ];

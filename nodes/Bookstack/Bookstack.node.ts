@@ -17,6 +17,9 @@ import { resourceProperty } from './descriptions/ResourceProperty';
 import { bookstackApiRequest, validateRequiredParameters } from './utils/BookstackApiHelpers';
 import { IBookstackFilters } from './types/BookstackTypes';
 
+type SearchItemMinimal = IDataObject;
+type ContentResponseShape = IDataObject;
+
 export class Bookstack implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'BookStack',
@@ -118,37 +121,40 @@ export class Bookstack implements INodeType {
 		}
 	}
 
-	private buildQueryParameters(context: IExecuteFunctions, itemIndex: number): IDataObject {
-		const count = context.getNodeParameter('count', itemIndex) as number;
-		const offset = context.getNodeParameter('offset', itemIndex) as number;
-		const sortField = context.getNodeParameter('sortField', itemIndex) as string;
-		const sortDirection = context.getNodeParameter('sortDirection', itemIndex) as string;
+	private buildBaseQueryParameters(context: IExecuteFunctions, itemIndex: number): IDataObject {
+		const sortField = context.getNodeParameter('sortField', itemIndex, '') as string;
+		const sortDirection = context.getNodeParameter('sortDirection', itemIndex, 'asc') as string;
 		const filters = context.getNodeParameter('filters', itemIndex, {}) as IDataObject;
 
-		const qs: IDataObject = { count, offset };
+		const qs: IDataObject = {};
 
 		if (sortField) {
 			qs.sort = sortDirection === 'desc' ? `-${sortField}` : `+${sortField}`;
 		}
 
-		if (filters.filter) {
-			const filterArray = Array.isArray(filters.filter) ? filters.filter : [filters.filter];
+		if (filters && (filters as IDataObject).filter) {
+			const filterArray = Array.isArray((filters as IDataObject).filter)
+				? ((filters as IDataObject).filter as IBookstackFilters[])
+				: [(filters as IDataObject).filter as IBookstackFilters];
 			filterArray.forEach((filter: IBookstackFilters) => {
 				if (!filter?.field) return;
 				const op = (filter.operation || 'eq').toString();
 				const opPart = op !== 'eq' ? `:${op}` : '';
-				qs[`filter[${filter.field}${opPart}]`] = filter.value;
+				(qs as IDataObject)[`filter[${filter.field}${opPart}]`] = filter.value;
 			});
 		}
 
 		return qs;
 	}
 
-	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number) {
+	private async handleSearchOperation(
+		context: IExecuteFunctions,
+		itemIndex: number,
+	): Promise<IDataObject> {
 		let query = context.getNodeParameter('searchQuery', itemIndex) as string;
 		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
-		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
-		const page = context.getNodeParameter('page', itemIndex, 1) as number;
+		const returnAll = context.getNodeParameter('returnAllSearch', itemIndex, false) as boolean;
+		const limit = context.getNodeParameter('limit', itemIndex, 50) as number;
 		const deepDive = context.getNodeParameter('deepDive', itemIndex, false) as boolean;
 
 		validateRequiredParameters(context.getNode(), { query }, ['query']);
@@ -157,41 +163,64 @@ export class Bookstack implements INodeType {
 			query += ` {type:${typeFilter}}`;
 		}
 
-		const qs = {
-			query,
-			count: Math.min(limit, 500),
-			page,
-		};
+		const aggregated: SearchItemMinimal[] = [];
+		let page = 1;
+		const perPageMax = 100;
 
 		try {
-			const searchResponse = await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
-			const results = searchResponse.data || searchResponse;
-			let structuredResults = Array.isArray(results)
-				? results.map((item: JsonObject) => ({
-						id: item.id || null,
-						name: item.name || null,
-						type: item.type || null,
-						url: item.url || null,
-						created_at: item.created_at || null,
-						updated_at: item.updated_at || null,
-						preview: item.preview_html || null,
-						tags: item.tags || null,
-						book: item.book || null,
-						chapter: item.chapter || null,
-					}))
-				: results;
+			while (true) {
+				const perPage = returnAll
+					? perPageMax
+					: Math.min(perPageMax, Math.max(1, limit - aggregated.length));
+				const qs = { query, count: perPage, page } as IDataObject;
 
-			// Deep dive to fetch full content if enabled
+				const searchResponse = await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
+				const dataArray = (searchResponse as IDataObject).data as unknown;
+				let resultsArray: IDataObject[] = [];
+				if (Array.isArray(dataArray)) {
+					resultsArray = dataArray as IDataObject[];
+				} else if (Array.isArray(searchResponse as unknown as unknown[])) {
+					resultsArray = searchResponse as unknown as IDataObject[];
+				}
+
+				const pageResults: SearchItemMinimal[] = resultsArray.map((item) => {
+					const rawType = (item as IDataObject).type as unknown;
+					const typeVal = typeof rawType === 'string' ? (rawType as string) : null;
+					const previewRaw = (item as IDataObject)['preview_html'] as unknown;
+					const previewVal = typeof previewRaw === 'string' ? (previewRaw as string) : null;
+					return {
+						id: (item as IDataObject).id ?? null,
+						name: (item as IDataObject).name ?? null,
+						type: typeVal,
+						url: (item as IDataObject).url ?? null,
+						created_at: (item as IDataObject).created_at ?? null,
+						updated_at: (item as IDataObject).updated_at ?? null,
+						preview: previewVal,
+						tags: (item as IDataObject).tags ?? null,
+						book: (item as IDataObject).book ?? null,
+						chapter: (item as IDataObject).chapter ?? null,
+					} as SearchItemMinimal;
+				});
+
+				aggregated.push(...pageResults);
+
+				const noMore = pageResults.length < perPage || (!returnAll && aggregated.length >= limit);
+				if (noMore) break;
+				page += 1;
+			}
+
+			let structuredResults: SearchItemMinimal[] = aggregated;
+
 			if (deepDive && Array.isArray(structuredResults)) {
-				const enhancedResults = [];
+				const enhancedResults: IDataObject[] = [];
 
 				for (const item of structuredResults) {
 					if (item.id && item.type) {
 						try {
-							const contentId = item.id;
+							const contentId = item.id as string | number;
 							let contentEndpoint = '';
 
-							switch (item.type) {
+							switch (item.type as string) {
 								case 'page':
 									contentEndpoint = `/pages/${contentId}`;
 									break;
@@ -206,99 +235,106 @@ export class Bookstack implements INodeType {
 									break;
 							}
 
-							const contentResponse = await bookstackApiRequest.call(
+							const contentResponse = (await bookstackApiRequest.call(
 								context,
 								'GET',
 								contentEndpoint,
 								{},
 								{},
-							);
+							)) as ContentResponseShape;
 
-							let fullContent: JsonObject = {
-								created_by: contentResponse.created_by || null,
-								updated_by: contentResponse.updated_by || null,
+							const fullContent: IDataObject = {};
+							const setIfPresent = (key: string, alias?: string) => {
+								const v = (contentResponse as IDataObject)[key];
+								fullContent[alias || key] = v !== undefined ? v : null;
 							};
 
+							setIfPresent('created_by');
+							setIfPresent('updated_by');
+
 							if (item.type === 'page') {
-								fullContent = {
-									...fullContent,
-									priority: contentResponse.priority || null,
-									revision_count: contentResponse.revision_count || null,
-									draft: contentResponse.draft || null,
-									html: contentResponse.html || null,
-									markdown: contentResponse.markdown || null,
-								};
+								setIfPresent('priority');
+								setIfPresent('revision_count');
+								setIfPresent('draft');
+								setIfPresent('html');
+								setIfPresent('markdown');
 							}
 
 							if (item.type === 'chapter') {
-								fullContent = {
-									...fullContent,
-									priority: contentResponse.priority || null,
-									description_html: contentResponse.description || null,
-									pages: contentResponse.pages || null,
-								};
+								setIfPresent('priority');
+								setIfPresent('description', 'description_html');
+								setIfPresent('pages');
 							}
 
 							if (item.type === 'book') {
-								fullContent = {
-									...fullContent,
-									description_html: contentResponse.description || null,
-									contents: contentResponse.contents || null,
-									cover: contentResponse.cover || null,
-								};
+								setIfPresent('description', 'description_html');
+								setIfPresent('contents');
+								setIfPresent('cover');
 							}
 
 							if (item.type === 'bookshelf') {
-								fullContent = {
-									...fullContent,
-									description_html: contentResponse.description || null,
-									books: contentResponse.books || null,
-									cover: contentResponse.cover || null,
-								};
+								setIfPresent('description', 'description_html');
+								setIfPresent('books');
+								setIfPresent('cover');
 							}
 
-							enhancedResults.push({
-								...item,
-								fullContent,
-							});
+							enhancedResults.push({ ...(item as IDataObject), fullContent } as IDataObject);
 						} catch {
 							enhancedResults.push({
-								...item,
+								...(item as IDataObject),
 								fullContent: null,
-								contentError: `Failed to fetch full content for this item`,
-							});
+								contentError: 'Failed to fetch full content for this item',
+							} as IDataObject);
 						}
 					} else {
-						enhancedResults.push(item);
+						enhancedResults.push(item as IDataObject);
 					}
 				}
 
-				structuredResults = enhancedResults;
+				structuredResults = enhancedResults as SearchItemMinimal[];
 			}
 
 			return {
-				searchData: structuredResults,
-				totalFound: searchResponse.total || (Array.isArray(results) ? results.length : 0),
+				searchData: structuredResults as IDataObject[],
+				totalFound: Array.isArray(structuredResults) ? structuredResults.length : 0,
 				deepDiveEnabled: deepDive,
-			};
+			} as IDataObject;
 		} catch (error) {
-			throw new NodeOperationError(context.getNode(), error.message, { itemIndex });
+			const e = error as Error;
+			throw new NodeOperationError(context.getNode(), e.message || 'Unknown error', { itemIndex });
 		}
 	}
 
 	private async handleAuditLogOperation(context: IExecuteFunctions, itemIndex: number) {
+		const returnAll = context.getNodeParameter('returnAllAudit', itemIndex, false) as boolean;
 		const limit = context.getNodeParameter('auditLimit', itemIndex, 50) as number;
-		const offset = context.getNodeParameter('auditOffset', itemIndex, 0) as number;
 
-		const qs = { count: Math.min(limit, 500), offset };
-		const res = await bookstackApiRequest.call(
-			context,
-			'GET',
-			'/audit-log?sort=-created_at',
-			{},
-			qs,
-		);
-		return res?.data ?? res;
+		const perRequestMax = 500;
+		let offset = 0;
+		const aggregated: JsonObject[] = [];
+
+		while (true) {
+			const count = returnAll
+				? perRequestMax
+				: Math.min(perRequestMax, Math.max(1, limit - aggregated.length));
+			const qs = { count, offset } as IDataObject;
+			const res = await bookstackApiRequest.call(
+				context,
+				'GET',
+				'/audit-log?sort=-created_at',
+				{},
+				qs,
+			);
+			const data: JsonObject[] = (res?.data ?? res) as JsonObject[];
+
+			aggregated.push(...data);
+
+			const noMore = data.length < count || (!returnAll && aggregated.length >= limit);
+			if (noMore) break;
+			offset += count;
+		}
+
+		return aggregated;
 	}
 
 	private async handleGetAllOperation(
@@ -306,11 +342,31 @@ export class Bookstack implements INodeType {
 		endpoint: string,
 		itemIndex: number,
 	) {
-		const qs = this.buildQueryParameters(context, itemIndex);
-		const fullEndpoint = `/${endpoint}`;
+		const returnAll = context.getNodeParameter('returnAll', itemIndex, false) as boolean;
+		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
 
-		const response = await bookstackApiRequest.call(context, 'GET', fullEndpoint, {}, qs);
-		return response.data.length ? response : response.data;
+		const baseQs = this.buildBaseQueryParameters(context, itemIndex);
+		const fullEndpoint = `/${endpoint}`;
+		const perRequestMax = 500;
+		let offset = 0;
+		const aggregated: JsonObject[] = [];
+
+		while (true) {
+			const count = returnAll
+				? perRequestMax
+				: Math.min(perRequestMax, Math.max(1, limit - aggregated.length));
+			const qs = { ...baseQs, count, offset } as IDataObject;
+			const response = await bookstackApiRequest.call(context, 'GET', fullEndpoint, {}, qs);
+			const data = (response as IDataObject).data ?? response;
+			const pageItems: JsonObject[] = Array.isArray(data) ? (data as JsonObject[]) : [];
+			aggregated.push(...pageItems);
+
+			const noMore = pageItems.length < count || (!returnAll && aggregated.length >= limit);
+			if (noMore) break;
+			offset += count;
+		}
+
+		return aggregated;
 	}
 
 	private async handleGetOperation(
@@ -368,38 +424,63 @@ export class Bookstack implements INodeType {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
 
-				let responseData;
+				let responseData: IDataObject[] | IDataObject | undefined;
 
 				if (resource === 'global') {
 					if (operation === 'search') {
-						responseData = await nodeInstance.handleSearchOperation(this, i);
+						responseData = (await nodeInstance.handleSearchOperation(this, i)) as IDataObject;
 					} else if (operation === 'auditLogList') {
-						responseData = await nodeInstance.handleAuditLogOperation(this, i);
+						responseData = (await nodeInstance.handleAuditLogOperation(
+							this,
+							i,
+						)) as unknown as IDataObject[];
 					}
 				} else if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
 					const endpoint = nodeInstance.resourceEndpoints[resource];
 
 					switch (operation) {
 						case 'getAll':
-							responseData = await nodeInstance.handleGetAllOperation(this, endpoint, i);
+							responseData = (await nodeInstance.handleGetAllOperation(
+								this,
+								endpoint,
+								i,
+							)) as unknown as IDataObject[];
 							break;
 						case 'get':
-							responseData = await nodeInstance.handleGetOperation(this, endpoint, i);
+							responseData = (await nodeInstance.handleGetOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject;
 							break;
 						case 'create':
-							responseData = await nodeInstance.handleCreateOperation(this, resource, endpoint, i);
+							responseData = (await nodeInstance.handleCreateOperation(
+								this,
+								resource,
+								endpoint,
+								i,
+							)) as IDataObject;
 							break;
 						case 'update':
-							responseData = await nodeInstance.handleUpdateOperation(this, resource, endpoint, i);
+							responseData = (await nodeInstance.handleUpdateOperation(
+								this,
+								resource,
+								endpoint,
+								i,
+							)) as IDataObject;
 							break;
 						case 'delete':
-							responseData = await nodeInstance.handleDeleteOperation(this, endpoint, i);
+							responseData = (await nodeInstance.handleDeleteOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject;
 							break;
 					}
 				}
 
 				if (Array.isArray(responseData)) {
-					responseData.forEach((item: JsonObject) => {
+					responseData.forEach((item: IDataObject) => {
 						returnData.push({
 							json: item,
 							pairedItem: { item: i },
@@ -407,12 +488,15 @@ export class Bookstack implements INodeType {
 					});
 				} else if (responseData !== undefined) {
 					returnData.push({
-						json: responseData,
+						json: responseData as IDataObject,
 						pairedItem: { item: i },
 					});
 				}
 			} catch (error) {
-				throw new NodeOperationError(this.getNode(), error.message || error, { itemIndex: i });
+				const e = error as Error;
+				throw new NodeOperationError(this.getNode(), e.message || 'Unknown error', {
+					itemIndex: i,
+				});
 			}
 		}
 

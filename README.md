@@ -58,9 +58,7 @@ Resource: Shelf
 - Get Many / Get / Create / Update / Delete
 
 Resource: Global
-- Search (full‑text multi‑type search with optional type restriction)
-  - Deep Dive: Optionally retrieve full content for all found items (pages, chapters, books, shelves)
-- Audit Log (list audit events with pagination)
+- Search / Audit Log
 
 ---
 ## Credentials
@@ -85,16 +83,17 @@ Tested with:
 ---
 ## Usage
 ### Listing (Get Many)
-Standard query parameters supported:
-- count (max results per request, 1–500)
-- offset (starting index)
-- sort (field name, ascending/descending)
-- filter (field name, operation, value)
+- Return All: When enabled, the node will automatically paginate through all results.
+- Limit: When "Return All" is disabled, sets the maximum number of items to return.
+- Sort By / Sort Direction
+- Filters (field, operation, value)
+
+Internally, the node handles pagination (count/offset) for you when needed.
 
 ### Global Search
 - Provide a search query and optionally pick a content type (book, page, chapter, shelf)
-- Limit and page control pagination
-- **Deep Dive**: Enable to automatically fetch full content (html, markdown, descriptions, etc.) for all search results. This provides complete context but increases execution time and API calls.
+- "Return All" / "Limit" to control the amount of results
+- "Deep Dive" to automatically fetch full content for all search results. This provides complete context but increases execution time and API calls.
 
 ### Tags
 When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.
