@@ -59,10 +59,8 @@ Resource: Shelf
 
 Resource: Global
 - Search (full‑text multi‑type search with optional type restriction)
+  - Deep Dive: Optionally retrieve full content for all found items (pages, chapters, books, shelves)
 - Audit Log (list audit events with pagination)
-
-AI Tool (Bookstack Tool node)
-- Global Search (optional full content and audit logs retrieval)
 
 ---
 ## Credentials
@@ -96,13 +94,10 @@ Standard query parameters supported:
 ### Global Search
 - Provide a search query and optionally pick a content type (book, page, chapter, shelf)
 - Limit and page control pagination
+- **Deep Dive**: Enable to automatically fetch full content (html, markdown, descriptions, etc.) for all search results. This provides complete context but increases execution time and API calls.
 
 ### Tags
 When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.
-
-### AI Tool Node
-Use the companion "BookStack Tool" node in AI workflows:
-- Global search that can optionally fetch full content and audit logs for downstream LLM processing.
 
 ### Error Handling
 Common errors are formatted for clarity:

@@ -29,7 +29,7 @@ export class Bookstack implements INodeType {
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],
-		usableAsTool: undefined,
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'bookstackApi',
@@ -149,6 +149,7 @@ export class Bookstack implements INodeType {
 		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
 		const limit = context.getNodeParameter('limit', itemIndex, 100) as number;
 		const page = context.getNodeParameter('page', itemIndex, 1) as number;
+		const deepDive = context.getNodeParameter('deepDive', itemIndex, false) as boolean;
 
 		validateRequiredParameters(context.getNode(), { query }, ['query']);
 
@@ -164,7 +165,122 @@ export class Bookstack implements INodeType {
 
 		try {
 			const searchResponse = await bookstackApiRequest.call(context, 'GET', '/search', {}, qs);
-			return searchResponse.data.length ? searchResponse : searchResponse.data;
+			const results = searchResponse.data || searchResponse;
+			let structuredResults = Array.isArray(results)
+				? results.map((item: JsonObject) => ({
+						id: item.id || null,
+						name: item.name || null,
+						type: item.type || null,
+						url: item.url || null,
+						created_at: item.created_at || null,
+						updated_at: item.updated_at || null,
+						preview: item.preview_html || null,
+						tags: item.tags || null,
+						book: item.book || null,
+						chapter: item.chapter || null,
+					}))
+				: results;
+
+			// Deep dive to fetch full content if enabled
+			if (deepDive && Array.isArray(structuredResults)) {
+				const enhancedResults = [];
+
+				for (const item of structuredResults) {
+					if (item.id && item.type) {
+						try {
+							const contentId = item.id;
+							let contentEndpoint = '';
+
+							switch (item.type) {
+								case 'page':
+									contentEndpoint = `/pages/${contentId}`;
+									break;
+								case 'chapter':
+									contentEndpoint = `/chapters/${contentId}`;
+									break;
+								case 'book':
+									contentEndpoint = `/books/${contentId}`;
+									break;
+								case 'bookshelf':
+									contentEndpoint = `/shelves/${contentId}`;
+									break;
+							}
+
+							const contentResponse = await bookstackApiRequest.call(
+								context,
+								'GET',
+								contentEndpoint,
+								{},
+								{},
+							);
+
+							let fullContent: JsonObject = {
+								created_by: contentResponse.created_by || null,
+								updated_by: contentResponse.updated_by || null,
+							};
+
+							if (item.type === 'page') {
+								fullContent = {
+									...fullContent,
+									priority: contentResponse.priority || null,
+									revision_count: contentResponse.revision_count || null,
+									draft: contentResponse.draft || null,
+									html: contentResponse.html || null,
+									markdown: contentResponse.markdown || null,
+								};
+							}
+
+							if (item.type === 'chapter') {
+								fullContent = {
+									...fullContent,
+									priority: contentResponse.priority || null,
+									description_html: contentResponse.description || null,
+									pages: contentResponse.pages || null,
+								};
+							}
+
+							if (item.type === 'book') {
+								fullContent = {
+									...fullContent,
+									description_html: contentResponse.description || null,
+									contents: contentResponse.contents || null,
+									cover: contentResponse.cover || null,
+								};
+							}
+
+							if (item.type === 'bookshelf') {
+								fullContent = {
+									...fullContent,
+									description_html: contentResponse.description || null,
+									books: contentResponse.books || null,
+									cover: contentResponse.cover || null,
+								};
+							}
+
+							enhancedResults.push({
+								...item,
+								fullContent,
+							});
+						} catch {
+							enhancedResults.push({
+								...item,
+								fullContent: null,
+								contentError: `Failed to fetch full content for this item`,
+							});
+						}
+					} else {
+						enhancedResults.push(item);
+					}
+				}
+
+				structuredResults = enhancedResults;
+			}
+
+			return {
+				searchData: structuredResults,
+				totalFound: searchResponse.total || (Array.isArray(results) ? results.length : 0),
+				deepDiveEnabled: deepDive,
+			};
 		} catch (error) {
 			throw new NodeOperationError(context.getNode(), error.message, { itemIndex });
 		}

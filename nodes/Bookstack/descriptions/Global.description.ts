@@ -91,6 +91,20 @@ export const globalFields: INodeProperties[] = [
 		placeholder: '1',
 	},
 	{
+		displayName: 'Deep Dive',
+		name: 'deepDive',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['global'],
+				operation: ['search'],
+			},
+		},
+		default: false,
+		description:
+			'Whether to automatically retrieve full content for all found pages, chapters, books and shelves. This provides more context but may increase execution time.',
+	},
+	{
 		displayName: 'Limit',
 		name: 'auditLimit',
 		type: 'number',
