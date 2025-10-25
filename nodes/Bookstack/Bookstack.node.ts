@@ -147,10 +147,7 @@ export class Bookstack implements INodeType {
 		return qs;
 	}
 
-	private async handleSearchOperation(
-		context: IExecuteFunctions,
-		itemIndex: number,
-	): Promise<IDataObject> {
+	private async handleSearchOperation(context: IExecuteFunctions, itemIndex: number) {
 		let query = context.getNodeParameter('searchQuery', itemIndex) as string;
 		const typeFilter = context.getNodeParameter('typeFilter', itemIndex) as string;
 		const returnAll = context.getNodeParameter('returnAllSearch', itemIndex, false) as boolean;
@@ -291,7 +288,7 @@ export class Bookstack implements INodeType {
 					}
 				}
 
-				structuredResults = enhancedResults as SearchItemMinimal[];
+				structuredResults = enhancedResults as IDataObject[];
 			}
 
 			// Apply limit if not returning all
@@ -299,11 +296,7 @@ export class Bookstack implements INodeType {
 				structuredResults = structuredResults.slice(0, limit);
 			}
 
-			return {
-				searchData: structuredResults as IDataObject[],
-				totalFound: Array.isArray(structuredResults) ? structuredResults.length : 0,
-				deepDiveEnabled: deepDive,
-			} as IDataObject;
+			return structuredResults as IDataObject[];
 		} catch (error) {
 			const e = error as Error;
 			throw new NodeOperationError(context.getNode(), e.message || 'Unknown error', { itemIndex });
@@ -433,12 +426,9 @@ export class Bookstack implements INodeType {
 
 				if (resource === 'global') {
 					if (operation === 'search') {
-						responseData = (await nodeInstance.handleSearchOperation(this, i)) as IDataObject;
+						responseData = (await nodeInstance.handleSearchOperation(this, i)) as IDataObject[];
 					} else if (operation === 'auditLogList') {
-						responseData = (await nodeInstance.handleAuditLogOperation(
-							this,
-							i,
-						)) as unknown as IDataObject[];
+						responseData = (await nodeInstance.handleAuditLogOperation(this, i)) as IDataObject[];
 					}
 				} else if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
 					const endpoint = nodeInstance.resourceEndpoints[resource];
@@ -449,7 +439,7 @@ export class Bookstack implements INodeType {
 								this,
 								endpoint,
 								i,
-							)) as unknown as IDataObject[];
+							)) as IDataObject[];
 							break;
 						case 'get':
 							responseData = (await nodeInstance.handleGetOperation(
