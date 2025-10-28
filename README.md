@@ -34,8 +34,8 @@ git clone https://github.com/lucaguindani/n8n-nodes-bookstack.git
 cd n8n-nodes-bookstack
 
 # Install dependencies & build
-npm install
-npm run build
+pnpm install
+pnpm run build
 
 # Restart n8n so the node is loaded
 ```
@@ -122,8 +122,8 @@ This project is licensed under the MIT License – see [LICENSE.md](./LICENSE.md
 To lunch a local instance, make sure Node 18+ is installed, then run the following from the root directory of the project.
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 You should be able to connect to `http://localhost:5678`.
@@ -133,9 +133,9 @@ Pull requests are welcome. For significant changes, open an issue first to discu
 Before committing, ensure build passes and no lint or formatting errors are found.
 
 ```bash
-npm run lint
-npm run format
-npm run build
+pnpm run lint
+pnpm run format
+pnpm run build
 ```
 
 Please provide a clear PR description.
