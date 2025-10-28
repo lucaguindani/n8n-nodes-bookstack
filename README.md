@@ -14,7 +14,6 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 - [Resources](#resources)
 - [License](#license)
 - [Contributing](#contributing)
-- [Security](#security)
 - [Disclaimer](#disclaimer)
 
 ---
