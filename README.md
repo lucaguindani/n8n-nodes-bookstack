@@ -98,14 +98,6 @@ Internally, the node handles pagination (count/offset) for you when needed.
 ### Tags
 When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.
 
-### Error Handling
-Common errors are formatted for clarity:
-- 401: credentials invalid
-- 403: insufficient permissions
-- 404: resource not found
-- 422: validation issue
-- 429: rate limit
-
 ---
 ## Resources
 * n8n Community Nodes Docs: https://docs.n8n.io/integrations/#community-nodes
@@ -119,7 +111,7 @@ This project is licensed under the MIT License – see [LICENSE.md](./LICENSE.md
 
 ---
 ## Contributing
-To lunch a local instance, make sure Node 18+ is installed, then run the following from the root directory of the project.
+To lunch a local instance, make sure Node 20+ and pnpm 10+ are installed, then run the following from the root directory of the project.
 
 ```bash
 pnpm install
@@ -139,10 +131,6 @@ pnpm run build
 ```
 
 Please provide a clear PR description.
-
----
-## Security
-Do not commit BookStack credentials. Tokens inherit user permissions—consider creating a dedicated low‑privilege API user.
 
 ---
 ## Disclaimer
