@@ -9,6 +9,7 @@ export const resourceProperty: INodeProperties = {
 		{ name: 'Book', value: 'book' },
 		{ name: 'Chapter', value: 'chapter' },
 		{ name: 'Global', value: 'global' },
+		{ name: 'Image', value: 'image' },
 		{ name: 'Page', value: 'page' },
 		{ name: 'Shelf', value: 'shelf' },
 	],
