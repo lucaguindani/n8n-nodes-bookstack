@@ -13,8 +13,13 @@ import { pageOperations, pageFields } from './descriptions/Page.description';
 import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
+import { imageOperations, imageFields } from './descriptions/Image.description';
 import { resourceProperty } from './descriptions/ResourceProperty';
-import { bookstackApiRequest, validateRequiredParameters } from './utils/BookstackApiHelpers';
+import {
+	bookstackApiRequest,
+	bookstackApiRequestMultipart,
+	validateRequiredParameters,
+} from './utils/BookstackApiHelpers';
 import { IBookstackFilters } from './types/BookstackTypes';
 
 type SearchItemMinimal = IDataObject;
@@ -51,6 +56,8 @@ export class Bookstack implements INodeType {
 			...chapterFields,
 			...globalOperations,
 			...globalFields,
+			...imageOperations,
+			...imageFields,
 		],
 	};
 
@@ -59,6 +66,7 @@ export class Bookstack implements INodeType {
 		page: 'pages',
 		shelf: 'shelves',
 		chapter: 'chapters',
+		image: 'image-gallery',
 	};
 
 	private readonly resourceFields: Record<string, string[]> = {
@@ -409,6 +417,45 @@ export class Bookstack implements INodeType {
 		return await bookstackApiRequest.call(context, 'DELETE', `/${endpoint}/${id}`, {}, {});
 	}
 
+	private async handleCreateImageOperation(context: IExecuteFunctions, itemIndex: number) {
+		const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex) as string;
+		const name = context.getNodeParameter('name', itemIndex, '') as string;
+		const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
+
+		const formFields: Record<string, string> = {
+			type: 'gallery',
+			uploaded_to: uploadedTo,
+		};
+		if (name) formFields['name'] = name;
+
+		return await bookstackApiRequestMultipart.call(
+			context,
+			'POST',
+			'/image-gallery',
+			formFields,
+			binaryPropertyName,
+			itemIndex,
+		);
+	}
+
+	private async handleUpdateImageOperation(context: IExecuteFunctions, itemIndex: number) {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		const name = context.getNodeParameter('name', itemIndex, '') as string;
+		const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
+
+		const formFields: Record<string, string> = {};
+		if (name) formFields['name'] = name;
+
+		return await bookstackApiRequestMultipart.call(
+			context,
+			'PUT',
+			`/image-gallery/${id}`,
+			formFields,
+			binaryPropertyName,
+			itemIndex,
+		);
+	}
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -469,6 +516,44 @@ export class Bookstack implements INodeType {
 							)) as IDataObject;
 							break;
 					}
+				} else if (resource === 'image') {
+					const endpoint = nodeInstance.resourceEndpoints['image'];
+
+					switch (operation) {
+						case 'getAll':
+							responseData = (await nodeInstance.handleGetAllOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject[];
+							break;
+						case 'get':
+							responseData = (await nodeInstance.handleGetOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject;
+							break;
+						case 'create':
+							responseData = (await nodeInstance.handleCreateImageOperation(
+								this,
+								i,
+							)) as IDataObject;
+							break;
+						case 'update':
+							responseData = (await nodeInstance.handleUpdateImageOperation(
+								this,
+								i,
+							)) as IDataObject;
+							break;
+						case 'delete':
+							responseData = (await nodeInstance.handleDeleteOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject;
+							break;
+					}
 				}
 
 				if (Array.isArray(responseData)) {
@@ -485,7 +570,14 @@ export class Bookstack implements INodeType {
 					});
 				}
 			} catch (error) {
+				if (error instanceof NodeOperationError) {
+					throw error;
+				}
+				// NodeApiError and other typed errors — rethrow as-is to preserve HTTP details
 				const e = error as Error;
+				if (e?.constructor?.name === 'NodeApiError') {
+					throw error;
+				}
 				throw new NodeOperationError(this.getNode(), e.message || 'Unknown error', {
 					itemIndex: i,
 				});
