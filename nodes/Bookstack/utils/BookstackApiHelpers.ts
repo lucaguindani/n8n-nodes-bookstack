@@ -61,6 +61,7 @@ export async function bookstackApiRequestMultipart(
 	formFields: Record<string, string>,
 	binaryPropertyName?: string,
 	itemIndex = 0,
+	fileFieldName = 'image',
 ) {
 	const credentials = await this.getCredentials('bookstackApi');
 
@@ -92,12 +93,12 @@ export async function bookstackApiRequestMultipart(
 	if (binaryPropertyName) {
 		const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 		const fileBuffer = await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
-		const fileName = binaryData.fileName ?? 'image';
+		const fileName = binaryData.fileName ?? fileFieldName;
 		const mimeType = binaryData.mimeType ?? 'application/octet-stream';
 
 		const fileHeader =
 			`--${boundary}${CRLF}` +
-			`Content-Disposition: form-data; name="image"; filename="${fileName}"${CRLF}` +
+			`Content-Disposition: form-data; name="${fileFieldName}"; filename="${fileName}"${CRLF}` +
 			`Content-Type: ${mimeType}${CRLF}${CRLF}`;
 		parts.push(Buffer.from(fileHeader, 'utf8'));
 		parts.push(fileBuffer);

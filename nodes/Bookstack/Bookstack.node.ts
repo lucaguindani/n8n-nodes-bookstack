@@ -14,6 +14,7 @@ import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { imageOperations, imageFields } from './descriptions/Image.description';
+import { attachmentOperations, attachmentFields } from './descriptions/Attachment.description';
 import { resourceProperty } from './descriptions/ResourceProperty';
 import {
 	bookstackApiRequest,
@@ -46,6 +47,8 @@ export class Bookstack implements INodeType {
 		],
 		properties: [
 			resourceProperty,
+			...attachmentOperations,
+			...attachmentFields,
 			...bookOperations,
 			...bookFields,
 			...pageOperations,
@@ -62,6 +65,7 @@ export class Bookstack implements INodeType {
 	};
 
 	private readonly resourceEndpoints: Record<string, string> = {
+		attachment: 'attachments',
 		book: 'books',
 		page: 'pages',
 		shelf: 'shelves',
@@ -417,6 +421,81 @@ export class Bookstack implements INodeType {
 		return await bookstackApiRequest.call(context, 'DELETE', `/${endpoint}/${id}`, {}, {});
 	}
 
+	private async handleCreateAttachmentOperation(context: IExecuteFunctions, itemIndex: number) {
+		const name = context.getNodeParameter('name', itemIndex) as string;
+		const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex) as string;
+		const attachmentType = context.getNodeParameter('attachmentType', itemIndex, 'file') as string;
+
+		if (attachmentType === 'file') {
+			const binaryPropertyName = context.getNodeParameter(
+				'binaryPropertyName',
+				itemIndex,
+			) as string;
+			const formFields: Record<string, string> = {
+				name,
+				uploaded_to: uploadedTo,
+			};
+			return await bookstackApiRequestMultipart.call(
+				context,
+				'POST',
+				'/attachments',
+				formFields,
+				binaryPropertyName,
+				itemIndex,
+				'file',
+			);
+		} else {
+			const link = context.getNodeParameter('link', itemIndex) as string;
+			return await bookstackApiRequest.call(
+				context,
+				'POST',
+				'/attachments',
+				{ name, uploaded_to: uploadedTo, link },
+				{},
+			);
+		}
+	}
+
+	private async handleUpdateAttachmentOperation(context: IExecuteFunctions, itemIndex: number) {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		const attachmentType = context.getNodeParameter('attachmentType', itemIndex, 'file') as string;
+
+		if (attachmentType === 'file') {
+			const binaryPropertyName = context.getNodeParameter(
+				'binaryPropertyName',
+				itemIndex,
+				'',
+			) as string;
+			const name = context.getNodeParameter('name', itemIndex, '') as string;
+			const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex, '') as string;
+
+			const formFields: Record<string, string> = {};
+			if (name) formFields['name'] = name;
+			if (uploadedTo) formFields['uploaded_to'] = uploadedTo;
+
+			return await bookstackApiRequestMultipart.call(
+				context,
+				'PUT',
+				`/attachments/${id}`,
+				formFields,
+				binaryPropertyName || undefined,
+				itemIndex,
+				'file',
+			);
+		} else {
+			const name = context.getNodeParameter('name', itemIndex, '') as string;
+			const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex, '') as string;
+			const link = context.getNodeParameter('link', itemIndex, '') as string;
+
+			const body: IDataObject = {};
+			if (name) body.name = name;
+			if (uploadedTo) body.uploaded_to = uploadedTo;
+			if (link) body.link = link;
+
+			return await bookstackApiRequest.call(context, 'PUT', `/attachments/${id}`, body, {});
+		}
+	}
+
 	private async handleCreateImageOperation(context: IExecuteFunctions, itemIndex: number) {
 		const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex) as string;
 		const name = context.getNodeParameter('name', itemIndex, '') as string;
@@ -468,7 +547,47 @@ export class Bookstack implements INodeType {
 
 				let responseData: IDataObject[] | IDataObject | undefined;
 
-				if (resource === 'global') {
+				if (resource === 'attachment') {
+					const endpoint = nodeInstance.resourceEndpoints['attachment'];
+
+					switch (operation) {
+						case 'getAll':
+							responseData = (await nodeInstance.handleGetAllOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject[];
+							break;
+						case 'get': {
+							const raw = (await nodeInstance.handleGetOperation(this, endpoint, i)) as IDataObject;
+							const includeContent = this.getNodeParameter('includeContent', i, false) as boolean;
+							if (!includeContent) {
+								delete raw.content;
+							}
+							responseData = raw;
+							break;
+						}
+						case 'create':
+							responseData = (await nodeInstance.handleCreateAttachmentOperation(
+								this,
+								i,
+							)) as IDataObject;
+							break;
+						case 'update':
+							responseData = (await nodeInstance.handleUpdateAttachmentOperation(
+								this,
+								i,
+							)) as IDataObject;
+							break;
+						case 'delete':
+							responseData = (await nodeInstance.handleDeleteOperation(
+								this,
+								endpoint,
+								i,
+							)) as IDataObject;
+							break;
+					}
+				} else if (resource === 'global') {
 					if (operation === 'search') {
 						responseData = (await nodeInstance.handleSearchOperation(this, i)) as IDataObject[];
 					} else if (operation === 'auditLogList') {

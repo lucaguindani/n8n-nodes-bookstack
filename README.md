@@ -59,6 +59,9 @@ Resource: Shelf
 Resource: Image
 - Get Many / Get / Create / Update / Delete
 
+Resource: Attachment
+- Get Many / Get / Create / Update / Delete
+
 Resource: Global
 - Search / Audit Log
 
@@ -97,8 +100,8 @@ Internally, the node handles pagination (count/offset) for you when needed.
 - "Return All" / "Limit" to control the amount of results
 - "Deep Dive" to automatically fetch full content for all search results. This provides complete context but increases execution time and API calls.
 
-### Image
-- "Binary Property" to tell the node which binary key on the current item holds the file. For example, if a previous node (HTTP Request, Read Binary File, etc.) stored the file under the key `data`, enter `data` here. The node will read that binary entry and attach it as the image file in the request.
+### Image & Attachment
+- "Binary Property" to tell the node which binary key on the current item holds the file. For example, if a previous node (HTTP Request, Read Binary File, etc.) stored the file under the key `data`, enter `data` here. The node will read that binary entry and attach it as the file in the request.
 
 ### Tags
 When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.

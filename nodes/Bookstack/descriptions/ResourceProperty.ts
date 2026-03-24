@@ -6,6 +6,7 @@ export const resourceProperty: INodeProperties = {
 	type: 'options',
 	noDataExpression: true,
 	options: [
+		{ name: 'Attachment', value: 'attachment' },
 		{ name: 'Book', value: 'book' },
 		{ name: 'Chapter', value: 'chapter' },
 		{ name: 'Global', value: 'global' },
