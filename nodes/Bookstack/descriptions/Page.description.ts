@@ -89,7 +89,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the parent chapter. On create: set EITHER chapter_id OR book_id (not both). On update: set this to MOVE the page into a different chapter.',
+		description: 'ID of the parent chapter. On create: set EITHER chapter_id OR book_id (not both). On update: setting chapter_id alone moves the page into that chapter (no need to clear book_id).',
 	},
 	{
 		displayName: 'HTML Content',
@@ -102,7 +102,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'HTML body of the page. Only use this if markdown is not suitable. Prefer markdown over HTML - it uses fewer tokens and is more efficient for AI processing. Required on create if markdown is not set. Do NOT set both html and markdown.',
+		description: 'HTML body of the page. Only use if markdown is not suitable - markdown uses ~3x fewer tokens. Required on create if markdown is not set. On update, REPLACES the entire page content. Do NOT set both html and markdown.',
 	},
 	{
 		displayName: 'Markdown Content',
@@ -115,7 +115,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Markdown body of the page. PREFERRED over HTML - uses ~3x fewer tokens and is more efficient for AI processing. Required on create if html is not set. Do NOT set both html and markdown.',
+		description: 'Markdown body of the page. PREFERRED over HTML - uses ~3x fewer tokens. Required on create if html is not set. On update, REPLACES the entire page content. To append, first Get the page, merge content, then Update. Do NOT set both html and markdown.',
 	},
 	{
 		displayName: 'Tags',
@@ -128,7 +128,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags (e.g. "topic:networking, status:reviewed"). Tags enable search via {tag:name} syntax and are useful for AI categorization.',
+		description: 'Comma-separated tags (e.g. "networking, docker, reviewed"). On update, this REPLACES all existing tags. Tags are searchable via {tag:tagname} in Global Search.',
 	},
 	...listOperations.map((op) => ({
 		...op,

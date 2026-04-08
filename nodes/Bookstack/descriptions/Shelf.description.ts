@@ -106,7 +106,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags (e.g. "area:infrastructure, status:active"). Tags enable search via {tag:name} syntax.',
+		description: 'Comma-separated tags (e.g. "infrastructure, active"). On update, this REPLACES all existing tags. Tags are searchable via {tag:tagname} in Global Search.',
 		placeholder: 'tag1, tag2, tag3',
 	},
 	...listOperations.map((op) => ({

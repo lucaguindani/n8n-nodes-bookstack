@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search terms to find content. Returns a list of matches with: id, name, type (page/book/chapter/bookshelf), url, preview_html, tags. Does NOT return full page content - use Get Page by ID for that. Supports inline filters in the query string: {type:page}, {type:book}, {type:chapter}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Example: "networking {type:page} {tag:topic:networking}".',
+			'Search terms to find content. Returns a list of matches with: id, name, type (page/book/chapter/bookshelf), url, preview_html, tags. Does NOT return full page content - use Get by ID for that. Use the Content Type Filter below instead of adding {type:...} to the query (it is added automatically). Additional inline query filters: {in_name:text}, {in_body:text}, {tag:tagname}, {created_by:id}, {updated_by:id}. Example: "networking {in_name:setup}".',
 	},
 	{
 		displayName: 'Content Type Filter',
@@ -59,7 +59,7 @@ export const globalFields: INodeProperties[] = [
 		],
 		default: 'all',
 		description:
-			'Filter search results by content type. This filter will be automatically added to your search query.',
+			'Filter by content type. Automatically appended to the query - do NOT also add {type:...} manually. Use "Pages" to find pages, "Books" for books, etc.',
 	},
 	{
 		displayName: 'Return All',
