@@ -239,6 +239,35 @@ The primary AI use case is automated content organization:
    - Create new structure (Create Chapter/Book if needed)
    - Rename the page (Update with new `name`)
    - Tag for categorization (Update with `tags`)
+   - Archive instead of delete (see Best Practice below)
+
+### Archive-First Best Practice (Recommended for AI Agents)
+
+**Best practice: AI agents should move unwanted content to an "Archive" shelf
+instead of deleting it.** A human can then review and permanently delete from
+the archive manually. This prevents accidental data loss since delete is
+permanent and cascading (deleting a book removes all its chapters and pages).
+
+Setup:
+1. Create a shelf called "Archive" in BookStack (one-time, manual)
+2. Optionally create an "Archive" book inside it for orphaned pages/chapters
+3. In the n8n AI Agent, either omit the Delete tool entirely, or instruct the
+   agent via system prompt to prefer archiving over deletion
+
+How to archive with existing tools:
+- **Archive a page**: Update Page with `chapter_id` or `book_id` pointing to
+  the Archive book/chapter
+- **Archive a chapter**: Update Chapter with `book_id` pointing to the Archive book
+  (all pages inside move with it automatically)
+- **Archive a book**: Update the source shelf's `books` list to remove the book,
+  then update the Archive shelf's `books` list to add it. Note: shelves use
+  many-to-many relationships, so you need to Get both shelves first to read
+  their current book lists, then Update each with the modified lists.
+
+If the Delete tool is provided to the AI agent, it can be used at the agent's
+discretion - but be aware that deletes are permanent and cascading. There is no
+undo via the API (BookStack has a recycle bin in the web UI, but it is not
+accessible via API).
 
 ### Token-Efficient Navigation Strategy
 
