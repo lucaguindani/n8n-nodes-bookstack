@@ -97,14 +97,19 @@ export class Bookstack implements INodeType {
 
 		// Convert tags to array format (supports "name" and "name:value" pairs)
 		if (body.tags && typeof body.tags === 'string') {
-			body.tags = body.tags.split(',').map((t: string) => {
-				const trimmed = t.trim();
-				const colonIdx = trimmed.indexOf(':');
-				if (colonIdx > 0) {
-					return { name: trimmed.slice(0, colonIdx), value: trimmed.slice(colonIdx + 1) };
-				}
-				return { name: trimmed };
-			});
+			body.tags = body.tags
+				.split(',')
+				.map((t: string) => {
+					const trimmed = t.trim();
+					if (!trimmed) return null;
+					const colonIdx = trimmed.indexOf(':');
+					if (colonIdx > 0) {
+						const value = trimmed.slice(colonIdx + 1);
+						return value ? { name: trimmed.slice(0, colonIdx), value } : { name: trimmed.slice(0, colonIdx) };
+					}
+					return { name: trimmed };
+				})
+				.filter((tag) => tag !== null);
 		}
 
 		// Convert books to array of integers
