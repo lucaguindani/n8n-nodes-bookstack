@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search terms to find content. Returns only IDs, names, and short previews (token-efficient). Supports filters: {type:page}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Workflow: 1) Search here to find candidates, 2) Get individual items by ID to read full content, 3) Update or Create as needed. NEVER use Get Many to browse - always search first.',
+			'Search terms to find content. Returns a list of matches with: id, name, type (page/book/chapter/bookshelf), url, preview_html, tags. Does NOT return full page content - use Get Page by ID for that. Supports inline filters in the query string: {type:page}, {type:book}, {type:chapter}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Example: "networking {type:page} {tag:topic:networking}".',
 	},
 	{
 		displayName: 'Content Type Filter',

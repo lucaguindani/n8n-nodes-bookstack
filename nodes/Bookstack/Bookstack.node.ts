@@ -34,7 +34,7 @@ export class Bookstack implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage BookStack content (Shelves > Books > Chapters > Pages)',
+		description: 'Manage BookStack content. Hierarchy: Shelves contain Books, Books contain Chapters and Pages, Chapters contain Pages. To find content, use Global Search first (returns IDs and previews). Then use Get by ID to read full content. Use Update to move content by changing parent IDs. Prefer markdown over HTML for page content.',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],

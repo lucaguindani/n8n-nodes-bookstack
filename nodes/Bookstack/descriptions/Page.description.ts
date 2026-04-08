@@ -36,7 +36,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the page. Use Search or Get Many to find page IDs.',
+		description: 'Numeric ID of the page. Returns the full page including html, markdown, tags, book_id, chapter_id, and metadata.',
 		placeholder: 'Enter page ID (e.g., 456)',
 	},
 	{
@@ -50,7 +50,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Page title (max 255 chars). If omitted, auto-generated from the first heading or first line of content.',
+		description: 'Page title (max 255 chars). The AI should generate a concise, descriptive title from the content. If omitted, auto-generated from the first heading or first line of content.',
 	},
 	{
 		displayName: 'Name',
@@ -76,7 +76,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the parent book. Required on create if chapter_id is not set. On update, set this to MOVE the page to a different book.',
+		description: 'ID of the parent book. On create: set EITHER book_id OR chapter_id (not both). On update: set this to MOVE the page to a different book (removes it from its current chapter).',
 	},
 	{
 		displayName: 'Chapter ID',
@@ -89,7 +89,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the parent chapter. Required on create if book_id is not set. On update, set this to MOVE the page into a different chapter.',
+		description: 'ID of the parent chapter. On create: set EITHER chapter_id OR book_id (not both). On update: set this to MOVE the page into a different chapter.',
 	},
 	{
 		displayName: 'HTML Content',

@@ -36,7 +36,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the chapter. Use Search or Get Many to find chapter IDs.',
+		description: 'Numeric ID of the chapter. Returns the chapter with a "pages" array listing all pages in it (names and IDs, not full page content).',
 		placeholder: 'Enter chapter ID (e.g., 101)',
 	},
 	{
@@ -79,7 +79,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Chapter title (max 255 chars). If omitted, auto-generated from description or timestamp.',
+		description: 'Chapter title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 		placeholder: 'Enter chapter name',
 	},
 	{

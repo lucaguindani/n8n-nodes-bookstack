@@ -36,7 +36,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the shelf. Use Search or Get Many to find shelf IDs.',
+		description: 'Numeric ID of the shelf. Returns the shelf with a "books" array listing all books assigned to it (names and IDs).',
 		placeholder: 'Enter shelf ID (e.g., 789)',
 	},
 	{
@@ -50,7 +50,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Shelf title (max 255 chars). If omitted, auto-generated from description or timestamp.',
+		description: 'Shelf title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 		placeholder: 'Enter shelf name',
 	},
 	{

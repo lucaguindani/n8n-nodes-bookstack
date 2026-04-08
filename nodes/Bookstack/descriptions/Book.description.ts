@@ -36,7 +36,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the book. Use Search or Get Many to find book IDs.',
+		description: 'Numeric ID of the book. Returns the book with its table of contents: a "contents" array listing all chapters and direct pages (names and IDs, not full page content).',
 		placeholder: 'Enter book ID (e.g., 123)',
 	},
 	{
@@ -50,7 +50,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Book title (max 255 chars). If omitted, auto-generated from description or timestamp.',
+		description: 'Book title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 	},
 	{
 		displayName: 'Name',

@@ -44,7 +44,7 @@ export const listOperations: INodeProperties[] = [
 						name: 'field',
 						type: 'string',
 						default: '',
-						description: 'Field to filter on',
+						description: 'Field to filter on (e.g. name, created_at, updated_at, book_id, chapter_id)',
 					},
 					{
 						displayName: 'Operation',
