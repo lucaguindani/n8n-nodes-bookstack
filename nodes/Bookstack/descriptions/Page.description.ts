@@ -128,7 +128,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags (e.g. "networking, docker, reviewed"). On update, this REPLACES all existing tags. Tags are searchable via {tag:tagname} in Global Search.',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "topic:networking, status:reviewed"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 	},
 	...listOperations.map((op) => ({
 		...op,

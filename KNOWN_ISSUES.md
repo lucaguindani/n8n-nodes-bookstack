@@ -7,37 +7,10 @@ by the v1.4.0 changes. All others are pre-existing.
 
 ## MEDIUM Severity
 
-### 1. Tags do not support BookStack name:value pairs
+### ~~1. Tags do not support BookStack name:value pairs~~ **FIXED in v1.4.0**
 
-**File:** `nodes/Bookstack/Bookstack.node.ts`, lines 99-101
-
-**Description:** The description text in multiple files uses examples like
-`"topic:networking, status:reviewed"`, implying name:value tag pairs. However,
-`buildRequestBody` converts tags via:
-
-```typescript
-body.tags.split(',').map((t: string) => ({ name: t.trim() }))
-```
-
-This means `"topic:networking"` becomes `{name: "topic:networking"}` instead of
-`{name: "topic", value: "networking"}`. BookStack's API uses `name` and `value`
-as separate properties for tag filtering (`{tag:topic=networking}`).
-
-**Impact:** Tags with colon-separated values are stored as literal tag names. The
-`{tag:name=value}` search syntax won't work with these tags.
-
-**Suggested Fix:** Split each tag on the first `:` to produce `{name, value}` objects:
-
-```typescript
-body.tags = body.tags.split(',').map((t: string) => {
-    const trimmed = t.trim();
-    const colonIdx = trimmed.indexOf(':');
-    if (colonIdx > 0) {
-        return { name: trimmed.slice(0, colonIdx), value: trimmed.slice(colonIdx + 1) };
-    }
-    return { name: trimmed };
-});
-```
+Tags now support `name:value` pairs. Input `"topic:networking"` produces
+`{name: "topic", value: "networking"}`. The `{tag:name=value}` search syntax works.
 
 ---
 
@@ -274,16 +247,9 @@ checks are dead code. Not harmful, just redundant.
 
 ---
 
-### 21. `!body.name` falsy check is too broad **(v1.4.0)**
+### ~~21. `!body.name` falsy check is too broad~~ **FIXED in v1.4.0**
 
-**File:** `nodes/Bookstack/Bookstack.node.ts`, line 452
-
-The check `if (!body.name && ...)` triggers for `undefined`, `null`, `''`, `0`,
-`false`, and `NaN`. If an n8n expression somehow produces a numeric `0` or boolean
-`false` as the name value, it would be overwritten by the fallback generator.
-
-A more precise check would be `body.name === undefined || body.name === ''`.
-In practice this is extremely unlikely since `name` is a string field.
+The check now uses `body.name === undefined || body.name === ''` instead of `!body.name`.
 
 ---
 
@@ -302,14 +268,10 @@ for manual users.
 
 ---
 
-### 23. Page ID description is misleading for Delete operation **(v1.4.0)**
+### ~~23. Page ID description is misleading for Delete operation~~ **FIXED in v1.4.0**
 
-**File:** `nodes/Bookstack/descriptions/Page.description.ts`, line 39
-
-The ID field description says "Returns the full page including html, markdown,
-tags..." - this is accurate for Get but misleading for Delete (which returns
-a minimal or empty response). The ID field is shared across get, update, and
-delete operations, so the description applies to all three.
+The ID field description now documents all three operations separately:
+Get returns fields, Update returns updated object, Delete returns empty on success.
 
 ---
 

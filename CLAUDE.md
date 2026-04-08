@@ -336,12 +336,11 @@ The `dist/` directory is what n8n loads at runtime.
 
 ## Known Issues
 
-See `KNOWN_ISSUES.md` for a full list of 20 pre-existing issues found during QA audit.
-The top 3 most impactful:
+See `KNOWN_ISSUES.md` for a full list of issues found during QA audit (24 total,
+3 fixed in v1.4.0, 21 remaining). The top 3 most impactful remaining issues:
 
-1. **Tags don't support name:value pairs** - `"topic:networking"` becomes
-   `{name: "topic:networking"}` instead of `{name: "topic", value: "networking"}`.
-   The `{tag:name=value}` search syntax won't work with these tags.
+1. ~~**Tags don't support name:value pairs**~~ **FIXED in v1.4.0** - Tags now split
+   on `:` to produce `{name: "topic", value: "networking"}`.
 2. **Audit-log sort baked into URL** - `sort=-created_at` is in the URL path string
    instead of the query parameters object. Fragile but works.
 3. **Attachment/Image limit ignores returnAll** - The `.map()` in these description

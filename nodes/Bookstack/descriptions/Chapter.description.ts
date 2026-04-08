@@ -121,7 +121,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags (e.g. "networking, reviewed"). On update, this REPLACES all existing tags. Tags are searchable via {tag:tagname} in Global Search.',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "topic:networking, status:reviewed"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 		placeholder: 'tag1, tag2, tag3',
 	},
 	...listOperations.map((op) => ({

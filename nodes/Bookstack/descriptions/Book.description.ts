@@ -102,7 +102,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags (e.g. "devops, infrastructure, active"). On update, this REPLACES all existing tags. Tags are searchable via {tag:tagname} in Global Search.',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "category:devops, status:active"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 	},
 	...listOperations.map((op) => ({
 		...op,

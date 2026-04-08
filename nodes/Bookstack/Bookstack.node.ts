@@ -34,7 +34,7 @@ export class Bookstack implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage BookStack content. Hierarchy: Shelves contain Books, Books contain Chapters and Pages, Chapters contain Pages. To find content, use Global Search first (returns IDs and previews). Then Get by ID to read full content. Use Update to move content by changing parent IDs. Delete is permanent and cascading - prefer moving content to an Archive shelf instead. Prefer markdown over HTML for page content.',
+		description: 'Manage BookStack content. Hierarchy: Shelves → Books → Chapters → Pages. Use Search to find content (returns IDs and previews), then Get by ID for full details. Update can move content by changing parent IDs. Delete is permanent and cascading. Prefer markdown over HTML.',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],
@@ -95,9 +95,16 @@ export class Bookstack implements INodeType {
 			}
 		}
 
-		// Convert tags to array format
+		// Convert tags to array format (supports "name" and "name:value" pairs)
 		if (body.tags && typeof body.tags === 'string') {
-			body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
+			body.tags = body.tags.split(',').map((t: string) => {
+				const trimmed = t.trim();
+				const colonIdx = trimmed.indexOf(':');
+				if (colonIdx > 0) {
+					return { name: trimmed.slice(0, colonIdx), value: trimmed.slice(colonIdx + 1) };
+				}
+				return { name: trimmed };
+			});
 		}
 
 		// Convert books to array of integers
@@ -449,7 +456,7 @@ export class Bookstack implements INodeType {
 		}
 
 		// Auto-generate name if not provided (BookStack API requires it)
-		if (!body.name && this.resourceFields[resource]?.includes('name')) {
+		if ((body.name === undefined || body.name === '') && this.resourceFields[resource]?.includes('name')) {
 			body.name = this.generateFallbackName(resource, body);
 		}
 
