@@ -13,11 +13,11 @@ export const pageOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Delete', value: 'delete', action: 'Delete' },
-			{ name: 'Get', value: 'get', action: 'Get' },
-			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
-			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Create', value: 'create', action: 'Create a page in a book or chapter' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a page' },
+			{ name: 'Get', value: 'get', action: 'Get a page with full HTML/markdown content' },
+			{ name: 'Get Many', value: 'getAll', action: 'List pages with filtering and sorting' },
+			{ name: 'Update', value: 'update', action: 'Update a page or move it to another book/chapter' },
 		],
 		default: 'getAll',
 	},
@@ -36,14 +36,13 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The unique identifier of the page',
+		description: 'Numeric ID of the page. Use Search or Get Many to find page IDs.',
 		placeholder: 'Enter page ID (e.g., 456)',
 	},
 	{
 		displayName: 'Name',
 		name: 'name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['page'],
@@ -51,7 +50,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the page (max 255 characters)',
+		description: 'Page title (max 255 chars). If omitted, auto-generated from the first heading or first line of content.',
 	},
 	{
 		displayName: 'Name',
@@ -64,7 +63,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the page (max 255 characters)',
+		description: 'New title for the page (max 255 chars). Leave empty to keep current name.',
 	},
 	{
 		displayName: 'Book ID',
@@ -77,7 +76,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this page belongs to (required on create if no Chapter ID)',
+		description: 'ID of the parent book. Required on create if chapter_id is not set. On update, set this to MOVE the page to a different book.',
 	},
 	{
 		displayName: 'Chapter ID',
@@ -90,7 +89,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the chapter this page belongs to (required on create if no Book ID)',
+		description: 'ID of the parent chapter. Required on create if book_id is not set. On update, set this to MOVE the page into a different chapter.',
 	},
 	{
 		displayName: 'HTML Content',
@@ -103,7 +102,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'HTML content of the page (required on create if no Markdown Content)',
+		description: 'HTML body of the page. Required on create if markdown is not set. On update, replaces existing content.',
 	},
 	{
 		displayName: 'Markdown Content',
@@ -116,7 +115,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Markdown content of the page (required on create if no HTML Content)',
+		description: 'Markdown body of the page. Required on create if html is not set. On update, replaces existing content.',
 	},
 	{
 		displayName: 'Tags',
@@ -129,7 +128,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the page',
+		description: 'Comma-separated tags (e.g. "topic:networking, status:reviewed"). Tags enable search via {tag:name} syntax and are useful for AI categorization.',
 	},
 	...listOperations.map((op) => ({
 		...op,

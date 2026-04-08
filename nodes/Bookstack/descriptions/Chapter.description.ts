@@ -13,11 +13,11 @@ export const chapterOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Delete', value: 'delete', action: 'Delete' },
-			{ name: 'Get', value: 'get', action: 'Get' },
-			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
-			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Create', value: 'create', action: 'Create a chapter inside a book (groups related pages)' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a chapter' },
+			{ name: 'Get', value: 'get', action: 'Get a chapter with its list of pages' },
+			{ name: 'Get Many', value: 'getAll', action: 'List chapters with filtering and sorting' },
+			{ name: 'Update', value: 'update', action: 'Update a chapter or move it to a different book' },
 		],
 		default: 'getAll',
 	},
@@ -36,7 +36,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The unique identifier of the chapter',
+		description: 'Numeric ID of the chapter. Use Search or Get Many to find chapter IDs.',
 		placeholder: 'Enter chapter ID (e.g., 101)',
 	},
 	{
@@ -51,7 +51,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this chapter belongs to',
+		description: 'ID of the book this chapter belongs to.',
 		placeholder: 'Enter book ID',
 	},
 	{
@@ -65,14 +65,13 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this chapter belongs to',
+		description: 'ID of the parent book. Set this to MOVE the chapter to a different book.',
 		placeholder: 'Enter book ID',
 	},
 	{
 		displayName: 'Name',
 		name: 'name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['chapter'],
@@ -80,7 +79,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the chapter (max 255 characters)',
+		description: 'Chapter title (max 255 chars). If omitted, auto-generated from description or timestamp.',
 		placeholder: 'Enter chapter name',
 	},
 	{
@@ -94,7 +93,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the chapter (max 255 characters)',
+		description: 'New title for the chapter (max 255 chars). Leave empty to keep current name.',
 		placeholder: 'Enter chapter name',
 	},
 	{
@@ -108,7 +107,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the chapter (max 1900 characters)',
+		description: 'Short description of the chapter (max 1900 chars). Shown in listings and search results.',
 		placeholder: 'Enter chapter description',
 	},
 	{
@@ -122,7 +121,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the chapter',
+		description: 'Comma-separated tags (e.g. "topic:networking, status:reviewed"). Tags enable search via {tag:name} syntax.',
 		placeholder: 'tag1, tag2, tag3',
 	},
 	...listOperations.map((op) => ({

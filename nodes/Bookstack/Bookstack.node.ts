@@ -34,7 +34,7 @@ export class Bookstack implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage BookStack resources',
+		description: 'Manage BookStack content organized as Shelves > Books > Chapters > Pages. Use Search to find content, Get to see children, Create/Update to organize. Update can move content by changing parent IDs.',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],
@@ -109,6 +109,38 @@ export class Bookstack implements INodeType {
 		}
 
 		return body;
+	}
+
+	private generateFallbackName(resource: string, body: IDataObject): string {
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+		if (resource === 'page') {
+			const html = body.html as string | undefined;
+			if (html) {
+				// Use [\s\S]*? to handle headings that may span multiple lines
+				const headingMatch = html.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i);
+				if (headingMatch?.[1]) {
+					const text = headingMatch[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+					if (text) return text.slice(0, 255);
+				}
+				const textContent = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+				if (textContent) return textContent.slice(0, 255);
+			}
+			const markdown = body.markdown as string | undefined;
+			if (markdown) {
+				const mdHeadingMatch = markdown.match(/^#{1,6}\s+(.+)$/m);
+				if (mdHeadingMatch?.[1]) return mdHeadingMatch[1].trim().slice(0, 255);
+				const firstLine = markdown.split(/\n/).find((l: string) => l.trim());
+				if (firstLine) return firstLine.trim().slice(0, 255);
+			}
+		}
+
+		if (['book', 'chapter', 'shelf'].includes(resource)) {
+			const desc = body.description as string | undefined;
+			if (desc?.trim()) return desc.trim().slice(0, 255);
+		}
+
+		return `${resource}-${timestamp}`;
 	}
 
 	private validatePageCreation(
@@ -395,6 +427,11 @@ export class Bookstack implements INodeType {
 
 		if (resource === 'page') {
 			this.validatePageCreation(body, context, itemIndex);
+		}
+
+		// Auto-generate name if not provided (BookStack API requires it)
+		if (!body.name && this.resourceFields[resource]?.includes('name')) {
+			body.name = this.generateFallbackName(resource, body);
 		}
 
 		return await bookstackApiRequest.call(context, 'POST', `/${endpoint}`, body, {});

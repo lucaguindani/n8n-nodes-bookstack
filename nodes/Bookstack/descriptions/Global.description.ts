@@ -12,7 +12,7 @@ export const globalOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Search', value: 'search', action: 'Global search' },
+			{ name: 'Search', value: 'search', action: 'Search all content - use this first to find or locate content before creating or moving' },
 			{ name: 'Audit Log', value: 'auditLogList', action: 'Audit log' },
 		],
 		default: 'search',
@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search query to find content across all resources (books, pages, chapters, shelves)',
+			'Search terms to find content across books, pages, chapters, and shelves. Supports advanced filters: {type:page}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Use this as the first step to find where content belongs before creating or moving.',
 	},
 	{
 		displayName: 'Content Type Filter',
@@ -105,7 +105,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		default: false,
 		description:
-			'Whether to automatically retrieve full content for all found pages, chapters, books and shelves. This provides more context but may increase execution time.',
+			'Automatically retrieve full content for all results. Provides complete text, children lists, and metadata. Enable this when you need to compare content or check for duplicates. Increases API calls proportionally to result count.',
 	},
 	{
 		displayName: 'Return All',
