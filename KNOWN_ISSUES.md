@@ -280,3 +280,35 @@ Get returns fields, Update returns updated object, Delete returns empty on succe
 **File:** `README.md`, line 122
 
 "To lunch a local instance" should be "To launch a local instance".
+
+---
+
+### 25. `book_id`/`chapter_id`/`default_template_id` sent as strings instead of integers
+
+**Files:** Page.description.ts, Chapter.description.ts, Book.description.ts
+
+These ID fields are `type: 'string'` in the n8n field definitions but the BookStack
+API expects integers. PHP/Laravel auto-coerces `"123"` to `123` so this works in
+practice, but it is technically sending the wrong type.
+
+---
+
+### 26. Search result `preview_html` is an object, not a string
+
+**File:** `nodes/Bookstack/Bookstack.node.ts`, line 258
+
+BookStack returns `preview_html` as `{name: string, content: string}` with
+HTML-highlighted matches. The node maps it to `preview` in the output. The
+description says "preview (short text snippet)" which is slightly inaccurate.
+
+---
+
+### 27. Missing API fields not exposed by the node
+
+The following BookStack API fields exist but are not in the node:
+- `description_html` (books, chapters, shelves - HTML variant, max 2000 chars)
+- `priority` (pages, chapters - ordering within parent)
+- `image` / `cover` (books, shelves - cover image)
+- `default_template_id` for chapters (only exposed for books currently)
+
+These are feature gaps for potential future versions.

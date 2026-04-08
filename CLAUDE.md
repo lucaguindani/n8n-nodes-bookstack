@@ -354,8 +354,11 @@ See `KNOWN_ISSUES.md` for a full list of issues found during QA audit (24 total,
 1. **`getNodeParameter` fallback**: Always pass `undefined` as third arg for optional fields,
    not `''`. Empty string would be treated as a provided value.
 
-2. **Tags format**: UI accepts comma-separated strings, but BookStack API expects
-   `[{name: "tag"}]`. The `buildRequestBody()` method handles conversion automatically.
+2. **Tags format**: UI accepts comma-separated strings with optional `name:value` pairs
+   (e.g., `"topic:networking, status:active"`). The `buildRequestBody()` method splits
+   on the first `:` to produce `{name: "topic", value: "networking"}`. Tags without
+   a colon become `{name: "tagname"}`. Empty entries from double-commas or whitespace
+   are filtered out.
 
 3. **Shelf books format**: UI accepts comma-separated IDs (e.g., "1,5,12"), converted
    to `[1, 5, 12]` integer array by `buildRequestBody()`.
@@ -393,13 +396,32 @@ See `KNOWN_ISSUES.md` for a full list of issues found during QA audit (24 total,
     which could break under minification. If you need to modify error handling, consider
     using `instanceof` with proper imports instead.
 
+12. **`book_id`/`chapter_id` sent as strings**: These ID fields are `type: 'string'`
+    in the UI but BookStack API expects integers. PHP/Laravel auto-coerces `"123"` to
+    `123`, so this works. If BookStack ever adds strict type checking, these would need
+    conversion to integers in `buildRequestBody()`.
+
+13. **Search `preview_html` is an object, not a string**: The BookStack search API
+    returns `preview_html` as `{name: string, content: string}` with HTML-highlighted
+    matches. The node maps it to `preview` in the output. It works but the shape is
+    different from what the description implies.
+
+14. **BookStack also has `description_html` (max 2000 chars)**: Books, chapters, and
+    shelves accept both `description` (plaintext, max 1900) and `description_html`
+    (HTML, max 2000). The node only exposes plaintext `description`. This is a feature
+    gap, not a bug.
+
+15. **API max pagination `count` is configurable**: CLAUDE.md and the code assume max
+    500 per request (`API_MAX_ITEM_COUNT`). This is BookStack's default but instances
+    can configure it lower. The node paginates correctly regardless.
+
 ---
 
 ## Version History
 
 | Version | Key Changes |
 |---------|-------------|
-| 1.4.0 | Optional name on Create, auto-name generation, AI-optimized descriptions, token-efficient navigation strategy, markdown-first, CLAUDE.md, KNOWN_ISSUES.md |
+| 1.4.0 | Optional name on Create, auto-name generation, AI-optimized descriptions, token-efficient navigation strategy, markdown-first, tag name:value support, CLAUDE.md, KNOWN_ISSUES.md |
 | 1.3.0 | Attachment resource support with CRUD and multipart handling |
 | 1.2.0 | Image resource support with CRUD and multipart handling |
 | 1.1.0 | Switch to pnpm |
