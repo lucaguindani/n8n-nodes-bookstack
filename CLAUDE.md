@@ -305,6 +305,22 @@ The `dist/` directory is what n8n loads at runtime.
 
 ---
 
+## Known Issues
+
+See `KNOWN_ISSUES.md` for a full list of 16 pre-existing issues found during QA audit.
+The top 3 most impactful:
+
+1. **Tags don't support name:value pairs** - `"topic:networking"` becomes
+   `{name: "topic:networking"}` instead of `{name: "topic", value: "networking"}`.
+   The `{tag:name=value}` search syntax won't work with these tags.
+2. **Audit-log sort baked into URL** - `sort=-created_at` is in the URL path string
+   instead of the query parameters object. Fragile but works.
+3. **Attachment/Image limit ignores returnAll** - The `.map()` in these description
+   files overwrites `displayOptions` instead of merging, so Limit stays visible
+   when Return All is on.
+
+---
+
 ## Common Pitfalls
 
 1. **`getNodeParameter` fallback**: Always pass `undefined` as third arg for optional fields,
@@ -330,13 +346,32 @@ The `dist/` directory is what n8n loads at runtime.
 7. **Search type filter**: The node appends `{type:X}` to the search query string.
    BookStack type values: `page`, `chapter`, `book`, `bookshelf` (note: "bookshelf", not "shelf").
 
+8. **`new Bookstack()` in execute()**: The `execute()` method has `this: IExecuteFunctions`
+   (n8n binds `this` to the execution context, not the class). All instance methods are
+   called via `const nodeInstance = new Bookstack()`. This works because all needed state
+   (`resourceEndpoints`, `resourceFields`) comes from class field declarations, not
+   constructor parameters.
+
+9. **Audit-log sort parameter**: The sort is baked into the URL string
+   (`'/audit-log?sort=-created_at'`). Don't add a separate `sort` to `qs` or it will
+   conflict. See KNOWN_ISSUES.md #2.
+
+10. **`decodeHtmlEntities` limitations**: Only used for fallback name generation.
+    Does not handle hex entities (except `&#x27;`), `&apos;`, or case-insensitive
+    entity names (except `&nbsp;`). Double-decodes `&amp;lt;` to `<`. Acceptable
+    for its limited scope but don't reuse for general HTML processing.
+
+11. **NodeApiError detection**: Uses string comparison (`e?.constructor?.name === 'NodeApiError'`)
+    which could break under minification. If you need to modify error handling, consider
+    using `instanceof` with proper imports instead.
+
 ---
 
 ## Version History
 
 | Version | Key Changes |
 |---------|-------------|
-| 1.4.0 | Optional name on Create, auto-name generation, AI-optimized descriptions, CLAUDE.md |
+| 1.4.0 | Optional name on Create, auto-name generation, AI-optimized descriptions, token-efficient navigation strategy, markdown-first, CLAUDE.md, KNOWN_ISSUES.md |
 | 1.3.0 | Attachment resource support with CRUD and multipart handling |
 | 1.2.0 | Image resource support with CRUD and multipart handling |
 | 1.1.0 | Switch to pnpm |
