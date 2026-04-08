@@ -131,9 +131,9 @@ export class Bookstack implements INodeType {
 			const markdown = body.markdown as string | undefined;
 			if (markdown) {
 				const mdHeadingMatch = markdown.match(/^#{1,6}\s+(.+)$/m);
-				if (mdHeadingMatch?.[1]) return mdHeadingMatch[1].trim().slice(0, 255);
+				if (mdHeadingMatch?.[1]?.trim()) return mdHeadingMatch[1].trim().slice(0, 255);
 				const firstLine = markdown.split(/\n/).find((l: string) => l.trim());
-				if (firstLine) return firstLine.trim().slice(0, 255);
+				if (firstLine?.trim()) return firstLine.trim().slice(0, 255);
 			}
 
 			// HTML fallback: only process a prefix to avoid expensive regex on large documents
