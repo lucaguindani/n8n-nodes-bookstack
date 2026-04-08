@@ -218,3 +218,26 @@ is sent. BookStack API would return a validation error.
 
 Replacement order means `&amp;lt;` becomes `&lt;` then `<` (double-decoded).
 Acceptable for fallback name generation but not faithful HTML entity decoding.
+
+---
+
+### 17. `requiresDataPath: 'single'` on search query field
+
+**File:** `nodes/Bookstack/descriptions/Global.description.ts`, line 29
+
+The `requiresDataPath: 'single'` property on the search query field is unusual for
+a plain text search string. This property is typically used for expression-mode fields
+that need data path resolution. On a plain search string field, this could cause
+unexpected behavior in certain n8n execution contexts. May be intentional for AI
+tool usage but warrants verification.
+
+---
+
+### 18. No `continueOnFail()` support in execute()
+
+**File:** `nodes/Bookstack/Bookstack.node.ts`, lines 747-758
+
+The catch block always rethrows errors. It never checks `this.continueOnFail()`,
+which is a common n8n pattern for allowing workflows to continue despite errors.
+Items that fail will halt the entire node execution. This may be intentional for
+data integrity but limits error resilience in batch workflows.

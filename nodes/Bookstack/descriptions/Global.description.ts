@@ -91,7 +91,7 @@ export const globalFields: INodeProperties[] = [
 			maxValue: 100,
 		},
 		description: 'Max results to return. Keep this low (5-20) when searching to save tokens. You can always search again with different terms if needed.',
-		placeholder: '100',
+		placeholder: '20',
 	},
 	{
 		displayName: 'Deep Dive',
