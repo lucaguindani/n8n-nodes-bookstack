@@ -13,7 +13,7 @@ export const pageOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create a page in a book or chapter' },
+			{ name: 'Create', value: 'create', action: 'Create a page in a book or chapter (prefer markdown over html)' },
 			{ name: 'Delete', value: 'delete', action: 'Delete a page' },
 			{ name: 'Get', value: 'get', action: 'Get a page with full HTML/markdown content' },
 			{ name: 'Get Many', value: 'getAll', action: 'List pages with filtering and sorting' },
@@ -102,7 +102,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'HTML body of the page. Required on create if markdown is not set. On update, replaces existing content.',
+		description: 'HTML body of the page. Only use this if markdown is not suitable. Prefer markdown over HTML - it uses fewer tokens and is more efficient for AI processing. Required on create if markdown is not set. Do NOT set both html and markdown.',
 	},
 	{
 		displayName: 'Markdown Content',
@@ -115,7 +115,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Markdown body of the page. Required on create if html is not set. On update, replaces existing content.',
+		description: 'Markdown body of the page. PREFERRED over HTML - uses ~3x fewer tokens and is more efficient for AI processing. Required on create if html is not set. Do NOT set both html and markdown.',
 	},
 	{
 		displayName: 'Tags',

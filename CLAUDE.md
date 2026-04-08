@@ -190,6 +190,18 @@ All list endpoints support:
 - `sort`: Field name prefixed with `+` (asc) or `-` (desc)
 - `filter[field:op]`: Field-level filtering (eq, ne, gt, gte, lt, lte, like)
 
+### Markdown vs HTML (Important for AI Usage)
+
+**Always prefer Markdown over HTML for page content.** Reasons:
+- Markdown uses ~3x fewer tokens than equivalent HTML
+- AI agents process Markdown more efficiently (less noise from tags)
+- BookStack stores both formats but only one should be set per request
+- **Do NOT set both `html` and `markdown`** in the same create/update call - BookStack
+  will use one and ignore the other, behavior is undefined
+
+The `html` field exists as a fallback for users who need precise formatting control
+or cannot use Markdown. For AI-driven workflows, Markdown is the gold standard.
+
 ### Field Constraints
 
 - `name`: max 255 characters (all resources)
@@ -290,6 +302,7 @@ The `dist/` directory is what n8n loads at runtime.
 
 5. **Page requires content**: Unlike books/chapters/shelves, pages MUST have either
    `html` or `markdown` on creation. This is enforced by `validatePageCreation()`.
+   Always use `markdown` unless the user explicitly needs HTML. Never set both fields.
 
 6. **Moving content**: Pages are moved by setting `book_id` or `chapter_id` on Update.
    Chapters are moved by setting `book_id` on Update. Books cannot be moved (they're top-level).

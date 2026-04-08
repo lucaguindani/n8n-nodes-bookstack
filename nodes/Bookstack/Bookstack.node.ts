@@ -111,27 +111,46 @@ export class Bookstack implements INodeType {
 		return body;
 	}
 
+	private static decodeHtmlEntities(text: string): string {
+		return text
+			.replace(/&nbsp;/gi, ' ')
+			.replace(/&amp;/g, '&')
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>')
+			.replace(/&quot;/g, '"')
+			.replace(/&#39;/g, "'")
+			.replace(/&#x27;/g, "'")
+			.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+	}
+
 	private generateFallbackName(resource: string, body: IDataObject): string {
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 
 		if (resource === 'page') {
-			const html = body.html as string | undefined;
-			if (html) {
-				// Use [\s\S]*? to handle headings that may span multiple lines
-				const headingMatch = html.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i);
-				if (headingMatch?.[1]) {
-					const text = headingMatch[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-					if (text) return text.slice(0, 255);
-				}
-				const textContent = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-				if (textContent) return textContent.slice(0, 255);
-			}
+			// Prefer markdown (token-efficient, AI-friendly) over HTML for name extraction
 			const markdown = body.markdown as string | undefined;
 			if (markdown) {
 				const mdHeadingMatch = markdown.match(/^#{1,6}\s+(.+)$/m);
 				if (mdHeadingMatch?.[1]) return mdHeadingMatch[1].trim().slice(0, 255);
 				const firstLine = markdown.split(/\n/).find((l: string) => l.trim());
 				if (firstLine) return firstLine.trim().slice(0, 255);
+			}
+
+			// HTML fallback: only process a prefix to avoid expensive regex on large documents
+			const html = body.html as string | undefined;
+			if (html) {
+				const htmlPrefix = html.slice(0, 2000);
+				const headingMatch = htmlPrefix.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i);
+				if (headingMatch?.[1]) {
+					const text = Bookstack.decodeHtmlEntities(
+						headingMatch[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+					);
+					if (text) return text.slice(0, 255);
+				}
+				const textContent = Bookstack.decodeHtmlEntities(
+					htmlPrefix.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+				);
+				if (textContent) return textContent.slice(0, 255);
 			}
 		}
 
