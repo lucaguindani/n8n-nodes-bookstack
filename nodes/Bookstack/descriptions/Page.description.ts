@@ -36,7 +36,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the page. Returns the full page including html, markdown, tags, book_id, chapter_id, and metadata.',
+		description: 'Numeric ID of the page. Get returns: id, name, slug, html, markdown, book_id, chapter_id, priority, created_at, updated_at, created_by, updated_by, tags[]. Update returns the updated page. Delete returns an empty response on success.',
 		placeholder: 'Enter page ID (e.g., 456)',
 	},
 	{
@@ -50,7 +50,7 @@ export const pageFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Page title (max 255 chars). The AI should generate a concise, descriptive title from the content. If omitted, auto-generated from the first heading or first line of content.',
+		description: 'Page title (max 255 chars). The AI should generate a concise, descriptive title from the content. If omitted, auto-generated from content. On success, returns the created page with its new id, name, slug, book_id, chapter_id.',
 	},
 	{
 		displayName: 'Name',

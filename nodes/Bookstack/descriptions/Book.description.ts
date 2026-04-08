@@ -36,7 +36,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the book. Returns the book with its table of contents: a "contents" array listing all chapters and direct pages (names and IDs, not full page content).',
+		description: 'Numeric ID of the book. Get returns: id, name, slug, description, created_at, updated_at, created_by, updated_by, owned_by, tags[], and a "contents" array of {id, name, type, pages[]} for chapters and direct pages. Update returns the updated book. Delete returns empty on success.',
 		placeholder: 'Enter book ID (e.g., 123)',
 	},
 	{

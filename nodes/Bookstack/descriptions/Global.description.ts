@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search terms to find content. Returns a list of matches with: id, name, type (page/book/chapter/bookshelf), url, preview_html, tags. Does NOT return full page content - use Get by ID for that. Use the Content Type Filter below instead of adding {type:...} to the query (it is added automatically). Additional inline query filters: {in_name:text}, {in_body:text}, {tag:tagname}, {created_by:id}, {updated_by:id}. Example: "networking {in_name:setup}".',
+			'Search terms to find content. Each result contains: id, name, type (page/book/chapter/bookshelf), url, preview (short text snippet), tags[], book, chapter. Does NOT return full page content - use Get by ID for that. Use the Content Type Filter below instead of adding {type:...} to the query. Additional inline filters: {in_name:text}, {in_body:text}, {tag:tagname}, {created_by:id}, {updated_by:id}. Example: "networking {in_name:setup}". An empty result list means no matches were found.',
 	},
 	{
 		displayName: 'Content Type Filter',

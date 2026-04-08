@@ -36,7 +36,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the shelf. Returns the shelf with a "books" array listing all books assigned to it (names and IDs).',
+		description: 'Numeric ID of the shelf. Get returns: id, name, slug, description, created_at, updated_at, created_by, updated_by, tags[], and a "books" array of {id, name, slug}. Update returns the updated shelf. Delete returns empty on success.',
 		placeholder: 'Enter shelf ID (e.g., 789)',
 	},
 	{

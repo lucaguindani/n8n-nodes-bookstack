@@ -36,7 +36,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Numeric ID of the chapter. Returns the chapter with a "pages" array listing all pages in it (names and IDs, not full page content).',
+		description: 'Numeric ID of the chapter. Get returns: id, name, slug, book_id, description, priority, created_at, updated_at, created_by, updated_by, tags[], and a "pages" array of {id, name, slug, book_id, chapter_id, priority}. Update returns the updated chapter. Delete returns empty on success.',
 		placeholder: 'Enter chapter ID (e.g., 101)',
 	},
 	{
