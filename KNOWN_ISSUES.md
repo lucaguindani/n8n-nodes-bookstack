@@ -1,7 +1,7 @@
 # Known Issues
 
-Pre-existing issues found during QA audit (v1.4.0). None of these are regressions
-from v1.4.0 changes - all exist in earlier versions.
+Issues found during QA audit (v1.4.0). Items marked **(v1.4.0)** were introduced
+by the v1.4.0 changes. All others are pre-existing.
 
 ---
 
@@ -271,3 +271,50 @@ try {
 `if (!credentials)` check after `await this.getCredentials('bookstackApi')`. The
 `getCredentials()` method already throws if credentials are not found, so these
 checks are dead code. Not harmful, just redundant.
+
+---
+
+### 21. `!body.name` falsy check is too broad **(v1.4.0)**
+
+**File:** `nodes/Bookstack/Bookstack.node.ts`, line 452
+
+The check `if (!body.name && ...)` triggers for `undefined`, `null`, `''`, `0`,
+`false`, and `NaN`. If an n8n expression somehow produces a numeric `0` or boolean
+`false` as the name value, it would be overwritten by the fallback generator.
+
+A more precise check would be `body.name === undefined || body.name === ''`.
+In practice this is extremely unlikely since `name` is a string field.
+
+---
+
+### 22. Removing `required: true` from name silently accepts empty names **(v1.4.0)**
+
+**Files:** Page/Book/Chapter/Shelf description files
+
+Previously, the n8n UI blocked submission when the name field was empty (enforced
+by `required: true`). Now the UI allows it and the node auto-generates a fallback
+name (e.g. `page-2026-04-08T14-30-00`). Manual users who accidentally leave the
+name empty will not get a validation error - they will get an auto-generated name
+they may not notice until later.
+
+This is an intentional design decision for AI agent usage but changes behavior
+for manual users.
+
+---
+
+### 23. Page ID description is misleading for Delete operation **(v1.4.0)**
+
+**File:** `nodes/Bookstack/descriptions/Page.description.ts`, line 39
+
+The ID field description says "Returns the full page including html, markdown,
+tags..." - this is accurate for Get but misleading for Delete (which returns
+a minimal or empty response). The ID field is shared across get, update, and
+delete operations, so the description applies to all three.
+
+---
+
+### 24. README typo: "lunch" instead of "launch"
+
+**File:** `README.md`, line 122
+
+"To lunch a local instance" should be "To launch a local instance".
