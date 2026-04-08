@@ -336,7 +336,7 @@ The `dist/` directory is what n8n loads at runtime.
 
 ## Known Issues
 
-See `KNOWN_ISSUES.md` for a full list of 16 pre-existing issues found during QA audit.
+See `KNOWN_ISSUES.md` for a full list of 20 pre-existing issues found during QA audit.
 The top 3 most impactful:
 
 1. **Tags don't support name:value pairs** - `"topic:networking"` becomes

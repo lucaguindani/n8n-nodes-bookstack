@@ -241,3 +241,33 @@ The catch block always rethrows errors. It never checks `this.continueOnFail()`,
 which is a common n8n pattern for allowing workflows to continue despite errors.
 Items that fail will halt the entire node execution. This may be intentional for
 data integrity but limits error resilience in batch workflows.
+
+---
+
+### 19. Multipart request handler has no try/catch error wrapping
+
+**File:** `nodes/Bookstack/utils/BookstackApiHelpers.ts`, line 122
+
+The `bookstackApiRequest()` function wraps HTTP errors in `NodeApiError` for clean
+error messages. The `bookstackApiRequestMultipart()` function does NOT - errors from
+attachment/image uploads propagate as raw, unformatted exceptions. Users see
+unfriendly error messages on upload failures.
+
+**Suggested Fix:** Add the same try/catch pattern:
+```typescript
+try {
+    return await this.helpers.httpRequestWithAuthentication.call(this, 'bookstackApi', options);
+} catch (error) {
+    throw new NodeApiError(this.getNode(), error);
+}
+```
+
+---
+
+### 20. Redundant credential null checks
+
+**File:** `nodes/Bookstack/utils/BookstackApiHelpers.ts`, lines 32-35 and 67-70
+
+`if (!credentials)` check after `await this.getCredentials('bookstackApi')`. The
+`getCredentials()` method already throws if credentials are not found, so these
+checks are dead code. Not harmful, just redundant.
