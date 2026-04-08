@@ -7,7 +7,7 @@ export const listOperations: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		placeholder: 'name, created_at, updated_at, ...',
-		description: 'Field to sort by',
+		description: 'Field name to sort by. Same fields available as for filtering (e.g. id, name, slug, created_at, updated_at, created_by).',
 	},
 	{
 		displayName: 'Sort Direction',
@@ -44,7 +44,7 @@ export const listOperations: INodeProperties[] = [
 						name: 'field',
 						type: 'string',
 						default: '',
-						description: 'Field to filter on (e.g. name, created_at, updated_at, book_id, chapter_id)',
+						description: 'Field name to filter on. Available fields depend on the resource. Common: id, name, slug, created_at, updated_at, created_by, updated_by, owned_by. Pages also support: book_id, chapter_id, draft, template, priority. Chapters also support: book_id, priority. Attachments/Images also support: uploaded_to.',
 					},
 					{
 						displayName: 'Operation',
