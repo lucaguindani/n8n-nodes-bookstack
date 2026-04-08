@@ -12,7 +12,7 @@ export const globalOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Search', value: 'search', action: 'Search all content - use this first to find or locate content before creating or moving' },
+			{ name: 'Search', value: 'search', action: 'Search content by keywords - ALWAYS use this first instead of Get Many (returns only IDs, names, and previews - very token-efficient)' },
 			{ name: 'Audit Log', value: 'auditLogList', action: 'Audit log' },
 		],
 		default: 'search',
@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search terms to find content across books, pages, chapters, and shelves. Supports advanced filters: {type:page}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Use this as the first step to find where content belongs before creating or moving.',
+			'Search terms to find content. Returns only IDs, names, and short previews (token-efficient). Supports filters: {type:page}, {in_name:text}, {in_body:text}, {tag:tagname}, {tag:name=value}, {created_by:id}, {updated_by:id}. Workflow: 1) Search here to find candidates, 2) Get individual items by ID to read full content, 3) Update or Create as needed. NEVER use Get Many to browse - always search first.',
 	},
 	{
 		displayName: 'Content Type Filter',
@@ -72,7 +72,7 @@ export const globalFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'WARNING: On large BookStack instances this can return thousands of results. Use a low limit instead and refine your search query. Only enable if you are certain the result set is small.',
 	},
 	{
 		displayName: 'Limit',
@@ -90,7 +90,7 @@ export const globalFields: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 100,
 		},
-		description: 'Max number of results to return',
+		description: 'Max results to return. Keep this low (5-20) when searching to save tokens. You can always search again with different terms if needed.',
 		placeholder: '100',
 	},
 	{
@@ -105,7 +105,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		default: false,
 		description:
-			'Automatically retrieve full content for all results. Provides complete text, children lists, and metadata. Enable this when you need to compare content or check for duplicates. Increases API calls proportionally to result count.',
+			'WARNING: Fetches FULL content for every search result (1 extra API call per result). With 50 results this means 50 additional requests and massive token usage. Only use with a small limit (5-10) when you need to compare content. Prefer: search with low limit, then Get individual pages by ID.',
 	},
 	{
 		displayName: 'Return All',

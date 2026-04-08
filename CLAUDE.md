@@ -242,12 +242,31 @@ The primary AI use case is automated content organization:
 
 ### Token-Efficient Navigation Strategy
 
-To avoid loading the entire BookStack:
-1. **Search first** (Global Search with type filter) - returns minimal data (id, name, type, preview)
-2. **Get specific parent** (Get Book/Chapter) - returns children list (one level deep)
-3. **Get specific page** only when needed for content comparison
-4. **Use tags** for categorization - enables `{tag:name}` search without scanning all content
-5. **Avoid "Deep Dive"** unless comparing content for duplicates (makes N+1 API calls)
+A BookStack with 1000 books and 100,000 pages would cost millions of tokens if loaded
+entirely. The tool descriptions encode the following strategy to prevent this:
+
+**ALWAYS DO:**
+1. **Search first** (Global Search with type filter, limit 5-20) - returns only IDs, names,
+   and short previews (~50 tokens per result vs ~5000 tokens for full page content)
+2. **Get single items by ID** - after Search identifies candidates, fetch only the specific
+   pages/books/chapters you need to inspect
+3. **Use tags** for categorization - enables `{tag:name}` search without scanning content
+4. **Navigate top-down** when needed: Get Shelf (lists books) -> Get Book (lists chapters
+   and pages) -> Get Chapter (lists pages) -> Get Page (full content)
+
+**NEVER DO:**
+- `Get Many Pages` with `Return All = true` - loads ALL pages from the instance
+- `Get Many` with high limits (>50) when you only need a few specific items
+- `Deep Dive` with `Return All` or high limits - multiplies API calls (N+1 pattern)
+- Fetch full content of items you don't need to read
+
+**Token cost comparison (approximate):**
+| Operation | Tokens per item | 1000 items |
+|-----------|----------------|------------|
+| Search result (preview) | ~50 | ~50,000 |
+| Get Many result (no content) | ~100 | ~100,000 |
+| Get single page (full content) | ~2,000-50,000 | CATASTROPHIC |
+| Deep Dive search result | ~2,000-50,000 | CATASTROPHIC |
 
 ---
 

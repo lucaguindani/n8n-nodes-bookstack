@@ -15,8 +15,8 @@ export const pageOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Create', value: 'create', action: 'Create a page in a book or chapter (prefer markdown over html)' },
 			{ name: 'Delete', value: 'delete', action: 'Delete a page' },
-			{ name: 'Get', value: 'get', action: 'Get a page with full HTML/markdown content' },
-			{ name: 'Get Many', value: 'getAll', action: 'List pages with filtering and sorting' },
+			{ name: 'Get', value: 'get', action: 'Get a single page by ID with full content (use after Search to read specific pages)' },
+			{ name: 'Get Many', value: 'getAll', action: 'List pages (WARNING: use Search instead to find pages - Get Many on large instances wastes tokens)' },
 			{ name: 'Update', value: 'update', action: 'Update a page or move it to another book/chapter' },
 		],
 		default: 'getAll',

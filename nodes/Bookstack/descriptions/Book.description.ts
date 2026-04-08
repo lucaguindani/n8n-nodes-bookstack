@@ -15,8 +15,8 @@ export const bookOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Create', value: 'create', action: 'Create a book (contains chapters and pages)' },
 			{ name: 'Delete', value: 'delete', action: 'Delete a book' },
-			{ name: 'Get', value: 'get', action: 'Get a book with its chapters and direct pages listed' },
-			{ name: 'Get Many', value: 'getAll', action: 'List books with filtering and sorting' },
+			{ name: 'Get', value: 'get', action: 'Get a single book by ID with its table of contents (chapters and pages listed, not full content)' },
+			{ name: 'Get Many', value: 'getAll', action: 'List books (prefer Search to find books by keyword instead)' },
 			{ name: 'Update', value: 'update', action: 'Update a book' },
 		],
 		default: 'getAll',

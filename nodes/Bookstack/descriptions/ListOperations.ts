@@ -78,7 +78,7 @@ export const listOperations: INodeProperties[] = [
 		name: 'returnAll',
 		type: 'boolean',
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'WARNING: Fetches ALL items across all pages. On large BookStack instances with thousands of items this wastes massive amounts of tokens. Use Search (Global resource) to find specific items instead. Only enable for small, bounded datasets.',
 	},
 	{
 		displayName: 'Limit',
@@ -88,7 +88,7 @@ export const listOperations: INodeProperties[] = [
 			minValue: 1,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max items to return. Keep low (10-20) to save tokens. Use Search (Global resource) with keywords to find specific items instead of listing large numbers.',
 		displayOptions: {
 			show: {
 				returnAll: [false],

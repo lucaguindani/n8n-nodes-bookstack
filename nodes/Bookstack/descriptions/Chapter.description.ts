@@ -15,8 +15,8 @@ export const chapterOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Create', value: 'create', action: 'Create a chapter inside a book (groups related pages)' },
 			{ name: 'Delete', value: 'delete', action: 'Delete a chapter' },
-			{ name: 'Get', value: 'get', action: 'Get a chapter with its list of pages' },
-			{ name: 'Get Many', value: 'getAll', action: 'List chapters with filtering and sorting' },
+			{ name: 'Get', value: 'get', action: 'Get a single chapter by ID with its list of pages (use after Search)' },
+			{ name: 'Get Many', value: 'getAll', action: 'List chapters (prefer Search to find chapters by keyword instead)' },
 			{ name: 'Update', value: 'update', action: 'Update a chapter or move it to a different book' },
 		],
 		default: 'getAll',
