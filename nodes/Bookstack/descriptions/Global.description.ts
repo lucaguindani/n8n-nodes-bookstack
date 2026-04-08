@@ -12,7 +12,7 @@ export const globalOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Search', value: 'search', action: 'Search content by keywords - ALWAYS use this first instead of Get Many (returns only IDs, names, and previews - very token-efficient)' },
+			{ name: 'Search', value: 'search', action: 'Global search' },
 			{ name: 'Audit Log', value: 'auditLogList', action: 'Audit log' },
 		],
 		default: 'search',

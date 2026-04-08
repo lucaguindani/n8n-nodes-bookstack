@@ -13,10 +13,10 @@ export const shelfOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create a shelf (top-level container for books)' },
+			{ name: 'Create', value: 'create', action: 'Create a shelf' },
 			{ name: 'Delete', value: 'delete', action: 'Delete a shelf' },
-			{ name: 'Get', value: 'get', action: 'Get a single shelf by ID with its list of books (use after Search)' },
-			{ name: 'Get Many', value: 'getAll', action: 'List shelves (prefer Search to find shelves by keyword instead)' },
+			{ name: 'Get', value: 'get', action: 'Get a shelf' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many shelves' },
 			{ name: 'Update', value: 'update', action: 'Update a shelf' },
 		],
 		default: 'getAll',

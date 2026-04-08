@@ -34,7 +34,7 @@ export class Bookstack implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage BookStack content (Shelves > Books > Chapters > Pages). IMPORTANT: To find content, always use Search first (returns only IDs and previews), then Get single items by ID. NEVER use Get Many with Return All on large instances - it loads everything and wastes massive tokens. Strategy: Search → Get by ID → Update/Create.',
+		description: 'Manage BookStack content (Shelves > Books > Chapters > Pages)',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],
