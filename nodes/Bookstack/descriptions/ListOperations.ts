@@ -7,7 +7,7 @@ export const listOperations: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		placeholder: 'name, created_at, updated_at, ...',
-		description: 'Field to sort by',
+		description: 'Field name to sort by. Same fields available as for filtering (e.g. id, name, slug, created_at, updated_at, created_by).',
 	},
 	{
 		displayName: 'Sort Direction',
@@ -44,7 +44,7 @@ export const listOperations: INodeProperties[] = [
 						name: 'field',
 						type: 'string',
 						default: '',
-						description: 'Field to filter on',
+						description: 'Field name to filter on. Available fields depend on the resource. Common: id, name, slug, created_at, updated_at, created_by, updated_by, owned_by. Pages also support: book_id, chapter_id, draft, template, priority. Chapters also support: book_id, priority. Attachments/Images also support: uploaded_to.',
 					},
 					{
 						displayName: 'Operation',
@@ -78,7 +78,7 @@ export const listOperations: INodeProperties[] = [
 		name: 'returnAll',
 		type: 'boolean',
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'WARNING: Fetches ALL items across all pages. On large BookStack instances with thousands of items this wastes massive amounts of tokens. Use Search (Global resource) to find specific items instead. Only enable for small, bounded datasets.',
 	},
 	{
 		displayName: 'Limit',
@@ -88,7 +88,7 @@ export const listOperations: INodeProperties[] = [
 			minValue: 1,
 		},
 		default: 50,
-		description: 'Max number of results to return',
+		description: 'Max items to return. Keep low (10-20) to save tokens. Use Search (Global resource) with keywords to find specific items instead of listing large numbers.',
 		displayOptions: {
 			show: {
 				returnAll: [false],

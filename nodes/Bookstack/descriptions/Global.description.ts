@@ -38,7 +38,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		placeholder: 'Enter search terms',
 		description:
-			'Search query to find content across all resources (books, pages, chapters, shelves)',
+			'Search terms to find content. Each result contains: id, name, type (page/book/chapter/bookshelf), url, preview (short text snippet), tags[], book, chapter. Does NOT return full page content - use Get by ID for that. Use the Content Type Filter below instead of adding {type:...} to the query. Additional inline filters: {in_name:text}, {in_body:text}, {tag:tagname}, {created_by:id}, {updated_by:id}. Example: "networking {in_name:setup}". An empty result list means no matches were found.',
 	},
 	{
 		displayName: 'Content Type Filter',
@@ -59,7 +59,7 @@ export const globalFields: INodeProperties[] = [
 		],
 		default: 'all',
 		description:
-			'Filter search results by content type. This filter will be automatically added to your search query.',
+			'Filter by content type. Automatically appended to the query - do NOT also add {type:...} manually. Use "Pages" to find pages, "Books" for books, etc.',
 	},
 	{
 		displayName: 'Return All',
@@ -72,7 +72,7 @@ export const globalFields: INodeProperties[] = [
 			},
 		},
 		default: false,
-		description: 'Whether to return all results or only up to a given limit',
+		description: 'WARNING: On large BookStack instances this can return thousands of results. Use a low limit instead and refine your search query. Only enable if you are certain the result set is small.',
 	},
 	{
 		displayName: 'Limit',
@@ -90,8 +90,8 @@ export const globalFields: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 100,
 		},
-		description: 'Max number of results to return',
-		placeholder: '100',
+		description: 'Max results to return. Keep this low (5-20) when searching to save tokens. You can always search again with different terms if needed.',
+		placeholder: '20',
 	},
 	{
 		displayName: 'Deep Dive',
@@ -105,7 +105,7 @@ export const globalFields: INodeProperties[] = [
 		},
 		default: false,
 		description:
-			'Whether to automatically retrieve full content for all found pages, chapters, books and shelves. This provides more context but may increase execution time.',
+			'WARNING: Fetches FULL content for every search result (1 extra API call per result). With 50 results this means 50 additional requests and massive token usage. Only use with a small limit (5-10) when you need to compare content. Prefer: search with low limit, then Get individual pages by ID.',
 	},
 	{
 		displayName: 'Return All',

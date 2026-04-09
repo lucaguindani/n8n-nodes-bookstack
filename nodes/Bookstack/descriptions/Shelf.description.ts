@@ -13,11 +13,11 @@ export const shelfOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Delete', value: 'delete', action: 'Delete' },
-			{ name: 'Get', value: 'get', action: 'Get' },
-			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
-			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Create', value: 'create', action: 'Create a shelf' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a shelf' },
+			{ name: 'Get', value: 'get', action: 'Get a shelf' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many shelves' },
+			{ name: 'Update', value: 'update', action: 'Update a shelf' },
 		],
 		default: 'getAll',
 	},
@@ -36,14 +36,13 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The unique identifier of the shelf',
+		description: 'Numeric ID of the shelf. Get returns: id, name, slug, description, created_at, updated_at, created_by, updated_by, tags[], and a "books" array of {id, name, slug}. Update returns the updated shelf. Delete returns empty on success.',
 		placeholder: 'Enter shelf ID (e.g., 789)',
 	},
 	{
 		displayName: 'Name',
 		name: 'name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['shelf'],
@@ -51,7 +50,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the shelf (max 255 characters)',
+		description: 'Shelf title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 		placeholder: 'Enter shelf name',
 	},
 	{
@@ -65,7 +64,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the shelf (max 255 characters)',
+		description: 'New title for the shelf (max 255 chars). Leave empty to keep current name.',
 		placeholder: 'Enter shelf name',
 	},
 	{
@@ -79,7 +78,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the shelf (max 1900 characters)',
+		description: 'Short description of the shelf (max 1900 chars). Shown in listings and search results.',
 		placeholder: 'Enter shelf description',
 	},
 	{
@@ -93,7 +92,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated list of book IDs to add to this shelf',
+		description: 'Comma-separated list of book IDs to assign to this shelf (e.g. "1,5,12"). Replaces the current book list on update.',
 		placeholder: '123,456,789',
 	},
 	{
@@ -107,7 +106,7 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the shelf',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "area:infrastructure, status:active"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 		placeholder: 'tag1, tag2, tag3',
 	},
 	...listOperations.map((op) => ({

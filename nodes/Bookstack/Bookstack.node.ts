@@ -34,7 +34,7 @@ export class Bookstack implements INodeType {
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage BookStack resources',
+		description: 'Manage BookStack content. Hierarchy: Shelves → Books → Chapters → Pages. Use Search to find content (returns IDs and previews), then Get by ID for full details. Update can move content by changing parent IDs. Delete is permanent and cascading. Prefer markdown over HTML.',
 		defaults: { name: 'Bookstack' },
 		inputs: ['main'],
 		outputs: ['main'],
@@ -75,7 +75,7 @@ export class Bookstack implements INodeType {
 
 	private readonly resourceFields: Record<string, string[]> = {
 		book: ['name', 'description', 'tags', 'default_template_id'],
-		page: ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
+		page: ['name', 'page_title', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
 		chapter: ['name', 'description', 'book_id', 'tags'],
 		shelf: ['name', 'description', 'books', 'tags'],
 	};
@@ -95,9 +95,29 @@ export class Bookstack implements INodeType {
 			}
 		}
 
-		// Convert tags to array format
+		// If page_title is set (AI-generated), use it as the name and remove the extra field
+		if (body.page_title && typeof body.page_title === 'string') {
+			body.name = body.page_title;
+			delete body.page_title;
+		} else {
+			delete body.page_title;
+		}
+
+		// Convert tags to array format (supports "name" and "name:value" pairs)
 		if (body.tags && typeof body.tags === 'string') {
-			body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
+			body.tags = body.tags
+				.split(',')
+				.map((t: string) => {
+					const trimmed = t.trim();
+					if (!trimmed) return null;
+					const colonIdx = trimmed.indexOf(':');
+					if (colonIdx > 0) {
+						const value = trimmed.slice(colonIdx + 1);
+						return value ? { name: trimmed.slice(0, colonIdx), value } : { name: trimmed.slice(0, colonIdx) };
+					}
+					return { name: trimmed };
+				})
+				.filter((tag) => tag !== null);
 		}
 
 		// Convert books to array of integers
@@ -109,6 +129,57 @@ export class Bookstack implements INodeType {
 		}
 
 		return body;
+	}
+
+	private static decodeHtmlEntities(text: string): string {
+		return text
+			.replace(/&nbsp;/gi, ' ')
+			.replace(/&amp;/g, '&')
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>')
+			.replace(/&quot;/g, '"')
+			.replace(/&#39;/g, "'")
+			.replace(/&#x27;/g, "'")
+			.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+	}
+
+	private generateFallbackName(resource: string, body: IDataObject): string {
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+
+		if (resource === 'page') {
+			// Prefer markdown (token-efficient, AI-friendly) over HTML for name extraction
+			const markdown = body.markdown as string | undefined;
+			if (markdown) {
+				const mdHeadingMatch = markdown.match(/^#{1,6}\s+(.+)$/m);
+				if (mdHeadingMatch?.[1]?.trim()) return mdHeadingMatch[1].trim().slice(0, 255);
+				const firstLine = markdown.split(/\n/).find((l: string) => l.trim());
+				if (firstLine?.trim()) return firstLine.trim().slice(0, 255);
+			}
+
+			// HTML fallback: only process a prefix to avoid expensive regex on large documents
+			const html = body.html as string | undefined;
+			if (html) {
+				const htmlPrefix = html.slice(0, 2000);
+				const headingMatch = htmlPrefix.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i);
+				if (headingMatch?.[1]) {
+					const text = Bookstack.decodeHtmlEntities(
+						headingMatch[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+					);
+					if (text) return text.slice(0, 255);
+				}
+				const textContent = Bookstack.decodeHtmlEntities(
+					htmlPrefix.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+				);
+				if (textContent) return textContent.slice(0, 255);
+			}
+		}
+
+		if (['book', 'chapter', 'shelf'].includes(resource)) {
+			const desc = body.description as string | undefined;
+			if (desc?.trim()) return desc.trim().slice(0, 255);
+		}
+
+		return `${resource}-${timestamp}`;
 	}
 
 	private validatePageCreation(
@@ -395,6 +466,11 @@ export class Bookstack implements INodeType {
 
 		if (resource === 'page') {
 			this.validatePageCreation(body, context, itemIndex);
+		}
+
+		// Auto-generate name if not provided (BookStack API requires it)
+		if ((body.name === undefined || body.name === '') && this.resourceFields[resource]?.includes('name')) {
+			body.name = this.generateFallbackName(resource, body);
 		}
 
 		return await bookstackApiRequest.call(context, 'POST', `/${endpoint}`, body, {});
