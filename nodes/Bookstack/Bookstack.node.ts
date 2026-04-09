@@ -75,7 +75,7 @@ export class Bookstack implements INodeType {
 
 	private readonly resourceFields: Record<string, string[]> = {
 		book: ['name', 'description', 'tags', 'default_template_id'],
-		page: ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
+		page: ['name', 'page_title', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
 		chapter: ['name', 'description', 'book_id', 'tags'],
 		shelf: ['name', 'description', 'books', 'tags'],
 	};
@@ -93,6 +93,14 @@ export class Bookstack implements INodeType {
 			if (value !== undefined && value !== '') {
 				body[field] = value;
 			}
+		}
+
+		// If page_title is set (AI-generated), use it as the name and remove the extra field
+		if (body.page_title && typeof body.page_title === 'string') {
+			body.name = body.page_title;
+			delete body.page_title;
+		} else {
+			delete body.page_title;
 		}
 
 		// Convert tags to array format (supports "name" and "name:value" pairs)
