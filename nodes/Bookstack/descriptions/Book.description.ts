@@ -13,11 +13,11 @@ export const bookOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Delete', value: 'delete', action: 'Delete' },
-			{ name: 'Get', value: 'get', action: 'Get' },
-			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
-			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Create', value: 'create', action: 'Create a book' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a book' },
+			{ name: 'Get', value: 'get', action: 'Get a book' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many books' },
+			{ name: 'Update', value: 'update', action: 'Update a book' },
 		],
 		default: 'getAll',
 	},
@@ -36,14 +36,13 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The unique identifier of the book',
+		description: 'Numeric ID of the book. Get returns: id, name, slug, description, created_at, updated_at, created_by, updated_by, owned_by, tags[], and a "contents" array of {id, name, type, pages[]} for chapters and direct pages. Update returns the updated book. Delete returns empty on success.',
 		placeholder: 'Enter book ID (e.g., 123)',
 	},
 	{
 		displayName: 'Name',
 		name: 'name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['book'],
@@ -51,7 +50,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the book (max 255 characters)',
+		description: 'Book title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 	},
 	{
 		displayName: 'Name',
@@ -64,7 +63,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the book (max 255 characters)',
+		description: 'New title for the book (max 255 chars). Leave empty to keep current name.',
 	},
 	{
 		displayName: 'Description',
@@ -77,7 +76,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the book (max 1900 characters)',
+		description: 'Short description of the book (max 1900 chars). Shown in listings and search results.',
 	},
 	{
 		displayName: 'Default Template ID',
@@ -90,7 +89,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the default template for pages in this book',
+		description: 'ID of a page to use as the default template for new pages in this book.',
 	},
 	{
 		displayName: 'Tags',
@@ -103,7 +102,7 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the book',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "category:devops, status:active"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 	},
 	...listOperations.map((op) => ({
 		...op,

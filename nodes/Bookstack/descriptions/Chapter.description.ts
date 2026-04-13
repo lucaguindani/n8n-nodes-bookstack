@@ -13,11 +13,11 @@ export const chapterOperations: INodeProperties[] = [
 			},
 		},
 		options: [
-			{ name: 'Create', value: 'create', action: 'Create' },
-			{ name: 'Delete', value: 'delete', action: 'Delete' },
-			{ name: 'Get', value: 'get', action: 'Get' },
-			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
-			{ name: 'Update', value: 'update', action: 'Update' },
+			{ name: 'Create', value: 'create', action: 'Create a chapter' },
+			{ name: 'Delete', value: 'delete', action: 'Delete a chapter' },
+			{ name: 'Get', value: 'get', action: 'Get a chapter' },
+			{ name: 'Get Many', value: 'getAll', action: 'Get many chapters' },
+			{ name: 'Update', value: 'update', action: 'Update a chapter' },
 		],
 		default: 'getAll',
 	},
@@ -36,7 +36,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The unique identifier of the chapter',
+		description: 'Numeric ID of the chapter. Get returns: id, name, slug, book_id, description, priority, created_at, updated_at, created_by, updated_by, tags[], and a "pages" array of {id, name, slug, book_id, chapter_id, priority}. Update returns the updated chapter. Delete returns empty on success.',
 		placeholder: 'Enter chapter ID (e.g., 101)',
 	},
 	{
@@ -51,7 +51,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this chapter belongs to',
+		description: 'ID of the book this chapter belongs to.',
 		placeholder: 'Enter book ID',
 	},
 	{
@@ -65,14 +65,13 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'ID of the book this chapter belongs to',
+		description: 'ID of the parent book. Set this to MOVE the chapter to a different book.',
 		placeholder: 'Enter book ID',
 	},
 	{
 		displayName: 'Name',
 		name: 'name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['chapter'],
@@ -80,7 +79,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the chapter (max 255 characters)',
+		description: 'Chapter title (max 255 chars). The AI should generate a concise, descriptive title. If omitted, auto-generated from description or timestamp.',
 		placeholder: 'Enter chapter name',
 	},
 	{
@@ -94,7 +93,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Name of the chapter (max 255 characters)',
+		description: 'New title for the chapter (max 255 chars). Leave empty to keep current name.',
 		placeholder: 'Enter chapter name',
 	},
 	{
@@ -108,7 +107,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Description of the chapter (max 1900 characters)',
+		description: 'Short description of the chapter (max 1900 chars). Shown in listings and search results.',
 		placeholder: 'Enter chapter description',
 	},
 	{
@@ -122,7 +121,7 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the chapter',
+		description: 'Comma-separated tags. Supports name:value pairs (e.g. "topic:networking, status:reviewed"). On update, this REPLACES all existing tags. Searchable via {tag:name} or {tag:name=value} in Global Search.',
 		placeholder: 'tag1, tag2, tag3',
 	},
 	...listOperations.map((op) => ({
