@@ -103,7 +103,9 @@ export const bookFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the book',
+		description:
+			'Comma-separated tags for the book. Use plain names ("tag1, tag2") or name:value pairs ("Category:Fiction, Rating:5").',
+		placeholder: 'tag1, Category:Fiction, Rating:5',
 	},
 	...listOperations.map((op) => ({
 		...op,

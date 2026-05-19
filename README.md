@@ -104,7 +104,7 @@ Internally, the node handles pagination (count/offset) for you when needed.
 - "Binary Property" to tell the node which binary key on the current item holds the file. For example, if a previous node (HTTP Request, Read Binary File, etc.) stored the file under the key `data`, enter `data` here. The node will read that binary entry and attach it as the file in the request.
 
 ### Tags
-When creating/updating entities, `tags` can be provided as a comma‑separated list: `tagA, tagB`.
+When creating or updating entities, tags accepts a comma-separated string. Each tag can be either a plain name (`tag1, tag2`) or a name:value pair (`Category:Fiction, Rating:5`). Both formats can be mixed freely.
 
 ---
 ## Resources

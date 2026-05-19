@@ -122,8 +122,9 @@ export const chapterFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the chapter',
-		placeholder: 'tag1, tag2, tag3',
+		description:
+			'Comma-separated tags for the chapter. Use plain names ("tag1, tag2") or name:value pairs ("Category:Fiction, Rating:5").',
+		placeholder: 'tag1, Category:Fiction, Rating:5',
 	},
 	...listOperations.map((op) => ({
 		...op,

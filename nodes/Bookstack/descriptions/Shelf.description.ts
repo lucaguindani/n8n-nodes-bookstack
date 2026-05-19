@@ -107,8 +107,9 @@ export const shelfFields: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Comma-separated tags for the shelf',
-		placeholder: 'tag1, tag2, tag3',
+		description:
+			'Comma-separated tags for the shelf. Use plain names ("tag1, tag2") or name:value pairs ("Category:Fiction, Rating:5").',
+		placeholder: 'tag1, Category:Fiction, Rating:5',
 	},
 	...listOperations.map((op) => ({
 		...op,

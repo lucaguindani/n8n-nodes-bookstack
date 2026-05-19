@@ -95,9 +95,22 @@ export class Bookstack implements INodeType {
 			}
 		}
 
-		// Convert tags to array format
+		// Convert tags string to array format, supporting "name" and "name:value" pairs
 		if (body.tags && typeof body.tags === 'string') {
-			body.tags = body.tags.split(',').map((t: string) => ({ name: t.trim() }));
+			body.tags = (body.tags as string)
+				.split(',')
+				.map((token) => token.trim())
+				.filter((token) => token.length > 0)
+				.map((token) => {
+					const colonIndex = token.indexOf(':');
+					if (colonIndex !== -1) {
+						return {
+							name: token.slice(0, colonIndex).trim(),
+							value: token.slice(colonIndex + 1).trim(),
+						};
+					}
+					return { name: token };
+				});
 		}
 
 		// Convert books to array of integers
