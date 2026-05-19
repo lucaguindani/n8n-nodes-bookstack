@@ -4,6 +4,8 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeOperationError,
+	NodeApiError,
+	NodeConnectionTypes,
 	IDataObject,
 	JsonObject,
 } from 'n8n-workflow';
@@ -36,8 +38,8 @@ export class Bookstack implements INodeType {
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Manage BookStack resources',
 		defaults: { name: 'Bookstack' },
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
 		credentials: [
 			{
@@ -702,13 +704,19 @@ export class Bookstack implements INodeType {
 					});
 				}
 			} catch (error) {
-				if (error instanceof NodeOperationError) {
-					throw error;
+				if (this.continueOnFail()) {
+					returnData.push({
+						json: { error: (error as Error).message ?? 'Unknown error' },
+						pairedItem: { item: i },
+					});
+					continue;
 				}
-				// NodeApiError and other typed errors — rethrow as-is to preserve HTTP details
+				if (error instanceof NodeOperationError) {
+					throw new NodeOperationError(this.getNode(), error.message, { itemIndex: i });
+				}
 				const e = error as Error;
 				if (e?.constructor?.name === 'NodeApiError') {
-					throw error;
+					throw new NodeApiError(this.getNode(), error as JsonObject);
 				}
 				throw new NodeOperationError(this.getNode(), e.message || 'Unknown error', {
 					itemIndex: i,
