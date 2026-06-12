@@ -62,6 +62,9 @@ Resource: Image
 Resource: Attachment
 - Get Many / Get / Create / Update / Delete
 
+Resource: Comment (Bookstack version >= 25.11)
+- Get Many / Get / Create / Update / Delete
+
 Resource: Global
 - Search / Audit Log
 
@@ -82,7 +85,7 @@ Required permission: The token inherits the permissions of the user who created 
 ## Compatibility
 Tested with:
 - n8n 1.109+
-- Bookstack 24.5+
+- Bookstack 25.11+
 - Node 20+
 
 ---

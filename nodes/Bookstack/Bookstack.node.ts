@@ -14,6 +14,7 @@ import { bookOperations, bookFields } from './descriptions/Book.description';
 import { pageOperations, pageFields } from './descriptions/Page.description';
 import { shelfOperations, shelfFields } from './descriptions/Shelf.description';
 import { chapterOperations, chapterFields } from './descriptions/Chapter.description';
+import { commentOperations, commentFields } from './descriptions/Comment.description';
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { imageOperations, imageFields } from './descriptions/Image.description';
 import { attachmentOperations, attachmentFields } from './descriptions/Attachment.description';
@@ -59,6 +60,8 @@ export class Bookstack implements INodeType {
 			...shelfFields,
 			...chapterOperations,
 			...chapterFields,
+			...commentOperations,
+			...commentFields,
 			...globalOperations,
 			...globalFields,
 			...imageOperations,
@@ -72,6 +75,7 @@ export class Bookstack implements INodeType {
 		page: 'pages',
 		shelf: 'shelves',
 		chapter: 'chapters',
+		comment: 'comments',
 		image: 'image-gallery',
 	};
 
@@ -80,6 +84,7 @@ export class Bookstack implements INodeType {
 		page: ['name', 'html', 'markdown', 'book_id', 'chapter_id', 'tags'],
 		chapter: ['name', 'description', 'book_id', 'tags'],
 		shelf: ['name', 'description', 'books', 'tags'],
+		comment: ['html', 'page_id', 'reply_to', 'archived'],
 	};
 
 	private buildRequestBody(
@@ -90,9 +95,10 @@ export class Bookstack implements INodeType {
 		const body: IDataObject = {};
 		const fields = this.resourceFields[resource];
 
+		// Retrieve fields value and remove empty ones
 		for (const field of fields) {
-			const value = context.getNodeParameter(field, itemIndex, undefined);
-			if (value !== undefined && value !== '') {
+			const value = context.getNodeParameter(field, itemIndex, null);
+			if (value !== null && value !== undefined && value !== '') {
 				body[field] = value;
 			}
 		}
@@ -121,6 +127,20 @@ export class Bookstack implements INodeType {
 				.split(',')
 				.map((id: string) => parseInt(id.trim(), 10))
 				.filter((id: number) => !isNaN(id));
+		}
+
+		// Convert strings into integers
+		const intFields = ['page_id', 'reply_to', 'book_id', 'chapter_id', 'default_template_id'];
+		for (const key of intFields) {
+			const value = body[key];
+
+			if (typeof value === 'string') {
+				const parsed = parseInt(value.trim(), 10);
+
+				if (!Number.isNaN(parsed)) {
+					body[key] = parsed;
+				}
+			}
 		}
 
 		return body;
@@ -608,7 +628,7 @@ export class Bookstack implements INodeType {
 					} else if (operation === 'auditLogList') {
 						responseData = (await nodeInstance.handleAuditLogOperation(this, i)) as IDataObject[];
 					}
-				} else if (['book', 'page', 'shelf', 'chapter'].includes(resource)) {
+				} else if (['book', 'page', 'shelf', 'chapter', 'comment'].includes(resource)) {
 					const endpoint = nodeInstance.resourceEndpoints[resource];
 
 					switch (operation) {
