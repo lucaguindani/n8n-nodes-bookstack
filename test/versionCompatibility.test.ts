@@ -53,6 +53,13 @@ describe('getRequiredVersion', () => {
 		assert.equal(getRequiredVersion('comment', 'create'), 'v25.11');
 	});
 
+	it('resolves a variant first, then the operation, then the resource wildcard', () => {
+		assert.equal(getRequiredVersion('book', 'export', 'zip'), 'v25.07');
+		assert.equal(getRequiredVersion('book', 'export', 'html'), undefined);
+		assert.equal(getRequiredVersion('book', 'export'), undefined);
+		assert.equal(getRequiredVersion('comment', 'create', 'anything'), 'v25.11');
+	});
+
 	it('returns undefined for unknown features', () => {
 		assert.equal(getRequiredVersion('unknown', 'get'), undefined);
 	});
@@ -78,6 +85,19 @@ describe('getCompatibilityError', () => {
 	it('still allows features that predate the system endpoint', () => {
 		assert.equal(getCompatibilityError(PRE_SYSTEM_ENDPOINT_VERSION, 'global', 'auditLogList'), null);
 		assert.equal(getCompatibilityError(PRE_SYSTEM_ENDPOINT_VERSION, 'book', 'getAll'), null);
+	});
+
+	it('gates ZIP exports at v25.07 but not the other formats', () => {
+		for (const resource of ['book', 'chapter', 'page']) {
+			const message = getCompatibilityError([25, 5, 0], resource, 'export', 'zip');
+			assert.match(message ?? '', /"export \(zip\)" operation/);
+			assert.match(message ?? '', /requires BookStack v25\.07 or newer/);
+			assert.equal(getCompatibilityError([25, 7, 0], resource, 'export', 'zip'), null);
+
+			for (const format of ['html', 'pdf', 'plaintext', 'markdown']) {
+				assert.equal(getCompatibilityError([25, 5, 0], resource, 'export', format), null);
+			}
+		}
 	});
 
 	it('allows features with no known requirement', () => {

@@ -11,6 +11,9 @@ export const FEATURE_MIN_VERSIONS: Record<string, string> = {
 	'global.search': 'v21.11',
 	'global.auditLogList': 'v24.05',
 	'global.systemInfo': 'v25.05',
+	'book.export.zip': 'v25.07',
+	'chapter.export.zip': 'v25.07',
+	'page.export.zip': 'v25.07',
 };
 
 /**
@@ -45,8 +48,16 @@ export function formatVersion(version: BookstackVersion): string {
 	return patch > 0 ? `${base}.${patch}` : base;
 }
 
-export function getRequiredVersion(resource: string, operation: string): string | undefined {
-	return FEATURE_MIN_VERSIONS[`${resource}.${operation}`] ?? FEATURE_MIN_VERSIONS[`${resource}.*`];
+export function getRequiredVersion(
+	resource: string,
+	operation: string,
+	variant?: string,
+): string | undefined {
+	return (
+		(variant ? FEATURE_MIN_VERSIONS[`${resource}.${operation}.${variant}`] : undefined) ??
+		FEATURE_MIN_VERSIONS[`${resource}.${operation}`] ??
+		FEATURE_MIN_VERSIONS[`${resource}.*`]
+	);
 }
 
 /**
@@ -56,8 +67,9 @@ export function getCompatibilityError(
 	detected: BookstackVersion,
 	resource: string,
 	operation: string,
+	variant?: string,
 ): string | null {
-	const requiredRaw = getRequiredVersion(resource, operation);
+	const requiredRaw = getRequiredVersion(resource, operation, variant);
 	const required = parseBookstackVersion(requiredRaw);
 	if (!requiredRaw || !required || compareVersions(detected, required) >= 0) return null;
 
@@ -66,5 +78,7 @@ export function getCompatibilityError(
 			? 'older than v25.05'
 			: formatVersion(detected);
 
-	return `The "${operation}" operation on "${resource}" requires BookStack ${formatVersion(required)} or newer, but the instance is ${detectedLabel}. If this is wrong, enable Options > Skip Version Check`;
+	const label = variant ? `${operation} (${variant})` : operation;
+
+	return `The "${label}" operation on "${resource}" requires BookStack ${formatVersion(required)} or newer, but the instance is ${detectedLabel}. If this is wrong, enable Options > Skip Version Check`;
 }

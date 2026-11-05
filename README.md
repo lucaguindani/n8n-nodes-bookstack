@@ -9,7 +9,7 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 - [Installation](#installation)
 - [Operations](#operations)
 - [Credentials](#credentials)
-- [Compatibility](#bookstack-compatibility)
+- [Compatibility](#compatibility)
 - [Usage](#usage)
 - [Resources](#resources)
 - [License](#license)
@@ -45,13 +45,13 @@ After restart, search for "BookStack" in the node picker.
 The node exposes CRUD + search and audit capabilities for core BookStack entities.
 
 Resource: Book
-- Get Many / Get / Create / Update / Delete
+- Get Many / Get / Create / Update / Delete / Export (HTML, PDF, Plain Text, Markdown, ZIP)
 
 Resource: Page
-- Get Many / Get / Create / Update / Delete
+- Get Many / Get / Create / Update / Delete / Export (HTML, PDF, Plain Text, Markdown, ZIP)
 
 Resource: Chapter
-- Get Many / Get / Create / Update / Delete
+- Get Many / Get / Create / Update / Delete / Export (HTML, PDF, Plain Text, Markdown, ZIP)
 
 Resource: Shelf
 - Get Many / Get / Create / Update / Delete
@@ -82,7 +82,11 @@ You need a BookStack API Token.
 Required permission: The token inherits the permissions of the user who created it. Ensure that user can read/create/update intended entities. Audit Log requires permission to manage both users and system settings.
 
 ---
-## Bookstack compatibility
+## Compatibility
+### n8n
+1.85 or newer
+
+### Bookstack
 Every operation asks BookStack for its version before running and stops with a clear message if it needs a newer version. To turn the check off, use the "Skip Version Check" option on the node.
 
 ---
@@ -103,6 +107,22 @@ Internally, the node handles pagination (count/offset) for you when needed.
 ### Image & Attachment
 - "Binary Property" to tell the node which binary key on the current item holds the file. For example, if a previous node (HTTP Request, Read Binary File, etc.) stored the file under the key `data`, enter `data` here. The node will read that binary entry and attach it as the file in the request.
 
+### Export
+Books, chapters and pages can be exported as HTML, PDF, Plain Text, Markdown or ZIP.
+
+- "Format" selects the file type.
+- "Put Output File in Field" is the binary field that receives the file (default `data`). Use a different name per export if you want to keep several files on the same item.
+
+Each export returns one item. The file is in the item's binary data, and the JSON describes it:
+
+```json
+{ "id": "2", "resource": "page", "format": "pdf", "fileName": "test-page-1.pdf", "mimeType": "application/pdf", "size": 454443 }
+```
+
+To use the file in a workflow:
+- Save or send it as is: Read/Write Files from Disk, Google Drive, S3, Send Email, HTTP Request (body type "n8n Binary File"), etc.
+- Read its text: Extract From File (Text File for HTML, Markdown and Plain Text; PDF for PDF).
+
 ### Tags
 When creating or updating entities, tags accepts a comma-separated string. Each tag can be either a plain name (`tag1, tag2`) or a name:value pair (`Category:Fiction, Rating:5`). Both formats can be mixed freely.
 
@@ -119,7 +139,7 @@ This project is licensed under the MIT License – see [LICENSE.md](./LICENSE.md
 
 ---
 ## Contributing
-To lunch a local instance, make sure Node 20+ and pnpm 10+ are installed, then run the following from the root directory of the project.
+To lunch a local instance, make sure Node 24+ and pnpm 12+ are installed, then run the following from the root directory of the project.
 
 ```bash
 pnpm install

@@ -15,6 +15,12 @@ export const chapterOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Create', value: 'create', action: 'Create' },
 			{ name: 'Delete', value: 'delete', action: 'Delete' },
+			{
+				name: 'Export',
+				value: 'export',
+				action: 'Export',
+				description: 'Export as HTML, PDF, plain text, Markdown or ZIP',
+			},
 			{ name: 'Get', value: 'get', action: 'Get' },
 			{ name: 'Get Many', value: 'getAll', action: 'Get many' },
 			{ name: 'Update', value: 'update', action: 'Update' },
@@ -32,7 +38,7 @@ export const chapterFields: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['chapter'],
-				operation: ['get', 'update', 'delete'],
+				operation: ['get', 'update', 'delete', 'export'],
 			},
 		},
 		default: '',

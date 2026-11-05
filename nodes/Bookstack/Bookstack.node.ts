@@ -18,13 +18,22 @@ import { commentOperations, commentFields } from './descriptions/Comment.descrip
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { imageOperations, imageFields } from './descriptions/Image.description';
 import { attachmentOperations, attachmentFields } from './descriptions/Attachment.description';
+import { exportFields } from './descriptions/Export.description';
 import { resourceProperty, versionCheckProperty } from './descriptions/ResourceProperty';
 import {
 	assertOperationsSupported,
 	bookstackApiRequest,
+	bookstackApiRequestBinary,
 	bookstackApiRequestMultipart,
 	validateRequiredParameters,
 } from './utils/BookstackApiHelpers';
+import {
+	buildExportPath,
+	getExportFileName,
+	getExportMimeType,
+	isExportFormat,
+	isExportResource,
+} from './utils/exportHelpers';
 import { IBookstackFilters } from './types/BookstackTypes';
 
 type SearchItemMinimal = IDataObject;
@@ -67,6 +76,7 @@ export class Bookstack implements INodeType {
 			...globalFields,
 			...imageOperations,
 			...imageFields,
+			...exportFields,
 			versionCheckProperty,
 		],
 	};
@@ -458,6 +468,38 @@ export class Bookstack implements INodeType {
 		return await bookstackApiRequest.call(context, 'DELETE', `/${endpoint}/${id}`, {}, {});
 	}
 
+	private async handleExportOperation(
+		context: IExecuteFunctions,
+		resource: string,
+		itemIndex: number,
+	): Promise<INodeExecutionData> {
+		const id = context.getNodeParameter('id', itemIndex) as string;
+		const format = context.getNodeParameter('exportFormat', itemIndex) as string;
+		const binaryProperty = context.getNodeParameter('exportBinaryProperty', itemIndex) as string;
+
+		if (!isExportResource(resource) || !isExportFormat(format)) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`Export is not supported for "${resource}" in format "${format}"`,
+				{ itemIndex },
+			);
+		}
+
+		const { data, headers } = await bookstackApiRequestBinary.call(
+			context,
+			buildExportPath(resource, id, format),
+		);
+		const fileName = getExportFileName(headers['content-disposition'], resource, id, format);
+		const mimeType = getExportMimeType(headers['content-type'], format);
+		const binaryData = await context.helpers.prepareBinaryData(data, fileName, mimeType);
+
+		return {
+			json: { id, resource, format, fileName, mimeType, size: data.length },
+			binary: { [binaryProperty]: binaryData },
+			pairedItem: { item: itemIndex },
+		};
+	}
+
 	private async handleCreateAttachmentOperation(context: IExecuteFunctions, itemIndex: number) {
 		const name = context.getNodeParameter('name', itemIndex) as string;
 		const uploadedTo = context.getNodeParameter('uploaded_to', itemIndex) as string;
@@ -578,14 +620,18 @@ export class Bookstack implements INodeType {
 		const nodeInstance = new Bookstack();
 
 		// Fail before any request is sent if the instance is too old for a requested operation
-		const requested = new Map<string, { resource: string; operation: string }>();
+		const requested = new Map<string, { resource: string; operation: string; variant?: string }>();
 		for (let i = 0; i < items.length; i++) {
 			const skip = this.getNodeParameter('options.skipVersionCheck', i, false) as boolean;
 			if (skip) continue;
 
 			const resource = this.getNodeParameter('resource', i) as string;
 			const operation = this.getNodeParameter('operation', i) as string;
-			requested.set(`${resource}.${operation}`, { resource, operation });
+			const variant =
+				operation === 'export'
+					? (this.getNodeParameter('exportFormat', i, 'html') as string)
+					: undefined;
+			requested.set(`${resource}.${operation}.${variant ?? ''}`, { resource, operation, variant });
 		}
 		await assertOperationsSupported.call(this, [...requested.values()]);
 
@@ -685,6 +731,9 @@ export class Bookstack implements INodeType {
 								i,
 							)) as IDataObject;
 							break;
+						case 'export':
+							returnData.push(await nodeInstance.handleExportOperation(this, resource, i));
+							continue;
 					}
 				} else if (resource === 'image') {
 					const endpoint = nodeInstance.resourceEndpoints['image'];
