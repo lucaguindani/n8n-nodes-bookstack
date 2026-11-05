@@ -1,0 +1,6 @@
+allowBuilds:
+  eslint-plugin-n8n-nodes-base: true
+  isolated-vm: true
+  unrs-resolver: true
+  cpu-features: false
+  ssh2: false

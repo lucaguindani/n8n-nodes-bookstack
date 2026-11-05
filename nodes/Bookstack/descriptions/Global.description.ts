@@ -14,6 +14,12 @@ export const globalOperations: INodeProperties[] = [
 		options: [
 			{ name: 'Search', value: 'search', action: 'Global search' },
 			{ name: 'Audit Log', value: 'auditLogList', action: 'Audit log' },
+			{
+				name: 'Get System Info',
+				value: 'systemInfo',
+				action: 'Get system info',
+				description: 'Get the BookStack version and instance details (requires BookStack 25.05+)',
+			},
 		],
 		default: 'search',
 	},

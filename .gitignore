@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # Other
 .DS_Store
+
+# Test build output
+.test-build/

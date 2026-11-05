@@ -9,7 +9,7 @@ BookStack is an open source, self‑hosted documentation / knowledge base platfo
 - [Installation](#installation)
 - [Operations](#operations)
 - [Credentials](#credentials)
-- [Compatibility](#compatibility)
+- [Compatibility](#bookstack-compatibility)
 - [Usage](#usage)
 - [Resources](#resources)
 - [License](#license)
@@ -62,11 +62,11 @@ Resource: Image
 Resource: Attachment
 - Get Many / Get / Create / Update / Delete
 
-Resource: Comment (Bookstack version >= 25.11)
+Resource: Comment
 - Get Many / Get / Create / Update / Delete
 
 Resource: Global
-- Search / Audit Log
+- Search / Audit Log / Get System Info
 
 ---
 ## Credentials
@@ -82,11 +82,8 @@ You need a BookStack API Token.
 Required permission: The token inherits the permissions of the user who created it. Ensure that user can read/create/update intended entities. Audit Log requires permission to manage both users and system settings.
 
 ---
-## Compatibility
-Tested with:
-- n8n 1.109+
-- Bookstack 25.11+
-- Node 20+
+## Bookstack compatibility
+Every operation asks BookStack for its version before running and stops with a clear message if it needs a newer version. To turn the check off, use the "Skip Version Check" option on the node.
 
 ---
 ## Usage

@@ -12,11 +12,16 @@ import {
 	NodeApiError,
 } from 'n8n-workflow';
 
+import {
+	BookstackVersion,
+	PRE_SYSTEM_ENDPOINT_VERSION,
+	getCompatibilityError,
+	getRequiredVersion,
+	parseBookstackVersion,
+} from './versionCompatibility';
+
 type ApiCallerContext =
-	| IHookFunctions
-	| IExecuteFunctions
-	| IExecuteSingleFunctions
-	| ILoadOptionsFunctions;
+	IHookFunctions | IExecuteFunctions | IExecuteSingleFunctions | ILoadOptionsFunctions;
 
 /**
  * Make an API request to BookStack
@@ -120,6 +125,47 @@ export async function bookstackApiRequestMultipart(
 	};
 
 	return await this.helpers.httpRequestWithAuthentication.call(this, 'bookstackApi', options);
+}
+
+/**
+ * Detect the BookStack version through the system endpoint (available from v25.05).
+ * Returns null when the instance reports a version string that cannot be parsed.
+ */
+export async function getBookstackVersion(
+	this: ApiCallerContext,
+): Promise<BookstackVersion | null> {
+	try {
+		const system = (await bookstackApiRequest.call(this, 'GET', '/system')) as IDataObject;
+		return parseBookstackVersion(system.version);
+	} catch (error) {
+		if (String((error as NodeApiError).httpCode) === '404') {
+			return PRE_SYSTEM_ENDPOINT_VERSION;
+		}
+		throw new NodeApiError(this.getNode(), error as JsonObject);
+	}
+}
+
+/**
+ * Fail early when the instance is too old for any of the requested operations
+ */
+export async function assertOperationsSupported(
+	this: IExecuteFunctions,
+	operations: Array<{ resource: string; operation: string }>,
+): Promise<void> {
+	const gated = operations.filter(({ resource, operation }) =>
+		getRequiredVersion(resource, operation),
+	);
+	if (gated.length === 0) return;
+
+	const detected = await getBookstackVersion.call(this);
+	if (!detected) return;
+
+	for (const { resource, operation } of gated) {
+		const message = getCompatibilityError(detected, resource, operation);
+		if (message) {
+			throw new NodeOperationError(this.getNode(), message);
+		}
+	}
 }
 
 /**

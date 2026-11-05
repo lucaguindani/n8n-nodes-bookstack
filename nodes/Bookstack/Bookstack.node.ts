@@ -18,8 +18,9 @@ import { commentOperations, commentFields } from './descriptions/Comment.descrip
 import { globalOperations, globalFields } from './descriptions/Global.description';
 import { imageOperations, imageFields } from './descriptions/Image.description';
 import { attachmentOperations, attachmentFields } from './descriptions/Attachment.description';
-import { resourceProperty } from './descriptions/ResourceProperty';
+import { resourceProperty, versionCheckProperty } from './descriptions/ResourceProperty';
 import {
+	assertOperationsSupported,
 	bookstackApiRequest,
 	bookstackApiRequestMultipart,
 	validateRequiredParameters,
@@ -66,6 +67,7 @@ export class Bookstack implements INodeType {
 			...globalFields,
 			...imageOperations,
 			...imageFields,
+			versionCheckProperty,
 		],
 	};
 
@@ -575,6 +577,18 @@ export class Bookstack implements INodeType {
 		const returnData: INodeExecutionData[] = [];
 		const nodeInstance = new Bookstack();
 
+		// Fail before any request is sent if the instance is too old for a requested operation
+		const requested = new Map<string, { resource: string; operation: string }>();
+		for (let i = 0; i < items.length; i++) {
+			const skip = this.getNodeParameter('options.skipVersionCheck', i, false) as boolean;
+			if (skip) continue;
+
+			const resource = this.getNodeParameter('resource', i) as string;
+			const operation = this.getNodeParameter('operation', i) as string;
+			requested.set(`${resource}.${operation}`, { resource, operation });
+		}
+		await assertOperationsSupported.call(this, [...requested.values()]);
+
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const resource = this.getNodeParameter('resource', i) as string;
@@ -627,6 +641,8 @@ export class Bookstack implements INodeType {
 						responseData = (await nodeInstance.handleSearchOperation(this, i)) as IDataObject[];
 					} else if (operation === 'auditLogList') {
 						responseData = (await nodeInstance.handleAuditLogOperation(this, i)) as IDataObject[];
+					} else if (operation === 'systemInfo') {
+						responseData = (await bookstackApiRequest.call(this, 'GET', '/system')) as IDataObject;
 					}
 				} else if (['book', 'page', 'shelf', 'chapter', 'comment'].includes(resource)) {
 					const endpoint = nodeInstance.resourceEndpoints[resource];

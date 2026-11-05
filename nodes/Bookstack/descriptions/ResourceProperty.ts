@@ -18,3 +18,20 @@ export const resourceProperty: INodeProperties = {
 	default: 'global',
 	description: 'The BookStack resource to work with',
 };
+
+export const versionCheckProperty: INodeProperties = {
+	displayName: 'Options',
+	name: 'options',
+	type: 'collection',
+	placeholder: 'Add Option',
+	default: {},
+	options: [
+		{
+			displayName: 'Skip Version Check',
+			name: 'skipVersionCheck',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to skip checking that the BookStack version supports the operation',
+		},
+	],
+};
